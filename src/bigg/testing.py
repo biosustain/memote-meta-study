@@ -42,7 +42,8 @@ def _worker(args):
                     basename(output))
         return
     model = read_sbml_model(filename)
-    code = memote.basic_report(model, report, results)
+    code, result = memote.test_model(model, results, True, ["--tb", "no"])
+    memote.basic_report(result, report)
     if code != 0:
         LOGGER.warn("The model defined in '%s' had some failures.", filename)
     return code
