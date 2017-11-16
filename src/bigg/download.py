@@ -74,8 +74,8 @@ class BiGGDownloader(threading.Thread):
             start = time()
             url, output = job
             if exists(output):
-                LOGGER.warn("%s: '%s' already exists. Skipping.", self.name,
-                            output)
+                LOGGER.warning("%s: '%s' already exists. Skipping.", self.name,
+                               output)
                 self.result_queue.put((output, None))
                 continue
             response = requests.get(url)
@@ -118,15 +118,17 @@ def download_bigg_models(output_dir, file_format=".xml.gz", num_threads=3,
     LOGGER.debug("Starting %d threads.", num_threads)
     task_q = Queue()
     result_q = Queue()
-    threads = [BiGGDownloader(task_q, result_q, wait=num_threads / 10, guard=guard)
-               for _ in range(num_threads)]
+    threads = [BiGGDownloader(
+        task_q, result_q, wait=num_threads / 10, guard=guard)
+        for _ in range(num_threads)]
     for t in threads:
         t.start()
     LOGGER.debug("Submitting downloads...")
     for model in content["results"]:
         model_id = model["bigg_id"]
         model_file = model_id + file_format
-        task_q.put((urljoin("http://bigg.ucsd.edu/static/models/", model_file), join(output_dir, model_file)))
+        task_q.put((urljoin("http://bigg.ucsd.edu/static/models/", model_file),
+                   join(output_dir, model_file)))
     # Submit guard to safely end threads.
     for _ in range(num_threads):
         task_q.put(guard)

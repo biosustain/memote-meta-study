@@ -12,8 +12,8 @@ PYTHON_INTERPRETER = python3
 
 ## Install Python Dependencies
 requirements:
-	pip install -U pip setuptools wheel
-	pip install -r requirements.txt
+	pipenv install -U pip setuptools wheel
+	pipenv install
 
 ## Make Dataset
 data: requirements
@@ -31,8 +31,7 @@ lint:
 	flake8 src
 
 ## Install Jupyter notebook with extensions and widgets
-jupyter: requirements
-	pip install jupyter jupyter_contrib_nbextensions jupyter_nbextensions_configurator ipywidgets
+jupyter:
 	jupyter contrib nbextension install --sys-prefix
 	jupyter nbextensions_configurator enable
 	jupyter nbextension enable --py --sys-prefix widgetsnbextension

@@ -1,0 +1,22 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+requests = "*"
+tqdm = "*"
+"fa5d9d0" = {file = "https://github.com/opencobra/memote/archive/develop.zip"}
+click = "*"
+click-log = "*"
+jupyter = "*"
+jupyter-contrib-nbextensions = "*"
+jupyter-nbextensions-configurator = "*"
+ipywidgets = "*"
+
+
+[dev-packages]
+

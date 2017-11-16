@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Rank all models according to popularity and ease of improving them."""
+"""Download all models from the BiGG database."""
 
 from __future__ import absolute_import
 
@@ -24,14 +24,30 @@ import logging
 import sys
 from os.path import dirname, join
 
-SRC_DIR = join(dirname(__file__), "..")
+import click
+import click_log
 
+SRC_DIR = join(dirname(__file__), "src")
 sys.path.insert(0, SRC_DIR)
 
+from bigg.commands import bigg
+
 LOGGER = logging.getLogger()
+click_log.basic_config(LOGGER)
+
+
+@click.group()
+@click.help_option("--help", "-h")
+@click_log.simple_verbosity_option(
+    LOGGER, default="INFO", show_default=True, type=click.Choice(
+        ["CRITICAL", "ERROR", "WARN", "INFO", "DEBUG"]))
+def cli():
+    """Command line tools for a memote meta study."""
+    pass
+
+
+cli.add_command(bigg)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level="INFO", format="%(levelname)s - %(message)s")
-    raise NotImplementedError("Coming soon")
-
+    cli()
