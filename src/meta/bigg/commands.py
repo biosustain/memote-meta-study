@@ -15,9 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Download all models from the BiGG database."""
-
-from __future__ import absolute_import
+"""Download and test models from the BiGG database."""
 
 import logging
 from os.path import join
@@ -25,7 +23,8 @@ from multiprocessing import cpu_count
 
 import click
 
-from bigg import download_bigg_models, test_models
+from meta.testing import test_models
+from meta.bigg.download import download_bigg_models
 
 LOGGER = logging.getLogger()
 
@@ -33,7 +32,7 @@ LOGGER = logging.getLogger()
 @click.group()
 @click.help_option("--help", "-h")
 def bigg():
-    """Commands for BiGG meta study."""
+    """Commands for the BiGG meta study."""
     pass
 
 
@@ -45,7 +44,7 @@ def bigg():
               help="Where to store the downloaded models.")
 @click.option("--format", type=click.Choice([".xml.gz", ".json"]),
               default=".xml.gz", show_default=True,
-              help="Choose the desired SBML model format.")
+              help="Choose the desired model format.")
 def download(directory, format):
     """
     Download all models from the BiGG database and store them.
@@ -71,5 +70,5 @@ def download(directory, format):
 @click.option("--processes", "-p", type=int, default=cpu_count(),
               show_default=True, help="Select the number of processes to use.")
 def test(models, directory, format, processes):
-    """Test all downloaded models."""
+    """Test all downloaded BiGG models."""
     test_models(models, directory, file_format=format, num_proc=processes)

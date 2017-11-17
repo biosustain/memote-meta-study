@@ -16,7 +16,9 @@ jupyter = "*"
 jupyter-contrib-nbextensions = "*"
 jupyter-nbextensions-configurator = "*"
 ipywidgets = "*"
+werkzeug = "*"
 
 
 [dev-packages]
 
+ipython = "*"

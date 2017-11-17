@@ -15,10 +15,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Interact with and test the models in the BiGG database."""
-
-from __future__ import absolute_import
-
-from .download import *
-from .testing import *
-
+"""Interact with and test the models in the University Minho database."""

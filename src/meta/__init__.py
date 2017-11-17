@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Copyright 2017 Novo Nordisk Foundation Center for Biosustainability,
@@ -15,17 +14,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-"""Command line tool for the memote meta study."""
-
-import sys
-from os.path import dirname, join
-
-SRC_DIR = join(dirname(__file__), "src")
-sys.path.insert(0, SRC_DIR)
-
-from meta.cli import cli
-
-
-if __name__ == "__main__":
-    cli()

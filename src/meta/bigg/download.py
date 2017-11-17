@@ -17,8 +17,6 @@
 
 """Download content from the BiGG database."""
 
-from __future__ import absolute_import, division
-
 import logging
 import io
 import threading
@@ -33,6 +31,7 @@ from tqdm import trange
 __all__ = ("BiGGDownloader", "download_bigg_models")
 
 LOGGER = logging.getLogger(__name__)
+TIMEOUT = 10
 
 
 class BiGGDownloader(threading.Thread):
@@ -78,7 +77,7 @@ class BiGGDownloader(threading.Thread):
                                output)
                 self.result_queue.put((output, None))
                 continue
-            response = requests.get(url)
+            response = requests.get(url, timeout=TIMEOUT)
             LOGGER.debug("%s: %d - %s", self.name, response.status_code,
                          response.reason)
             response.raise_for_status()
@@ -109,7 +108,8 @@ def download_bigg_models(output_dir, file_format=".xml.gz", num_threads=3,
         the queue by the threads they will terminate.
 
     """
-    models_response = requests.get("http://bigg.ucsd.edu/api/v2/models/")
+    models_response = requests.get("http://bigg.ucsd.edu/api/v2/models/",
+                                   timeout=TIMEOUT)
     LOGGER.debug("%d - %s", models_response.status_code, models_response.reason)
     models_response.raise_for_status()
     content = models_response.json()
@@ -135,9 +135,10 @@ def download_bigg_models(output_dir, file_format=".xml.gz", num_threads=3,
     LOGGER.debug("Saving downloads...")
     for _ in trange(num_models):
         output, res = result_q.get()
-        if res is not None:
-            with io.open(output, "wb", encoding=None) as file_h:
-                file_h.write(res)
+        if res is None:
+            continue
+        with io.open(output, "wb", encoding=None) as file_h:
+            file_h.write(res)
     for t in threads:
         t.join()
     LOGGER.debug("Done.")

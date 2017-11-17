@@ -64,5 +64,7 @@ target/
 
 .idea
 
+models/uminho/summary.json
+models/**/*.xml
 models/**/*.xml.gz
 data/**/*.json

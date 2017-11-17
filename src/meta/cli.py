@@ -16,16 +16,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Command line tool for the memote meta study."""
+""""""
 
-import sys
-from os.path import dirname, join
+import logging
 
-SRC_DIR = join(dirname(__file__), "src")
-sys.path.insert(0, SRC_DIR)
+import click
+import click_log
 
-from meta.cli import cli
+from meta.bigg.commands import bigg
+from meta.uminho.commands import uminho
+
+LOGGER = logging.getLogger()
+click_log.basic_config(LOGGER)
 
 
-if __name__ == "__main__":
-    cli()
+@click.group()
+@click.help_option("--help", "-h")
+@click_log.simple_verbosity_option(
+    LOGGER, default="INFO", show_default=True, type=click.Choice(
+        ["CRITICAL", "ERROR", "WARN", "INFO", "DEBUG"]))
+def cli():
+    """Command line tools for a memote meta study."""
+    pass
+
+
+cli.add_command(bigg)
+cli.add_command(uminho)

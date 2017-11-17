@@ -17,9 +17,6 @@
 
 """Perform parallel metabolic model tests."""
 
-from __future__ import absolute_import, division
-
-import json
 import logging
 import multiprocessing
 from glob import glob
@@ -40,10 +37,10 @@ def _worker(args):
     if exists(results):
         LOGGER.warning("The test results for '%s' already exist. Skipping.",
                        basename(output))
-        return
+        return 2, filename
     model = read_sbml_model(filename)
-    code, result = memote.test_model(model, results, True, ["--tb", "no"])
-    return code, result
+    code = memote.test_model(model, results, False, ["--tb", "no"])
+    return code, filename
 
 
 def test_models(model_dir, output_dir, file_format=".xml.gz",
@@ -75,11 +72,8 @@ def test_models(model_dir, output_dir, file_format=".xml.gz",
     result_iter = pool.imap_unordered(_worker, tasks)
     pool.close()
     with tqdm(total=len(models)) as pbar:
-        for code, result in result_iter:
-            with open(filename, "w") as file_h:
-                LOGGER.info("Writing JSON output '%s'.", filename)
-                json.dump(result, file_h, sort_keys=True, indent=4,
-                          separators=(",", ": "))
+        for code, filename in result_iter:
+            LOGGER.debug("The test exit code of '%s' is %d.", filename, code)
             pbar.update()
     pool.join()
     LOGGER.debug("Done.")
