@@ -38,7 +38,11 @@ def _worker(args):
         LOGGER.warning("The test results for '%s' already exist. Skipping.",
                        basename(output))
         return 2, filename
-    model = read_sbml_model(filename)
+    try:
+        model = read_sbml_model(filename)
+    except Exception as err:
+        LOGGER.error(str(err))
+        return 2, filename
     code = memote.test_model(model, results, False, ["--tb", "no"])
     return code, filename
 
