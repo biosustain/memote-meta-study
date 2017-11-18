@@ -1,0 +1,93 @@
+"summary","test_case","title"
+"Expect all metabolites to have a non-empty annotation attribute.","test_metabolite_annotation_presence","Metabolites without Annotation"
+"Expect metabolite identifiers to be from the same namespace.","test_metabolite_id_namespace_consistency","Uniform Metabolite Identifier Namespace"
+"Expect all reactions to have a non-empty annotation attribute.","test_reaction_annotation_presence","Reactions without Annotation"
+"Expect reaction identifiers to be from the same namespace.","test_reaction_id_namespace_consistency","Uniform Metabolite Identifier Namespace"
+"Expect that >= 3 compartments are defined in the model.","test_compartments_presence","Total Number of Compartments"
+"Expect that >= 1 enzyme complexes are present in the model.","test_enzyme_complex_presence","Number of Enzyme Complexes"
+"Expect >= 1 pure metabolic reactions are present in the model.","test_find_pure_metabolic_reactions","Number of Purely Metabolic Reactions"
+"Expect >= 1 transport reactions are present in the read_only_model.","test_find_transport_reactions","Number of Transport Reactions"
+"Expect there to be less metabolites when removing compartment tag.","test_find_unique_metabolites","Number of Unique Metabolites"
+"
+    Expect all non-exchange reactions to have a GPR rule.
+
+    Gene-Protein-Reaction rules express which gene has what function.
+    The presence of this annotation is important to justify the existence
+    of reactions in the model, and is required to conduct in silico gene
+    deletion studies. However, reactions without GPR may also be valid:
+    Spontaneous reactions, or known reactions with yet undiscovered genes
+    likely lack GPR.
+    ","test_gene_protein_reaction_rule_presence","Reactions without GPR"
+"Expect that >= 1 genes are defined in the model.","test_genes_presence","Total Number of Genes"
+"
+    Expect a model to have a metabolic coverage >= 1.
+
+    The degree of metabolic coverage indicates the modeling detail of a
+    given reconstruction calculated by dividing the total amount of
+    reactions by the amount of genes. Models with a 'high level of modeling
+    detail have ratios >1, and models with a low level of detail have
+    ratios <1. This difference arises as models with basic or intermediate
+    levels of detail are assumed to include many reactions in which several
+    gene products and their enzymatic transformations are ‘lumped’.
+    ","test_metabolic_coverage","Metabolic Coverage"
+"
+    Expect all metabolites to have charge information.
+
+    To ensure that reactions are charge-balanced, all model metabolites
+        ought to be provided with a charge.
+    ","test_metabolites_charge_presence","Metabolites without Charge"
+"
+    Expect all metabolites to have a formula.
+
+    To ensure that reactions are mass-balanced, all model metabolites
+    ought to be provided with a formula.
+    ","test_metabolites_formula_presence","Metabolites without Formula"
+"Expect that >= 1 metabolites are present in the model.","test_metabolites_presence","Total Number of Metabolites"
+"Expect that the model has an identifier.","test_model_id_presence","Model Identifier"
+"
+    Expect a single non growth-associated maintenance reaction.
+
+    The Non-Growth Associated Maintenance reaction (NGAM) is an
+    ATP-hydrolysis reaction added to metabolic models to represent energy
+    expenses that the cell invests in continuous processes independent of
+    the growth rate.
+    ","test_ngam_presence","Non-Growth Associated Maintenance Reaction"
+"Expect that >= 1 reactions are present in the model.","test_reactions_presence","Total Number of Reactions"
+"Expect >= 1 transport reactions are present in the model.","test_transport_reaction_presence","Total Number of Transport Reactions"
+"
+    Expect the model to contain at least one biomass reaction.
+
+    The biomass composition aka biomass formulation aka biomass reaction
+    is a common pseudo-reaction accounting for biomass synthesis in
+    constraints-based modelling. It describes the stoichiometry of
+    intracellular compounds that are required for cell growth.
+    ","test_biomass_presence","Presence of a Biomass Reaction"
+"
+    Expect all reactions to be able to carry flux.
+
+    Blocked reactions are reactions that during Flux Variability Analysis
+    cannot carry any flux while all model boundaries are open. Generally
+    blocked reactions are caused by network gaps, which can be attributed
+    to scope or knowledge gaps.
+    ","test_blocked_reactions","Number of Blocked Reactions"
+"Expect no deadends to be present.","test_find_deadends","Number of Dead-end Metabolites"
+"Expect no disconnected metabolites to be present.","test_find_disconnected","Number of Disconnected Metabolites"
+"Expect no orphans to be present.","test_find_orphans","Number of Orphan Metabolites"
+"
+    Expect no stoichiometrically balanced loops to be present.
+
+    Stoichiometrically Balanced Cycles are artifacts of insufficiently
+    constrained networks resulting in reactions that can carry flux when
+    all the boundaries have been closed.
+    ","test_find_stoichiometrically_balanced_cycles","Stoichiometrically Balanced Cycles"
+"Expect all reactions to be charge balanced.","test_reaction_charge_balance","Number of Charge-Imbalanced Reactions"
+"Expect all reactions to be mass balanced.","test_reaction_mass_balance","Number of Mass-Unbalanced Reactions"
+"
+    Expect that the stoichiometry is mass-balanced.
+
+    Stoichiometric inconsistency violates universal constraints: the
+    positivity of molecular masses and the mass conservation for each
+    reaction. A single incorrectly defined reaction can lead to
+    stoichiometric inconsistency in the model and consequently to
+    unconserved metabolites.
+    ","test_stoichiometric_consistency","Stoichiometric Consistency"

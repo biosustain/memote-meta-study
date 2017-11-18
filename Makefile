@@ -12,14 +12,18 @@ PYTHON_INTERPRETER = python3
 
 ## Install Python Dependencies
 requirements:
-	pipenv install -U pip setuptools wheel
+	pip install -U pip setuptools wheel pipenv
 	pipenv install
 
-## Make Dataset
-data: requirements
-	$(PYTHON_INTERPRETER) src/data/download_bigg_models.py
-	$(PYTHON_INTERPRETER) src/data/test_models.py
-	$(PYTHON_INTERPRETER) src/data/rank_models.py
+## Download all metabolic models
+download: requirements
+	./cli.py bigg download
+	./cli.py uminho download
+
+## Run memote on all models
+test: download
+	./cli.py bigg test
+	./cli.py uminho test
 
 ## Delete all compiled Python files
 clean:
@@ -30,7 +34,7 @@ clean:
 lint:
 	flake8 src
 
-## Install Jupyter notebook with extensions and widgets
+## Install Jupyter notebook extensions and widgets
 jupyter:
 	jupyter contrib nbextension install --sys-prefix
 	jupyter nbextensions_configurator enable
