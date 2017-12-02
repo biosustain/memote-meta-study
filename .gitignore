@@ -52,7 +52,7 @@ docs/_build/
 target/
 #Ipython Notebook
 .ipynb_checkpoints/
-.idea
+.idea/
 # R
 *.Rproj
 .Rproj.user
@@ -63,5 +63,7 @@ models/uminho/summary.json
 models/**/*.xml
 models/**/*.xml.gz
 data/**/*.json
+data/**/*.json.gz
 data/results.db
-figures/*.pdf
+figures/
+.dat/

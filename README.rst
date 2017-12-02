@@ -1,10 +1,17 @@
-====================
-BiGG Quality Control
-====================
+=================
+memote Meta Study
+=================
 
-This project uses `memote <https://memote.readthedocs.io/>`_ to quality control
-and rank accordingly all models present in the `BiGG database`_. Please see the
-section on usage_ for more information.
+We collect constraint-based metabolic models from three large repositories (the `BiGG database`_, `University of Minho`_, `M Model Collection`_) and investigate the aggregated results of running the models through memote's test suite.
+
+The goals of this study are:
+
+1. See how publicly accessible models fare on average in memote's tests.
+2. Use those insights to calibrate how memote calculates the final test score.
+
+**N.B.: We look at distributions of test metrics because we are not interested
+in shaming individual model authors but we are interested in general trends and
+the current overall state of models.**
 
 Installation
 ============
@@ -14,27 +21,17 @@ The easiest way to set up the dependencies for this project is to use the
 
 .. code-block:: console
 
+    $ make requirements
     $ make jupyter
 
-This will install all requirements (defined in ``requirements.txt``) and
-configure the Jupyter notebook extensions.
+This will install all requirements and configure the Jupyter notebook
+extensions.
 
 Usage
 =====
 
-The main work is done by the scripts that you can find in
-``src/data/``.
-
-``download_bigg_models.py``
-    Download all the models from the `BiGG database`_ skipping models present in
-    ``models/``.
-``test_models.py``
-    Use memote to perform quality control tests on every model file present in
-    ``models/`` in parallel and record test results in ``reports/``.
-``rank_models.py``
-    Use the test results in ``reports/`` to create a ranking of the models.
-
-You can run everything simply by typing ``make data``.
+The main work can be performed via the make command ``make test`` or for more
+fine grained control via the command line interface exposed by ``cli.py``.
 
 Contact
 =======
@@ -52,3 +49,5 @@ Copyright
 * Free software: `Apache Software License 2.0 <LICENSE>`_
 
 .. _`BiGG database`: http://bigg.ucsd.edu/
+.. _`University of Minho`: http://darwin.di.uminho.pt/models/
+.. _`M Model Collection`: https://github.com/opencobra/m_model_collection

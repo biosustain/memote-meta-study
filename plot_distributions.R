@@ -32,5 +32,5 @@ for (i in 1:nrow(meta_df)) {
       xlab("Metric") +
       ylab("Frequency")
   )
-  # ggsave(file.path("figures", sprintf("%s.pdf", test_case)))
+  ggsave(file.path("figures", sprintf("%s.pdf", test_case)))
 }

@@ -1,0 +1,13 @@
+.ipynb_checkpoints/
+.idea/
+
+*.Rproj
+.Rproj.user
+packrat/lib*/
+packrat/src/
+
+models/uminho/summary.json
+models/**/*.xml
+models/**/*.xml.gz
+data/**/*.json
+data/**/*.json.gz
