@@ -19,11 +19,14 @@ requirements:
 download: requirements
 	./cli.py bigg download
 	./cli.py uminho download
+	git fetch https://github.com/opencobra/m_model_collection.git master
+	git subtree pull --prefix models/mmodel https://github.com/opencobra/m_model_collection.git master --squash
 
 ## Run memote on all models
 test: download
 	./cli.py bigg test
 	./cli.py uminho test
+	./cli.py mmodel test
 
 ## Delete all compiled Python files
 clean:
