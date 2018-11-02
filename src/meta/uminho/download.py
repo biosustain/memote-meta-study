@@ -153,4 +153,3 @@ def download_uminho_models(output_dir, file_format=".xml", num_threads=3,
     for t in threads:
         t.join()
     LOGGER.debug("Done.")
-

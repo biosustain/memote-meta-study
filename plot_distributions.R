@@ -7,7 +7,7 @@ library(ggplot2)
 # Load data ---------------------------------------------------------------
 
 meta_df <- read_csv("data/meta.csv")
-bigg_df <- read_csv("data/bigg/metrics.csv")
+bigg_df <- read_csv("data/biomodels/metrics.csv")
 uminho_df <- read_csv("data/uminho/metrics.csv")
 total_df <- bind_rows(bigg_df, uminho_df)
 shared_models <- duplicated(total_df$model_id)

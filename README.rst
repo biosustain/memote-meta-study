@@ -48,6 +48,6 @@ Copyright
   Technical University of Denmark.
 * Free software: `Apache Software License 2.0 <LICENSE>`_
 
-.. _`BiGG database`: http://bigg.ucsd.edu/
+.. _`BiGG database`: http://biomodels.ucsd.edu/
 .. _`University of Minho`: http://darwin.di.uminho.pt/models/
 .. _`M Model Collection`: https://github.com/opencobra/m_model_collection

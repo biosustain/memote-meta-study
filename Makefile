@@ -17,8 +17,8 @@ requirements:
 
 ## Download all metabolic models
 download:
-#	./cli.py bigg download
-#	./cli.py uminho download
+	./cli.py bigg download
+	./cli.py uminho download
 	git fetch https://github.com/opencobra/m_model_collection.git master
 	git subtree pull --prefix models/mmodel https://github.com/opencobra/m_model_collection.git master --squash
 	git fetch https://github.com/cdanielmachado/embl_gems.git master

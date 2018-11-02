@@ -1,11 +1,9 @@
 [[source]]
-
 url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
 [packages]
-
 requests = "*"
 tqdm = "*"
 memote = "*"
@@ -14,9 +12,10 @@ click-log = "*"
 werkzeug = "*"
 nosqlite = "*"
 pandas = "*"
+zeep = {extras = ["async"], version = "*"}
+aiohttp = "*"
 
 [dev-packages]
-
 ipython = "*"
 jupyter = "*"
 jupyter-contrib-nbextensions = "*"
@@ -24,5 +23,4 @@ jupyter-nbextensions-configurator = "*"
 ipywidgets = "*"
 
 [requires]
-
 python_version = "3.6"

@@ -24,6 +24,7 @@ import click
 import click_log
 
 from meta.bigg.commands import bigg
+from meta.biomodels.commands import biomodels
 from meta.uminho.commands import uminho
 
 LOGGER = logging.getLogger()
@@ -41,4 +42,5 @@ def cli():
 
 
 cli.add_command(bigg)
+cli.add_command(biomodels)
 cli.add_command(uminho)

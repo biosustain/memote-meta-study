@@ -108,7 +108,7 @@ def download_bigg_models(output_dir, file_format=".xml.gz", num_threads=3,
         the queue by the threads they will terminate.
 
     """
-    models_response = requests.get("http://bigg.ucsd.edu/api/v2/models/",
+    models_response = requests.get("http://biomodels.ucsd.edu/api/v2/models/",
                                    timeout=TIMEOUT)
     LOGGER.debug("%d - %s", models_response.status_code, models_response.reason)
     models_response.raise_for_status()
@@ -127,7 +127,7 @@ def download_bigg_models(output_dir, file_format=".xml.gz", num_threads=3,
     for model in content["results"]:
         model_id = model["bigg_id"]
         model_file = model_id + file_format
-        task_q.put((urljoin("http://bigg.ucsd.edu/static/models/", model_file),
+        task_q.put((urljoin("http://biomodels.ucsd.edu/static/models/", model_file),
                    join(output_dir, model_file)))
     # Submit guard to safely end threads.
     for _ in range(num_threads):
