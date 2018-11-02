@@ -18,11 +18,14 @@
 
 """Command line tool for the memote meta study."""
 
+
 import sys
 from os.path import dirname, join
 
+
 SRC_DIR = join(dirname(__file__), "src")
 sys.path.insert(0, SRC_DIR)
+
 
 from meta.cli import cli
 
