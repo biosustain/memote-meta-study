@@ -1,22 +1,19 @@
 [[source]]
 
-url = "https://pypi.python.org/simple"
+url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
-
 
 [packages]
 
 requests = "*"
 tqdm = "*"
-"fa5d9d0" = {file = "https://github.com/opencobra/memote/archive/develop.zip"}
+memote = "*"
 click = "*"
 click-log = "*"
 werkzeug = "*"
 nosqlite = "*"
 pandas = "*"
-matplotlib = "*"
-
 
 [dev-packages]
 
@@ -25,7 +22,6 @@ jupyter = "*"
 jupyter-contrib-nbextensions = "*"
 jupyter-nbextensions-configurator = "*"
 ipywidgets = "*"
-
 
 [requires]
 
