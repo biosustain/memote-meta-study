@@ -33,7 +33,7 @@ LOGGER = logging.getLogger(__name__)
 
 def _worker(args):
     filename, output = args
-    results = output + ".json"
+    results = output + ".json.gz"
     if exists(results):
         LOGGER.warning("The test results for '%s' already exist. Skipping.",
                        basename(output))
@@ -64,7 +64,7 @@ def test_models(model_dir, output_dir, file_format=".xml.gz",
         The number of processes to use for the parallel testing.
 
     """
-    models = glob(join(model_dir, "*" + file_format))
+    models = glob(join(model_dir, "*" + file_format))[:3]
     LOGGER.info("%d models to test.", len(models))
     pool = multiprocessing.Pool(processes=num_proc)
     tasks = list()
@@ -72,7 +72,7 @@ def test_models(model_dir, output_dir, file_format=".xml.gz",
         out_name = basename(filename)[:-len(file_format)]
         output = join(output_dir, out_name)
         tasks.append((filename, output))
-    LOGGER.debug("Submitting tasks...")
+    LOGGER.info("Submitting tasks...")
     result_iter = pool.imap_unordered(_worker, tasks)
     pool.close()
     with tqdm(total=len(models)) as pbar:
@@ -80,5 +80,5 @@ def test_models(model_dir, output_dir, file_format=".xml.gz",
             LOGGER.debug("The test exit code of '%s' is %d.", filename, code)
             pbar.update()
     pool.join()
-    LOGGER.debug("Done.")
+    LOGGER.info("Done.")
 

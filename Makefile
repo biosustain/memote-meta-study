@@ -25,7 +25,7 @@ download:
 	git subtree pull --prefix models/carveme https://github.com/cdanielmachado/embl_gems.git master --squash
 
 ## Run memote on all models
-test: download
+test:
 	./cli.py bigg test
 	./cli.py uminho test
 	./cli.py mmodel test
