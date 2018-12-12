@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Download and test models from the UMinho database."""
+"""Download and test models from the U Minho database."""
 
 from __future__ import absolute_import
 
@@ -66,8 +66,8 @@ def download(directory, format):
                                              writable=True),
               default=join(".", "data", "uminho"), show_default=True,
               help="Where to store the results.")
-@click.option("--format", type=click.Choice([".xml"]),
-              default=".xml", show_default=True,
+@click.option("--format", type=click.Choice([".xml.gz"]),
+              default=".xml.gz", show_default=True,
               help="Choose the desired model format.")
 @click.option("--processes", "-p", type=int, default=cpu_count(),
               show_default=True, help="Select the number of processes to use.")

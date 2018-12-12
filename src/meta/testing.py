@@ -23,27 +23,33 @@ from glob import glob
 from os.path import join, basename, exists
 
 import memote
+from cobra import Configuration
 from cobra.io import read_sbml_model
 from tqdm import tqdm
 
 __all__ = ("test_models",)
 
-LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+config = Configuration()
+config.solver = "cplex"
 
 
 def _worker(args):
     filename, output = args
     results = output + ".json.gz"
     if exists(results):
-        LOGGER.warning("The test results for '%s' already exist. Skipping.",
+        logger.warning("The test results for '%s' already exist. Skipping.",
                        basename(output))
         return 2, filename
     try:
         model = read_sbml_model(filename)
     except Exception as err:
-        LOGGER.error(str(err))
+        logger.error(str(err))
         return 2, filename
-    code = memote.test_model(model, results, False, ["--tb", "no"])
+    code, obj = memote.test_model(
+        model, results=True, pytest_args=["--tb", "no"])
+    manager = memote.ResultManager()
+    manager.store(obj, filename=results)
     return code, filename
 
 
@@ -64,21 +70,21 @@ def test_models(model_dir, output_dir, file_format=".xml.gz",
         The number of processes to use for the parallel testing.
 
     """
-    models = glob(join(model_dir, "*" + file_format))[:3]
-    LOGGER.info("%d models to test.", len(models))
+    models = glob(join(model_dir, "*" + file_format))
+    logger.info("%d models to test.", len(models))
     pool = multiprocessing.Pool(processes=num_proc)
     tasks = list()
     for filename in models:
         out_name = basename(filename)[:-len(file_format)]
         output = join(output_dir, out_name)
         tasks.append((filename, output))
-    LOGGER.info("Submitting tasks...")
+    logger.info("Submitting tasks...")
     result_iter = pool.imap_unordered(_worker, tasks)
     pool.close()
     with tqdm(total=len(models)) as pbar:
         for code, filename in result_iter:
-            LOGGER.debug("The test exit code of '%s' is %d.", filename, code)
+            logger.debug("The test exit code of '%s' is %d.", filename, code)
             pbar.update()
     pool.join()
-    LOGGER.info("Done.")
+    logger.info("Done.")
 
