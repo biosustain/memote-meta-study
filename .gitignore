@@ -59,11 +59,7 @@ target/
 packrat/lib*/
 packrat/src/
 # Project
-models/uminho/summary.json
-models/**/*.xml
-models/**/*.xml.gz
+models/**
 data/**/*.json
 data/**/*.json.gz
-data/results.db
 figures/
-.dat/
