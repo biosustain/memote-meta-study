@@ -1,15 +1,18 @@
 import logging
 import os
-import subprocess
 import sys
 
 import click
 import click_log
+import cobra
+import memote
 import pandas as pd
+from memote.utils import stdout_notifications
 
 
 logger = logging.getLogger()
 click_log.basic_config(logger)
+cobra_config = cobra.Configuration()
 
 
 try:
@@ -30,11 +33,19 @@ except OSError:
     type=click.Choice(["CRITICAL", "ERROR", "WARN", "INFO", "DEBUG"])
 )
 @click.option(
-    "--processes", "-p",
+    "--processes",
     default=MAX_PROCESSES,
     show_default=True,
     type=click.IntRange(1, MAX_PROCESSES),
+    metavar="NUM",
     help="The number of processes that memote should use for parallel tasks."
+)
+@click.option(
+    "--solver",
+    default="glpk",
+    show_default=True,
+    type=click.Choice(["cplex", "glpk", "gurobi", "glpk_exact"]),
+    help="Set the mathematical optimization solver to be used."
 )
 @click.argument(
     "jobs_table",
@@ -46,7 +57,7 @@ except OSError:
     metavar="<JOB ROW INDEX>",
     type=click.INT,
 )
-def main(jobs_table, index, processes):
+def main(jobs_table, index, processes, solver):
     """
     Run memote on a given model and output combination.
 
@@ -55,13 +66,27 @@ def main(jobs_table, index, processes):
     total number of rows.
 
     """
+    cobra_config.solver = solver
+    cobra_config.processes = processes
     df = pd.read_table(jobs_table, sep="\t", header=0)[["model", "output"]]
     # Transform PBS_ARRAYID to table location.
-    model = df.iat[index - 1, 0]
+    model_file = df.iat[index - 1, 0]
     output = df.iat[index - 1, 1]
-    subprocess.call(
-        ["memote", "run", "--processes", processes, "--filename", output, model]
+    model, sbml_ver, notifications = memote.validate_model(model_file)
+    if model is None:
+        logger.critical(
+            "The model could not be loaded due to the following SBML errors.")
+        stdout_notifications(notifications)
+        sys.exit(1)
+    manager = memote.ResultManager()
+    code, result = memote.test_model(
+        model=model,
+        sbml_version=sbml_ver,
+        results=True,
+        pytest_args=["-vv", "--tb", "long"]
     )
+    manager.store(result, filename=output, pretty=True)
+    return code
 
 
 if __name__ == "__main__":
