@@ -95,7 +95,7 @@ def extract_transform_load(path, output, collection):
             continue
         # Transform the results into one large table.
         tables.append(transform(
-            result, basename(filename).split(".")[0], collection, biomass))
+            result, basename(filename).split(".json")[0], collection, biomass))
     metrics = pd.concat(tables, ignore_index=True)
     # Load the results into an intermediate CSV file.
     logger.info("Writing results to '%s'.", output)
