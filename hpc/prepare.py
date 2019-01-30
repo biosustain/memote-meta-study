@@ -53,7 +53,7 @@ def find_models(base, model_prefix, data_prefix, models, results, file_format):
     "--data-prefix",
     default="data",
     show_default=True,
-    type=click.Path(exists=True, file_okay=False),
+    type=click.Path(exists=True, file_okay=False, writable=True),
     help="The common data path prefix."
 )
 @click.option(
@@ -67,7 +67,8 @@ def find_models(base, model_prefix, data_prefix, models, results, file_format):
     "--filename",
     default="models.tsv",
     show_default=True,
-    type=click.Path(exists=False, file_okay=True),
+    type=click.Path(exists=False, file_okay=True, dir_okay=False,
+                    writable=True),
     help="Where to write the table of collected models."
 )
 @click.argument(
