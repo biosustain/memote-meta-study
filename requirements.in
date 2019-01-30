@@ -10,3 +10,6 @@ werkzeug
 pandas
 zeep[async]
 aiohttp
+matplotlib
+scikit-learn
+umap-learn
