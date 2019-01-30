@@ -19,6 +19,7 @@
 """Extract, transform, load."""
 
 
+import json
 import logging
 from csv import QUOTE_NONNUMERIC
 from glob import glob
@@ -26,6 +27,7 @@ from os.path import basename, join
 
 import pandas as pd
 from memote import ResultManager, ReportConfiguration
+from tqdm import tqdm
 
 __all__ = ("extract_transform_load",)
 
@@ -83,12 +85,18 @@ def extract_transform_load(path, output, collection):
     manager = ResultManager()
     config = ReportConfiguration.load()
     biomass = frozenset(config["cards"]["test_biomass"]["cases"])
-    results = [manager.load(f) for f in files]
-    # Transform the results into one large table.
-    metrics = pd.concat([
-        transform(r, basename(f).split(".")[0], collection, biomass)
-        for r, f in zip(results, files)
-    ], ignore_index=True)
+    tables = []
+    for filename in tqdm(files, desc="Memote Results"):
+        # Extract the memote result.
+        try:
+            result = manager.load(filename)
+        except json.JSONDecodeError:
+            logger.warning("Could not load result %r.", filename)
+            continue
+        # Transform the results into one large table.
+        tables.append(transform(
+            result, basename(filename).split(".")[0], collection, biomass))
+    metrics = pd.concat(tables, ignore_index=True)
     # Load the results into an intermediate CSV file.
     logger.info("Writing results to '%s'.", output)
     metrics.to_csv(output, index=False, quoting=QUOTE_NONNUMERIC)

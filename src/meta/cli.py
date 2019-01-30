@@ -28,15 +28,19 @@ from meta.bigg.commands import bigg
 from meta.mmodel.commands import mmodel
 from meta.uminho.commands import uminho
 
-LOGGER = logging.getLogger()
-click_log.basic_config(LOGGER)
+logger = logging.getLogger()
+click_log.basic_config(logger)
+logging.getLogger("memote").setLevel(logging.WARNING)
 
 
 @click.group()
 @click.help_option("--help", "-h")
 @click_log.simple_verbosity_option(
-    LOGGER, default="INFO", show_default=True, type=click.Choice(
-        ["CRITICAL", "ERROR", "WARN", "INFO", "DEBUG"]))
+    logger,
+    default="INFO",
+    show_default=True,
+    type=click.Choice(["CRITICAL", "ERROR", "WARN", "INFO", "DEBUG"])
+)
 def cli():
     """Command line tools for a memote meta study."""
     pass

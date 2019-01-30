@@ -34,7 +34,8 @@ test:
 etl:
 	./cli.py bigg etl
 	./cli.py uminho etl
-	./cli.py mmodel etl
+	./cli.py mmodel etl --directory data/mmodel/sbml --output data/mmodel/sbml/metrics.csv
+	./cli.py mmodel etl --directory data/mmodel/sbml3 --output data/mmodel/sbml3/metrics.csv
 
 ## Delete all compiled Python files
 clean:
