@@ -23,6 +23,7 @@ from multiprocessing import cpu_count
 
 import click
 
+from meta.etl import extract_transform_load
 from meta.testing import test_models
 from meta.bigg.download import download_bigg_models
 
@@ -72,3 +73,17 @@ def download(directory, format):
 def test(models, directory, format, processes):
     """Test all downloaded BiGG models."""
     test_models(models, directory, file_format=format, num_proc=processes)
+
+
+@bigg.command()
+@click.help_option("--help", "-h")
+@click.option("--directory", type=click.Path(exists=True, file_okay=False),
+              default=join(".", "data", "bigg"), show_default=True,
+              help="Where to find the results.")
+@click.option("--output", type=click.Path(exists=False, file_okay=True),
+              default=join(".", "data", "bigg", "metrics.csv"),
+              show_default=True,
+              help="Where to save the overall result.")
+def etl(directory, output):
+    """Extract all results."""
+    extract_transform_load(directory, output, "BiGG")

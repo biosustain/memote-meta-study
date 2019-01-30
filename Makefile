@@ -30,6 +30,12 @@ test:
 	./cli.py uminho test
 	./cli.py mmodel test
 
+## Extract all test results
+etl:
+	./cli.py bigg etl
+	./cli.py uminho etl
+	./cli.py mmodel etl
+
 ## Delete all compiled Python files
 clean:
 	find . -type f -name "*.py[co]" -delete

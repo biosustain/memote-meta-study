@@ -1,0 +1,7 @@
+-r requirements.txt
+
+ipython
+jupyter
+jupyter-contrib-nbextensions
+jupyter-nbextensions-configurator
+ipywidgets

@@ -1,0 +1,12 @@
+requests
+tqdm
+memote
+cobra
+lxml
+python-libsbml
+click
+click-log
+werkzeug
+pandas
+zeep[async]
+aiohttp

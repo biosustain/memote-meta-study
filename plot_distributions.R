@@ -6,31 +6,48 @@ library(ggplot2)
 
 # Load data ---------------------------------------------------------------
 
-meta_df <- read_csv("data/meta.csv")
-bigg_df <- read_csv("data/biomodels/metrics.csv")
-uminho_df <- read_csv("data/uminho/metrics.csv")
-total_df <- bind_rows(bigg_df, uminho_df)
-shared_models <- duplicated(total_df$model_id)
-total_df$source[shared_models] <- "Shared"
-total_df$source <- factor(total_df$source)
-total_df$model_id <- factor(total_df$model_id)
+ecoli_models <- readr::read_csv("data/bigg/organism.csv") %>%
+  filter(grepl("^Escherichia coli", .$strain, ignore.case = TRUE)) %>%
+  pull(model)
+
+bigg_df <- readr::read_csv("data/bigg/metrics.csv") %>%
+  filter(
+    # Filter excessive amount of E. coli models.
+    !(model %in% ecoli_models) |
+      # Maintain latest E. coli model.
+      (model == "iML1515")
+  )
+
+uminho_df <- readr::read_csv("data/uminho/metrics.csv")
+
+mmodel_df <- readr::read_csv("data/mmodel/metrics.csv")
+
+total_df <- bind_rows(bigg_df, uminho_df, mmodel_df) %>%
+  mutate(
+    model = factor(model),
+    collection = factor(collection)
+  )
 
 # Transform data ----------------------------------------------------------
 
-for (i in 1:nrow(meta_df)) {
-  test_case <- meta_df$test_case[i]
-  title_text <- meta_df$title[i]
-  tmp <- total_df %>%
-    select(model_id, source, metric = test_case)
-  print(
-    ggplot(tmp, aes(x = metric, fill = source, color = source)) +
+meta_df <- total_df %>%
+  filter(is.finite(metric)) %>%
+  group_by(test) %>%
+  do(plot = ggplot(
+        .,
+        aes(x = metric, fill = collection, fill = collection, color = collection)
+      ) +
+      ggtitle(.$title) +
       geom_freqpoly(binwidth = 0.02) +
       coord_cartesian(xlim = c(0, 1)) +
       scale_fill_brewer(palette = "Set1") +
       scale_color_brewer(palette = "Set1") +
-      ggtitle(title_text) +
       xlab("Metric") +
       ylab("Frequency")
   )
-  ggsave(file.path("figures", sprintf("%s.pdf", test_case)))
+
+
+for (i in 1:nrow(meta_df)) {
+  print(meta_df$plot[[i]])
+  ggsave(file.path("figures", sprintf("%s.pdf", meta_df$test[[i]])))
 }
