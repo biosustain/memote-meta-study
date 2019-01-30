@@ -84,7 +84,11 @@ def extract_transform_load(path, output, collection):
     files = sorted(glob(join(path, "*.json*")))
     manager = ResultManager()
     config = ReportConfiguration.load()
-    biomass = frozenset(config["cards"]["test_biomass"]["cases"])
+    # Generate a list of parametrized tests whose cases will become
+    # indistinguishable.
+    biomass = frozenset(
+        config["cards"]["test_biomass"]["cases"] + ["test_gam_in_biomass"]
+    )
     tables = []
     for filename in tqdm(files, desc="Memote Results"):
         # Extract the memote result.
