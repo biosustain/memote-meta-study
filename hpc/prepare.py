@@ -104,8 +104,11 @@ def main(paths, model_prefix, data_prefix, file_format, filename):
     })
     logger.info("Found %d untested model files.", len(df))
     minutes = len(df) * 30
-    logger.info("This corresponds to %02d:%02d:00 linear time.",
-                minutes // 60, minutes % 60)
+    logger.info(
+        "Assuming 30 minutes per model, this corresponds to "
+        "%02d:%02d:00 linear time.",
+        minutes // 60, minutes % 60
+    )
     df.to_csv(filename, sep="\t", index=False)
 
 
