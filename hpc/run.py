@@ -86,7 +86,6 @@ def main(jobs_table, index, processes, solver):
         pytest_args=["-vv", "--tb", "long"]
     )
     manager.store(result, filename=output, pretty=True)
-    return code
 
 
 if __name__ == "__main__":
