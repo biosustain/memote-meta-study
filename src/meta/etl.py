@@ -21,6 +21,7 @@
 
 import json
 import logging
+import os
 from csv import QUOTE_NONNUMERIC
 from glob import glob
 from os.path import basename, join
@@ -35,11 +36,12 @@ __all__ = ("extract_transform_load",)
 logger = logging.getLogger(__name__)
 
 
-def transform(result, name, collection, biomass):
-    tests = list()
-    titles = list()
-    metrics = list()
-    numbers = list()
+def transform(result, name, collection, biomass, sections):
+    tests = []
+    titles = []
+    metrics = []
+    numbers = []
+    section = []
     for key, test in result["tests"].items():
         if isinstance(test["metric"], dict):
             for sub_key in test["metric"]:
@@ -49,6 +51,7 @@ def transform(result, name, collection, biomass):
                 else:
                     tests.append(f"{key}-{sub_key}")
                     titles.append(f'{test["title"]} - {sub_key}')
+                section.append(sections[key])
                 metrics.append(test["metric"][sub_key])
                 if test["format_type"] == "number":
                     numbers.append(test["data"][sub_key])
@@ -59,6 +62,7 @@ def transform(result, name, collection, biomass):
         else:
             tests.append(key)
             titles.append(test["title"])
+            section.append(sections[key])
             metrics.append(test["metric"])
             if test["format_type"] == "number":
                 numbers.append(test["data"])
@@ -72,6 +76,7 @@ def transform(result, name, collection, biomass):
     return pd.DataFrame({
         "test": tests,
         "title": titles,
+        "section": section,
         "metric": metrics,
         "numeric": numbers,
         "model": name,
@@ -79,8 +84,9 @@ def transform(result, name, collection, biomass):
     })
 
 
-def extract_transform_load(path, output, collection):
+def extract_transform_load(path, output, collection, file_format=".json.gz"):
     # Extract all the individual memote results found in the path.
+
     files = sorted(glob(join(path, "*.json*")))
     manager = ResultManager()
     config = ReportConfiguration.load()
@@ -89,6 +95,20 @@ def extract_transform_load(path, output, collection):
     biomass = frozenset(
         config["cards"]["test_biomass"]["cases"] + ["test_gam_in_biomass"]
     )
+    # Map test cases to sections.
+    sections = {
+        t: sec for sec, body in config["cards"]["scored"]["sections"].items()
+        for t in body["cases"]
+    }
+    del config["cards"]["scored"]
+    sections.update({
+        t: sec for sec, body in config["cards"].items() for t in body["cases"]
+    })
+    files = []
+    for dirpath, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            if filename.endswith(file_format):
+                files.append(join(dirpath, filename))
     tables = []
     for filename in tqdm(files, desc="Memote Results"):
         # Extract the memote result.
@@ -99,7 +119,8 @@ def extract_transform_load(path, output, collection):
             continue
         # Transform the results into one large table.
         tables.append(transform(
-            result, basename(filename).split(".json")[0], collection, biomass))
+            result, basename(filename).split(".json")[0], collection,
+            biomass, sections))
     metrics = pd.concat(tables, ignore_index=True)
     # Load the results into an intermediate CSV file.
     logger.info("Writing results to '%s'.", output)

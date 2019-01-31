@@ -23,6 +23,7 @@ import logging
 import click
 import click_log
 
+from meta.etl import extract_transform_load
 from meta.bigg.commands import bigg
 # from meta.biomodels.commands import biomodels
 from meta.mmodel.commands import mmodel
@@ -44,6 +45,31 @@ logging.getLogger("memote").setLevel(logging.WARNING)
 def cli():
     """Command line tools for a memote meta study."""
     pass
+
+
+@cli.command()
+@click.help_option("--help", "-h")
+@click.argument(
+    "data",
+    type=click.Path(exists=True, file_okay=False)
+)
+@click.argument(
+    "output",
+    type=click.Path(exists=False, file_okay=True, writable=True)
+)
+@click.argument(
+    "collection"
+)
+@click.option(
+    "--file-format",
+    default=".json.gz",
+    show_default=True,
+    type=click.Choice([".json.gz", ".json"]),
+    help="Choose the desired file format to look for."
+)
+def etl(data, output, collection, file_format):
+    """Extract all results."""
+    extract_transform_load(data, output, collection, file_format)
 
 
 cli.add_command(bigg)

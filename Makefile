@@ -36,6 +36,9 @@ etl:
 	./cli.py uminho etl
 	./cli.py mmodel etl --directory data/mmodel/sbml --output data/mmodel/sbml/metrics.csv
 	./cli.py mmodel etl --directory data/mmodel/sbml3 --output data/mmodel/sbml3/metrics.csv
+	./cli.py etl data/AGORA data/AGORA/metrics.csv AGORA
+	./cli.py etl data/embl_gems data/embl_gems/metrics.csv carveme
+	./cli.py etl data/BioModels_Database-r27_p2m-whole_genome_metabolism data/BioModels_Database-r27_p2m-whole_genome_metabolism/metrics.csv Path2MODELS
 
 ## Delete all compiled Python files
 clean:
