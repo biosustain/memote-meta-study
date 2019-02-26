@@ -3,6 +3,7 @@
 library(readr)
 library(dplyr)
 library(ggplot2)
+source("scripts/helpers.R")
 
 # Load data ---------------------------------------------------------------
 
@@ -67,16 +68,6 @@ total_df <- bind_rows(
     score = 1 - metric
   )
 
-colors <- c(
-  "agora" = "#A6A9AA",
-  "bigg" = "#000000",
-  "ebrahim" = "#3E7CBC",
-  "embl" = "#A3D2E2",
-  "path" = "#737878",
-  "seed" = "#EDA85F",
-  "uminho" = "#CD2028"
-)
-
 # Plot Layers -------------------------------------------------------------
 
 violin_layers <- list(
@@ -85,6 +76,8 @@ violin_layers <- list(
   geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)),
   coord_cartesian(ylim = c(0, 1)),
   scale_fill_manual(values = colors, guide = FALSE),
+  # scale_fill_manual(values = colors, labels = collection_labels),
+  # scale_x_discrete(labels = collection_labels),
   ylab("Score"),
   theme(
     axis.title.x = element_blank(),
@@ -92,10 +85,6 @@ violin_layers <- list(
     # plot.margin = unit(c(21, 21, 21, 21), "pt")
   )
 )
-
-# Plot File Format --------------------------------------------------------
-
-file_format <- "png"
 
 # Plot per Test -----------------------------------------------------------
 

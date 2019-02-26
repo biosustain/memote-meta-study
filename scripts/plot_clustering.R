@@ -3,6 +3,7 @@
 library(readr)
 library(dplyr)
 library(ggplot2)
+source("scripts/helpers.R")
 
 # Load data ---------------------------------------------------------------
 
@@ -36,22 +37,13 @@ metric_umap_tbl <- readr::read_csv("data/metric_umap.csv.gz") %>%
     collection = factor(collection)
   )
 
-colors <- c(
-  "agora" = "#A6A9AA",
-  "bigg" = "#000000",
-  "ebrahim" = "#3E7CBC",
-  "embl" = "#A3D2E2",
-  "path" = "#737878",
-  "seed" = "#EDA85F",
-  "uminho" = "#CD2028"
-)
-
 # Plot Layers -------------------------------------------------------------
 
 layers <- list(
   theme_bw(base_size = 21),
   geom_point(size = 1),
   scale_color_manual(values = colors, guide = FALSE),
+  # scale_color_manual(values = colors, labels = collection_labels),
   theme(
     axis.title.x = element_blank(),
     axis.title.y = element_blank(),
@@ -60,8 +52,6 @@ layers <- list(
 )
 
 # Plot Score Clustering ---------------------------------------------------
-
-file_format <- "pdf"
 
 ggplot(score_pca_tbl, aes(x = x, y = y, color = collection)) +
   layers
