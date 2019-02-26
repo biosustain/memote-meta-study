@@ -23,7 +23,6 @@ import json
 import logging
 import os
 from csv import QUOTE_NONNUMERIC
-from glob import glob
 from os.path import basename, join
 
 import pandas as pd
@@ -36,7 +35,7 @@ __all__ = ("extract_transform_load",)
 logger = logging.getLogger(__name__)
 
 
-def transform(result, name, collection, biomass, sections):
+def transform(result, name, biomass, sections):
     tests = []
     titles = []
     metrics = []
@@ -80,14 +79,12 @@ def transform(result, name, collection, biomass, sections):
         "metric": metrics,
         "numeric": numbers,
         "model": name,
-        "collection": collection
     })
 
 
-def extract_transform_load(path, output, collection, file_format=".json.gz"):
+def extract_transform_load(path, output, file_format):
     # Extract all the individual memote results found in the path.
 
-    files = sorted(glob(join(path, "*.json*")))
     manager = ResultManager()
     config = ReportConfiguration.load()
     # Generate a list of parametrized tests whose cases will become
@@ -119,8 +116,7 @@ def extract_transform_load(path, output, collection, file_format=".json.gz"):
             continue
         # Transform the results into one large table.
         tables.append(transform(
-            result, basename(filename).split(".json")[0], collection,
-            biomass, sections))
+            result, basename(filename).split(".json")[0], biomass, sections))
     metrics = pd.concat(tables, ignore_index=True)
     # Load the results into an intermediate CSV file.
     logger.info("Writing results to '%s'.", output)

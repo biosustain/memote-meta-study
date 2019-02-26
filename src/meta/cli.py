@@ -57,9 +57,6 @@ def cli():
     "output",
     type=click.Path(exists=False, file_okay=True, writable=True)
 )
-@click.argument(
-    "collection"
-)
 @click.option(
     "--file-format",
     default=".json.gz",
@@ -67,9 +64,9 @@ def cli():
     type=click.Choice([".json.gz", ".json"]),
     help="Choose the desired file format to look for."
 )
-def etl(data, output, collection, file_format):
+def etl(data, output, file_format):
     """Extract all results."""
-    extract_transform_load(data, output, collection, file_format)
+    extract_transform_load(data, output, file_format)
 
 
 cli.add_command(bigg)
