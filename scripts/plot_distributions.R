@@ -1,13 +1,24 @@
-# Libraries ---------------------------------------------------------------
+# Installation ------------------------------------------------------------
+install.packages("ggforce")
+install.packages("readr")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("ggforce")
+install.packages("plotly")
+install.packages("cowplot")
 
+# Libraries ---------------------------------------------------------------
 library(readr)
 library(dplyr)
 library(ggplot2)
+library(ggforce)
+library(stringr)
+library(plotly)
 source("scripts/helpers.R")
 
 # Load data ---------------------------------------------------------------
 
-scored_df <- read_csv("../data/scored_tests.csv.gz")
+scored_df <- read_csv("data/scored_tests.csv.gz")
 
 ecoli_models <- readr::read_csv("data/bigg/organism.csv.gz") %>%
   filter(grepl("^Escherichia coli", .$strain, ignore.case = TRUE)) %>%
@@ -61,11 +72,12 @@ total_df <- bind_rows(
   ) %>%
   mutate(
     model = factor(model),
-    collection = factor(collection),
+    collection = factor(collection, levels = c("agora", "embl", "path", "seed", "bigg", "ebrahim", "uminho")),
     test = factor(test),
     section = factor(section),
     numeric = as.numeric(numeric),
-    score = 1 - metric
+    score = case_when( test %in% only_scored_tests ~ (1 - metric), !(test %in% only_scored_tests) ~ metric),
+    ylabels = str_wrap(y_axis_labels[as.character(test)], width = 30)
   )
 
 # Plot Layers -------------------------------------------------------------
@@ -73,46 +85,69 @@ total_df <- bind_rows(
 violin_layers <- list(
   theme_bw(base_size = 21),
   geom_jitter(height = 0, width = 0.4, size = 1, alpha = 0.1),
-  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)),
+  # geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)),
   coord_cartesian(ylim = c(0, 1)),
   scale_fill_manual(values = colors, guide = FALSE),
-  # scale_fill_manual(values = colors, labels = collection_labels),
+  scale_color_manual(values = colors, labels = collection_labels, guide = FALSE),
   # scale_x_discrete(labels = collection_labels),
   ylab("Score"),
   theme(
-    axis.title.x = element_blank(),
-    axis.text.x = element_blank(),
+    axis.title.x = element_blank()
     # plot.margin = unit(c(21, 21, 21, 21), "pt")
   )
 )
 
+sina_layers <- list(
+  theme_bw(base_size = 21),
+  geom_sina(size = 1, scale = FALSE),
+  coord_cartesian(ylim = c(0, 1)),
+  scale_x_discrete(labels = collection_labels),
+  scale_color_manual(values = colors, labels = collection_labels, guide = FALSE),
+  theme(
+    axis.title.y=element_text(size = 16),
+    axis.title.x=element_text(size = 16),
+    axis.text.x=element_text(angle = 45, hjust = 1, vjust = 1))
+)
+
 # Plot per Test -----------------------------------------------------------
 
-meta_df <- total_df %>%
+meta_df_sina <- total_df %>%
   filter(is.finite(score)) %>%
-  group_by(test) %>%
-  do(plot = ggplot(
+  group_by(test, ylabels) %>%
+  do(plot_sina = ggplot(
         .,
-        aes(x = collection, y = score, fill = collection)
-      ) + violin_layers
+        aes(x = collection, y = score, col = collection, label = model)
+      ) + sina_layers + ylab(.$ylabels)
   )
 
-for (i in 1:nrow(meta_df)) {
-  message(sprintf("Plotting %s", meta_df$test[[i]]))
+meta_df_violin <- total_df %>%
+  filter(is.finite(score)) %>%
+  group_by(test) %>%
+  do(plot_violin = ggplot(
+    .,
+    aes(x = collection, y = score, col = collection, fill = collection, label = model)
+  ) + violin_layers + ylab(.$ylabels)
+  )
+
+for (i in 1:nrow(meta_df_sina)) {
+  message(sprintf("Plotting %s", meta_df_sina$test[[i]]))
   tryCatch(
     {
       ggsave(
-        filename = sprintf("%s.%s", meta_df$test[[i]], file_format),
+        filename = sprintf("%s.%s", meta_df_sina$test[[i]], file_format),
         path = file.path("figures", "tests"),
-        plot = meta_df$plot[[i]]
+        plot = meta_df_sina$plot_sina[[i]]
       )
     },
     error = function(err) {
-      print(sprintf("Could not plot %s!", meta_df$test[[i]]))
+      print(sprintf("Could not plot %s!", meta_df_sina$test[[i]]))
       print(err)
     }
   )
 }
+
+# Exploration in plotly ---------------------------------------------------
+ggplotly(meta_df_violin$plot_violin[[1]])
 
 # Plot raw ----------------------------------------------------------------
 
