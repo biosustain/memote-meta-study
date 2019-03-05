@@ -69,11 +69,11 @@ total_df <- bind_rows(
     section = factor(section),
     numeric = as.numeric(numeric),
     score = case_when( test %in% only_scored_tests ~ (1 - metric), !(test %in% only_scored_tests) ~ metric),
-    ylabels = str_wrap(y_axis_labels[as.character(test)], width = 25),
+    ylabels = str_wrap(y_axis_labels[as.character(test)], width = 35),
     xlabels = collection_labels[collection]
   )
 
-metric_umap_tbl <- readr::read_csv("data/metric_umap.csv.gz") %>%
+metric_tsne_tbl <- readr::read_csv("data/metric_tsne.csv.gz") %>%
   mutate(
     collection = factor(collection)
   )
@@ -116,7 +116,7 @@ panel_df <- total_df %>%
   ) + sina_layers + ylab(.$ylabels)
   )
 
-clustering <- ggplot(metric_umap_tbl, aes(x = x, y = y, color = collection)) +
+clustering <- ggplot(metric_tsne_tbl, aes(x = x, y = y, color = collection)) +
   layers
 
 # ggplot(test_of_interest_df, aes(x = collection, y = score, col = collection, label = model)
