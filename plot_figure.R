@@ -124,8 +124,8 @@ clustering <- ggplot(metric_umap_tbl, aes(x = x, y = y, color = collection)) +
 
 grid = plot_grid(
   clustering,
-  panel_df$plot_sina[[3]], 
-  panel_df$plot_sina[[2]],
+  panel_df$plot_sina[[3]] + theme(axis.text.x=element_blank()),
+  panel_df$plot_sina[[2]] + theme(axis.text.x=element_blank()),
   panel_df$plot_sina[[1]], labels = c("a", "b", "c", "d"), nrow = 4, align = "v", label_size = 20)
 
 save_plot("manuscript_panel_figure.pdf", grid, nrow = 4, base_aspect_ratio = 1.6180)
