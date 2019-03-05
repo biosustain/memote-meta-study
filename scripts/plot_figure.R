@@ -69,7 +69,7 @@ total_df <- bind_rows(
     section = factor(section),
     numeric = as.numeric(numeric),
     score = case_when( test %in% only_scored_tests ~ (1 - metric), !(test %in% only_scored_tests) ~ metric),
-    ylabels = str_wrap(y_axis_labels[as.character(test)], width = 35),
+    ylabels = str_wrap(y_axis_labels[as.character(test)], width = 40),
     xlabels = collection_labels[collection]
   )
 
@@ -97,8 +97,11 @@ layers <- list(
   scale_color_manual(values = colors, guide = FALSE),
   # scale_color_manual(values = colors, labels = collection_labels),
   theme(
-    axis.title.x = element_blank(),
-    axis.title.y = element_blank(),
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
     plot.margin = unit(c(21, 21, 21, 21), "pt")
   )
 )
@@ -126,7 +129,7 @@ grid = plot_grid(
   clustering,
   panel_df$plot_sina[[3]] + theme(axis.text.x=element_blank()),
   panel_df$plot_sina[[2]] + theme(axis.text.x=element_blank()),
-  panel_df$plot_sina[[1]], labels = c("a", "b", "c", "d"), nrow = 4, align = "v", label_size = 20)
+  panel_df$plot_sina[[1]], labels = c("a", "b", "c", "d"), nrow = 4, align = "v", label_size = 30)
 
 save_plot("manuscript_panel_figure.pdf", grid, nrow = 4, base_aspect_ratio = 1.6180)
 
