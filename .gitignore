@@ -62,4 +62,3 @@ packrat/src/
 models/**
 data/**/*.json
 data/**/*.json.gz
-figures/
