@@ -45,7 +45,7 @@ y_axis_labels <- c(
   "test_find_constrained_pure_metabolic_reactions" = "Purely metabolic reactions constrained by default [fraction of total purely metabolic reactions]",
   "test_find_constrained_transport_reactions" = "Transport reactions constrained by default [fraction of total transport reactions]",
   "test_find_deadends" = "Dead-end metabolites [fraction of total metabolites]",
-  "test_find_disconnected" = "Disconnected metabolites [fraction of total metabolites]",
+  "test_find_disconnected" = "Connected metabolites [fraction of total metabolites]",
   "test_find_duplicate_metabolites_in_compartments" = "Duplicate metabolites in identical compartments [fraction of total metabolites]",
   "test_find_duplicate_reactions" = "Duplicate reactions [fraction of total reactions]",
   "test_find_medium_metabolites" = "Medium components [fraction of total extracellular metabolites]",
