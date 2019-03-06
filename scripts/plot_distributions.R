@@ -1,13 +1,5 @@
-# Installation ------------------------------------------------------------
-install.packages("ggforce")
-install.packages("readr")
-install.packages("dplyr")
-install.packages("ggplot2")
-install.packages("ggforce")
-install.packages("plotly")
-install.packages("cowplot")
-
 # Libraries ---------------------------------------------------------------
+
 library(readr)
 library(dplyr)
 library(ggplot2)
@@ -18,40 +10,40 @@ source("scripts/helpers.R")
 
 # Load data ---------------------------------------------------------------
 
-scored_df <- read_csv("data/scored_tests.csv.gz")
+scored_df <- readr::read_csv("data/scored_tests.csv.gz")
 
 ecoli_models <- readr::read_csv("data/bigg/organism.csv.gz") %>%
-  filter(grepl("^Escherichia coli", .$strain, ignore.case = TRUE)) %>%
-  pull(model)
+  dplyr::filter(grepl("^Escherichia coli", .$strain, ignore.case = TRUE)) %>%
+  dplyr::pull(model)
 
 bigg_df <- readr::read_csv("data/bigg.csv.gz") %>%
-  filter(
+  dplyr::filter(
     # Filter excessive amount of E. coli strain models.
     !(model %in% ecoli_models) |
       # Maintain latest E. coli model.
       (model %in% c("iML1515", "iJO1366", "iAF1260", "iJR904"))
   ) %>%
-  mutate(collection = "bigg")
+  dplyr::mutate(collection = "bigg")
 
 uminho_df <- readr::read_csv("data/uminho.csv.gz") %>%
   mutate(collection = "uminho")
 
 mmodel_df <- readr::read_csv("data/mmodel.csv.gz") %>%
-  mutate(collection = "ebrahim")
+  dplyr::mutate(collection = "ebrahim")
 
 agora_df <- readr::read_csv("data/agora.csv.gz") %>%
-  mutate(collection = "agora")
+  dplyr::mutate(collection = "agora")
 
 embl_df <- readr::read_csv("data/embl_gems.csv.gz") %>%
-  mutate(collection = "embl")
+  dplyr::mutate(collection = "embl")
 
 path_df <- readr::read_csv("data/path2models.csv.gz") %>%
-  mutate(collection = "path")
+  dplyr::mutate(collection = "path")
 
 seed_df <- readr::read_csv("data/seed.csv.gz") %>%
-  mutate(collection = "seed")
+  dplyr::mutate(collection = "seed")
 
-total_df <- bind_rows(
+total_df <- dplyr::bind_rows(
     bigg_df,
     uminho_df,
     mmodel_df,
@@ -60,7 +52,7 @@ total_df <- bind_rows(
     path_df,
     seed_df
   ) %>%
-  filter(
+  dplyr::filter(
     # The following tests have non-normalized metrics or non-numeric results.
     (!(test %in% c(
       "test_biomass_open_production",
@@ -70,14 +62,13 @@ total_df <- bind_rows(
     ))
     )
   ) %>%
-  mutate(
+  dplyr::mutate(
     model = factor(model),
     collection = factor(collection, levels = c("agora", "embl", "path", "seed", "bigg", "ebrahim", "uminho")),
     test = factor(test),
     section = factor(section),
     numeric = as.numeric(numeric),
-    score = case_when( test %in% only_scored_tests ~ (1 - metric), !(test %in% only_scored_tests) ~ metric),
-    ylabels = str_wrap(y_axis_labels[as.character(test)], width = 30)
+    score = ifelse(test %in% only_scored_tests, 1 - metric, metric)
   )
 
 # Plot Layers -------------------------------------------------------------

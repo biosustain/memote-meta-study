@@ -13,6 +13,17 @@ colors <- c(
   "uminho" = "#CD2028"
 )
 
+# Take a look at http://www.cookbook-r.com/Graphs/Shapes_and_line_types/.
+shapes <- c(
+  "agora" = 15,
+  "bigg" = 16,
+  "ebrahim" = 17,
+  "embl" = 18,
+  "path" = 3,
+  "seed" = 4,
+  "uminho" = 8
+)
+
 collection_labels <- c(
   "agora" = "AGORA",
   "bigg" = "BiGG",

@@ -8,32 +8,32 @@ source("scripts/helpers.R")
 # Load data ---------------------------------------------------------------
 
 score_pca_tbl <- readr::read_csv("data/score_pca.csv.gz") %>%
-  mutate(
+  dplyr::mutate(
     collection = factor(collection)
   )
 
 score_tsne_tbl <- readr::read_csv("data/score_tsne.csv.gz") %>%
-  mutate(
+  dplyr::mutate(
     collection = factor(collection)
   )
 
 score_umap_tbl <- readr::read_csv("data/score_umap.csv.gz") %>%
-  mutate(
+  dplyr::mutate(
     collection = factor(collection)
   )
 
 metric_pca_tbl <- readr::read_csv("data/metric_pca.csv.gz") %>%
-  mutate(
+  dplyr::mutate(
     collection = factor(collection)
   )
 
 metric_tsne_tbl <- readr::read_csv("data/metric_tsne.csv.gz") %>%
-  mutate(
+  dplyr::mutate(
     collection = factor(collection)
   )
 
 metric_umap_tbl <- readr::read_csv("data/metric_umap.csv.gz") %>%
-  mutate(
+  dplyr::mutate(
     collection = factor(collection)
   )
 
