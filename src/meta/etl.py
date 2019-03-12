@@ -127,4 +127,8 @@ def extract_transform_load(path, output, file_format):
     metrics = pd.concat(tables, ignore_index=True)
     # Load the results into an intermediate CSV file.
     logger.info("Writing results to '%s'.", output)
-    metrics.to_csv(output, index=False, quoting=QUOTE_NONNUMERIC)
+    if output.endswith(".gz"):
+        metrics.to_csv(output, index=False, quoting=QUOTE_NONNUMERIC,
+                       compression="gzip")
+    else:
+        metrics.to_csv(output, index=False, quoting=QUOTE_NONNUMERIC)
