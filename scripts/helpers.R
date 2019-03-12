@@ -15,11 +15,11 @@ colors <- c(
 
 # Take a look at http://www.cookbook-r.com/Graphs/Shapes_and_line_types/.
 shapes <- c(
-  "agora" = 15,
+  "agora" = 1,
   "bigg" = 16,
   "ebrahim" = 17,
   "embl" = 18,
-  "path" = 3,
+  "path" = 5,
   "seed" = 4,
   "uminho" = 8
 )
