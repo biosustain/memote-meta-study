@@ -281,6 +281,24 @@ path_df <- readr::read_csv("data/path2models.csv.gz") %>%
 seed_df <- readr::read_csv("data/seed.csv.gz") %>%
   dplyr::mutate(collection = "seed")
 
+total_df <- dplyr::bind_rows(bigg_df,
+                             uminho_df,
+                             mmodel_df,
+                             agora_df,
+                             embl_df,
+                             path_df,
+                             seed_df) %>%
+  dplyr::mutate(
+    model = factor(model),
+    collection = factor(
+      collection,
+      levels = c("agora", "embl", "path", "seed", "bigg", "ebrahim", "uminho")
+    ),
+    test = factor(test),
+    section = factor(section),
+    numeric = as.numeric(numeric)
+  )
+
 # Load clustering data ----------------------------------------------------
 
 score_pca_tbl <- readr::read_csv("data/score_pca.csv.gz") %>%
