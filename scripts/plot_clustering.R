@@ -3,96 +3,101 @@
 library(readr)
 library(dplyr)
 library(ggplot2)
+library(cowplot)
 source("scripts/helpers.R")
-
-# Load data ---------------------------------------------------------------
-
-score_pca_tbl <- readr::read_csv("data/score_pca.csv.gz") %>%
-  dplyr::mutate(
-    collection = factor(collection)
-  )
-
-score_tsne_tbl <- readr::read_csv("data/score_tsne.csv.gz") %>%
-  dplyr::mutate(
-    collection = factor(collection)
-  )
-
-score_umap_tbl <- readr::read_csv("data/score_umap.csv.gz") %>%
-  dplyr::mutate(
-    collection = factor(collection)
-  )
-
-metric_pca_tbl <- readr::read_csv("data/metric_pca.csv.gz") %>%
-  dplyr::mutate(
-    collection = factor(collection)
-  )
-
-metric_tsne_tbl <- readr::read_csv("data/metric_tsne.csv.gz") %>%
-  dplyr::mutate(
-    collection = factor(collection)
-  )
-
-metric_umap_tbl <- readr::read_csv("data/metric_umap.csv.gz") %>%
-  dplyr::mutate(
-    collection = factor(collection)
-  )
 
 # Plot Layers -------------------------------------------------------------
 
+ggplot2::theme_set(cowplot::theme_cowplot(font_size = 14))
+
 layers <- list(
-  theme_bw(base_size = 21),
-  geom_point(size = 1),
-  scale_color_manual(values = colors, guide = FALSE),
-  # scale_color_manual(values = colors, labels = collection_labels),
-  theme(
-    axis.title.x = element_blank(),
-    axis.title.y = element_blank(),
-    plot.margin = unit(c(21, 21, 21, 21), "pt")
+  ggplot2::geom_point(size = 1),
+  ggplot2::scale_color_manual("Collection", values = colors, labels = collection_labels),
+  ggplot2::scale_shape_manual("Collection", values = shapes, labels = collection_labels),
+  ggplot2::theme(
+    axis.title = ggplot2::element_blank(),
+    axis.text = ggplot2::element_blank()
   )
 )
 
 # Plot Score Clustering ---------------------------------------------------
 
-ggplot(score_pca_tbl, aes(x = x, y = y, color = collection)) +
+ggplot2::ggplot(score_pca_tbl,
+                ggplot2::aes(
+                  x = x,
+                  y = y,
+                  color = collection,
+                  shape = collection
+                )) +
   layers
-ggsave(
+ggplot2::ggsave(
   filename = sprintf("score_pca.%s", file_format),
   path = file.path("figures", "clustering")
 )
 
-ggplot(score_tsne_tbl, aes(x = x, y = y, color = collection)) +
+ggplot2::ggplot(score_tsne_tbl,
+                ggplot2::aes(
+                  x = x,
+                  y = y,
+                  color = collection,
+                  shape = collection
+                )) +
   layers
-ggsave(
+ggplot2::ggsave(
   filename = sprintf("score_tsne.%s", file_format),
   path = file.path("figures", "clustering")
 )
 
-ggplot(score_umap_tbl, aes(x = x, y = y, color = collection)) +
+ggplot2::ggplot(score_umap_tbl,
+                ggplot2::aes(
+                  x = x,
+                  y = y,
+                  color = collection,
+                  shape = collection
+                )) +
   layers
-ggsave(
+ggplot2::ggsave(
   filename = sprintf("score_umap.%s", file_format),
   path = file.path("figures", "clustering")
 )
 
 # Plot Metric Clustering --------------------------------------------------
 
-ggplot(metric_pca_tbl, aes(x = x, y = y, color = collection)) +
+ggplot2::ggplot(metric_pca_tbl,
+                ggplot2::aes(
+                  x = x,
+                  y = y,
+                  color = collection,
+                  shape = collection
+                )) +
   layers
-ggsave(
+ggplot2::ggsave(
   filename = sprintf("metric_pca.%s", file_format),
   path = file.path("figures", "clustering")
 )
 
-ggplot(metric_tsne_tbl, aes(x = x, y = y, color = collection)) +
+ggplot2::ggplot(metric_tsne_tbl,
+                ggplot2::aes(
+                  x = x,
+                  y = y,
+                  color = collection,
+                  shape = collection
+                )) +
   layers
-ggsave(
+ggplot2::ggsave(
   filename = sprintf("metric_tsne.%s", file_format),
   path = file.path("figures", "clustering")
 )
 
-ggplot(metric_umap_tbl, aes(x = x, y = y, color = collection)) +
+ggplot2::ggplot(metric_umap_tbl,
+                ggplot2::aes(
+                  x = x,
+                  y = y,
+                  color = collection,
+                  shape = collection
+                )) +
   layers
-ggsave(
+ggplot2::ggsave(
   filename = sprintf("metric_umap.%s", file_format),
   path = file.path("figures", "clustering")
 )
