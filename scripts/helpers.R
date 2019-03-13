@@ -27,7 +27,7 @@ shapes <- c(
 collection_labels <- c(
   "agora" = "AGORA",
   "bigg" = "BiGG",
-  "ebrahim" = "Ebrahim et al",
+  "ebrahim" = expression(paste("Ebrahim ", italic("et al."))),
   "embl" = "CarveMe",
   "path" = "Path2Models",
   "seed" = "KBase",

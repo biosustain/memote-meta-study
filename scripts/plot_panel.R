@@ -42,13 +42,6 @@ clustering <-
   base_layers +
   ggplot2::theme(axis.title = ggplot2::element_blank(),
                  axis.text = ggplot2::element_blank())
-  # ggplot2::theme(plot.margin =
-  #                  ggplot2::margin(
-  #                    t = 8,
-  #                    r = 8,
-  #                    b = -size,
-  #                    l = size
-  #                  ))
 
 # Stoichiometric consistency plot -----------------------------------------
 
@@ -69,7 +62,6 @@ stoich_consistency <- total_df %>%
     axis.text.x = ggplot2::element_blank()
   ) +
   ggplot2::ylab(stringr::str_wrap("Unbalanced Metabolites [%]", width = 35))
-  # reduced_margin
 
 # Reversible oxygen-consuming reactions plot ------------------------------
 
@@ -90,7 +82,6 @@ oxygen <- total_df %>%
     axis.text.x = ggplot2::element_blank()
   ) +
   ggplot2::ylab(stringr::str_wrap("Reversible Oxygen-Reactions [%]", width = 35))
-  # reduced_margin
 
 # Blocked reactions plot --------------------------------------------------
 
@@ -109,7 +100,6 @@ blocked <- total_df %>%
   ggplot2::scale_x_discrete(labels = collection_labels) +
   ggplot2::theme(
     axis.title.x = ggplot2::element_blank(),
-    # axis.text.x = ggplot2::element_blank()
     axis.text.x = ggplot2::element_text(
       angle = 45,
       hjust = 1,
