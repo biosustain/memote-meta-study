@@ -41,6 +41,7 @@ def transform(result, name, biomass, sections):
     metrics = []
     numbers = []
     section = []
+    times = []
     for key, test in result["tests"].items():
         if isinstance(test["metric"], dict):
             for sub_key in test["metric"]:
@@ -58,6 +59,7 @@ def transform(result, name, biomass, sections):
                     numbers.append(len(test["data"][sub_key]))
                 else:
                     numbers.append(float("nan"))
+                times.append(test["duration"][sub_key])
         else:
             tests.append(key)
             titles.append(test["title"])
@@ -72,6 +74,7 @@ def transform(result, name, biomass, sections):
                     numbers.append(float("nan"))
             else:
                 numbers.append(float("nan"))
+            times.append(test["duration"])
     return pd.DataFrame({
         "test": tests,
         "title": titles,
@@ -79,6 +82,7 @@ def transform(result, name, biomass, sections):
         "metric": metrics,
         "numeric": numbers,
         "model": name,
+        "time": times
     })
 
 
@@ -117,7 +121,14 @@ def extract_transform_load(path, output, file_format):
         # Transform the results into one large table.
         tables.append(transform(
             result, basename(filename).split(".json")[0], biomass, sections))
+    if len(tables) == 0:
+        logger.info("No data files. Nothing to do.")
+        return
     metrics = pd.concat(tables, ignore_index=True)
     # Load the results into an intermediate CSV file.
     logger.info("Writing results to '%s'.", output)
-    metrics.to_csv(output, index=False, quoting=QUOTE_NONNUMERIC)
+    if output.endswith(".gz"):
+        metrics.to_csv(output, index=False, quoting=QUOTE_NONNUMERIC,
+                       compression="gzip")
+    else:
+        metrics.to_csv(output, index=False, quoting=QUOTE_NONNUMERIC)

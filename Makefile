@@ -32,13 +32,13 @@ test:
 
 ## Extract all test results
 etl:
-	./cli.py etl data/bigg data/bigg.csv
-	./cli.py etl data/uminho data/uminho.csv
-	./cli.py etl data/mmodel/sbml3 data/mmodel.csv
-	./cli.py etl data/AGORA data/agora.csv
-	./cli.py etl data/embl_gems data/embl_gems.csv
-	./cli.py etl data/BioModels_Database-r27_p2m-whole_genome_metabolism data/path2models.csv
-	./cli.py etl data/seed data/seed.csv
+	./cli.py etl data/bigg data/bigg.csv.gz
+	./cli.py etl data/uminho data/uminho.csv.gz
+	./cli.py etl data/mmodel/sbml3 data/mmodel.csv.gz
+	./cli.py etl data/AGORA/CurrentVersion/AGORA-1.03_sbml/sbml data/agora.csv.gz
+	./cli.py etl data/embl_gems data/embl_gems.csv.gz
+	./cli.py etl data/BioModels_Database-r27_p2m-whole_genome_metabolism data/path2models.csv.gz
+	./cli.py etl data/seed data/seed.csv.gz
 
 ## Delete all compiled Python files
 clean:
