@@ -31,7 +31,7 @@ collection_labels <- c(
   "embl" = "CarveMe",
   "path" = "Path2Models",
   "seed" = "KBase",
-  "uminho" = "Uni. Minho"
+  "uminho" = "OptFlux Models"
 )
 
 y_axis_labels <- c(

@@ -16,7 +16,8 @@ layers <- list(
   ggplot2::scale_shape_manual("Collection", values = shapes, labels = collection_labels),
   ggplot2::theme(
     axis.title = ggplot2::element_blank(),
-    axis.text = ggplot2::element_blank()
+    axis.text = ggplot2::element_blank(),
+    axis.ticks = ggplot2::element_blank()
   )
 )
 
