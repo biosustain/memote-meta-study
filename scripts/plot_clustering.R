@@ -102,3 +102,4 @@ ggplot2::ggsave(
   filename = sprintf("metric_umap.%s", file_format),
   path = file.path("figures", "clustering")
 )
+
