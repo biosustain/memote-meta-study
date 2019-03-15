@@ -125,3 +125,11 @@ cowplot::save_plot(
   base_aspect_ratio = 1.6180,
   path = file.path("figures")
 )
+
+cowplot::save_plot(
+  "manuscript_panel_figure.png",
+  grid,
+  nrow = 4,
+  base_aspect_ratio = 1.6180,
+  path = file.path("figures")
+)

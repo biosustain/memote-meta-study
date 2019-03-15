@@ -1,7 +1,7 @@
 
 # Configuration Values ----------------------------------------------------
 
-file_format <- "pdf"
+file_format <- "png"
 
 colors <- c(
   "agora" = "#A6A9AA",
