@@ -20,14 +20,6 @@ base_layers <- list(
   ggplot2::scale_shape_manual(values = shapes, guide = FALSE)
 )
 
-reduced_margin <- ggplot2::theme(plot.margin =
-                                   ggplot2::margin(
-                                     t = -size,
-                                     r = 8,
-                                     b = -size,
-                                     l = size
-                                   ))
-
 # Metric t-SNE plot -------------------------------------------------------
 
 clustering <-
@@ -41,7 +33,8 @@ clustering <-
   ggplot2::geom_point(size = 1) +
   base_layers +
   ggplot2::theme(axis.title = ggplot2::element_blank(),
-                 axis.text = ggplot2::element_blank())
+                 axis.text = ggplot2::element_blank(),
+                 axis.ticks = ggplot2::element_blank())
 
 # Stoichiometric consistency plot -----------------------------------------
 
@@ -51,7 +44,7 @@ stoich_consistency <- total_df %>%
   ggplot2::ggplot(.,
                   ggplot2::aes(
                     x = collection,
-                    y = metric * 100,
+                    y = metric,
                     color = collection,
                     shape = collection
                   )) +
@@ -61,7 +54,7 @@ stoich_consistency <- total_df %>%
     axis.title.x = ggplot2::element_blank(),
     axis.text.x = ggplot2::element_blank()
   ) +
-  ggplot2::ylab(stringr::str_wrap("Unbalanced Metabolites [%]", width = 35))
+  ggplot2::ylab(stringr::str_wrap("Fraction of Unbalanced Metabolites", width = 30))
 
 # Reversible oxygen-consuming reactions plot ------------------------------
 
@@ -71,7 +64,7 @@ oxygen <- total_df %>%
   ggplot2::ggplot(.,
                   ggplot2::aes(
                     x = collection,
-                    y = metric * 100,
+                    y = metric,
                     color = collection,
                     shape = collection
                   )) +
@@ -81,7 +74,7 @@ oxygen <- total_df %>%
     axis.title.x = ggplot2::element_blank(),
     axis.text.x = ggplot2::element_blank()
   ) +
-  ggplot2::ylab(stringr::str_wrap("Reversible Oxygen-Reactions [%]", width = 35))
+  ggplot2::ylab(stringr::str_wrap("Fraction of Reversible Oxygen-Containing Reactions", width = 30))
 
 # Blocked reactions plot --------------------------------------------------
 
@@ -91,7 +84,7 @@ blocked <- total_df %>%
   ggplot2::ggplot(.,
                   ggplot2::aes(
                     x = collection,
-                    y = metric * 100,
+                    y = metric,
                     color = collection,
                     shape = collection
                   )) +
@@ -106,7 +99,7 @@ blocked <- total_df %>%
       vjust = 1
     )
   ) +
-  ggplot2::ylab(stringr::str_wrap("Blocked Reactions [%]", width = 35)) +
+  ggplot2::ylab(stringr::str_wrap("Fraction of Blocked Reactions", width = 30)) +
   ggplot2::theme(plot.margin =
                    ggplot2::margin(
                      l = size
