@@ -157,7 +157,7 @@ y_axis_labels <- c(
   "test_reaction_mass_balance" = "Mass balanced reactions [fraction of total reactions]",
   "test_reaction_sbo_presence" = "Reactions with any SBO annotations [fraction of total reactions]",
   "test_reactions_presence" = "Total number of reactions",
-  "test_sbml_level" = "SBML level & version >= (3, 1) [Boolean]",
+  "test_sbml_level" = "SBML level & version <= (3, 1) [Boolean]",
   "test_sink_specific_sbo_presence" = "Sink reactions with SBO:0000632 annotations [fraction of total reactions]",
   "test_stoichiometric_consistency" = "Stoichiometrically consistent metabolites [fraction of total metabolites]",
   "test_transport_reaction_gpr_presence" = "Transport reactions without GPR rule [fraction of total transport reactions]",
