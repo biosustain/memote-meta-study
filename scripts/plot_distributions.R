@@ -14,6 +14,7 @@ ggplot2::theme_set(cowplot::theme_cowplot(font_size = 14))
 
 sina_layers <- list(
   ggforce::geom_sina(size = 1, scale = FALSE),
+  ggplot2::geom_boxplot(color = "black", outlier.shape = NA, fill = NA),
   ggplot2::scale_x_discrete(labels = collection_labels),
   ggplot2::scale_color_manual(values = colors, guide = FALSE),
   ggplot2::scale_shape_manual(values = shapes, guide = FALSE),
@@ -31,7 +32,6 @@ sina_layers <- list(
 
 all_plots <- total_df %>%
   dplyr::filter(is.finite(metric)) %>%
-
   dplyr::mutate(score = ifelse(test %in% only_scored_tests, 1 - metric, metric)) %>%
   dplyr::group_by(test) %>%
   dplyr::do(
