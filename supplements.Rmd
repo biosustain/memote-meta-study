@@ -1,0 +1,109 @@
+---
+title: 'Supplement to Memote: A community driven effort towards a standardized genome-scale
+  metabolic model test suite'
+date: today
+output:
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, error = FALSE)
+```
+
+## Supplemental figures from the comparative analysis of model collections
+
+```{r dependencies, include=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(ggforce)
+library(stringr)
+library(cowplot)
+```
+
+```{r load, cache=TRUE, include=FALSE}
+source("scripts/helpers.R")
+```
+
+To simplify interpretation the following figures are grouped by the sections of their corresponding test cases as they appear in a snapshot report. The code that was used to generate the data and figures has been deposited on GitHub https://github.com/biosustain/memote-meta-study.
+
+### Tested models
+
+In order to respect the limited resources on the [DTU high performance computing infrastructure](https://www.hpc.dtu.dk/), we set a maximum time limit for running the memote test suite. This introduced a bias against large models. Additionally, certain models failed the testing procedure. In the following we tabulate the total size of the collections as well as the final number of tested models. The results are shown in Table \@ref(tab:numbers).
+
+```{r numbers}
+numbers_df <- dplyr::tibble(
+  collection = factor(c("agora", "embl", "path", "seed", "bigg", "ebrahim", "uminho"), levels = c("agora", "embl", "path", "seed", "bigg", "ebrahim", "uminho")),
+  name = c(
+    "AGORA",
+    "CarveMe",
+    "Path2Models",
+    "KBase",
+    "BiGG",
+    "Ebrahim et al.",
+    "OptFlux Models"
+  ),
+  size = c(818, 5587, 2641, 1637, 36, 83, 100)
+) %>%
+  dplyr::inner_join(
+    total_df %>% dplyr::group_by(collection) %>% dplyr::summarize(num_test = dplyr::n_distinct(model))
+  ) %>%
+  dplyr::select(-collection) %>%
+  dplyr::mutate(percent = num_test * 100 / size)
+
+knitr::kable(
+  numbers_df,
+  digits = 1,
+  booktabs = TRUE,
+  caption = "Number of tested models.",
+  col.names = c("Collection", "Number of Models", "Tested Models", "%")
+  )
+
+```
+
+
+```{r theming, include=FALSE}
+ggplot2::theme_set(cowplot::theme_cowplot(font_size = 14))
+
+sina_layers <- list(
+  ggforce::geom_sina(size = 1, scale = FALSE),
+  ggplot2::geom_boxplot(color = "black", outlier.shape = NA, fill = NA),
+  ggplot2::scale_x_discrete(labels = collection_labels),
+  ggplot2::scale_color_manual(values = colors, guide = FALSE),
+  ggplot2::scale_shape_manual(values = shapes, guide = FALSE),
+  ggplot2::theme(
+    axis.title.x = ggplot2::element_blank(),
+    axis.text.x = ggplot2::element_text(
+      angle = 45,
+      hjust = 1,
+      vjust = 1
+    )
+  )
+)
+```
+
+```{r plotting, cache=TRUE, include=FALSE}
+all_plots <- total_df %>%
+  dplyr::filter(is.finite(metric)) %>%
+  dplyr::mutate(score = ifelse(test %in% only_scored_tests, 1 - metric, metric)) %>%
+  dplyr::group_by(test) %>%
+  dplyr::do(
+    plot_sina = ggplot2::ggplot(
+      .,
+      ggplot2::aes(
+        x = collection,
+        y = score,
+        color = collection,
+        shape = collection,
+        label = model
+      )
+    ) + sina_layers + ggplot2::ylab(stringr::str_wrap(y_axis_labels[unique(.$test)], width = 40))
+  )
+```
+
+```{r consistency, out.width='100%', fig.asp=0.618047, fig.align='center', fig.cap='Stoichiometric consistency'}
+all_plots$plot_sina[all_plots$test == "test_stoichiometric_consistency"]
+```
+
