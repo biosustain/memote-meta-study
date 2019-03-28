@@ -49,6 +49,7 @@ stoich_consistency <- total_df %>%
                     shape = collection
                   )) +
   ggforce::geom_sina(size = 1, scale = FALSE) +
+  ggplot2::geom_boxplot(color = "black", outlier.shape = NA, fill = NA) +
   base_layers +
   ggplot2::theme(
     axis.title.x = ggplot2::element_blank(),
@@ -69,6 +70,7 @@ oxygen <- total_df %>%
                     shape = collection
                   )) +
   ggforce::geom_sina(size = 1, scale = FALSE) +
+  ggplot2::geom_boxplot(color = "black", outlier.shape = NA, fill = NA) +
   base_layers +
   ggplot2::theme(
     axis.title.x = ggplot2::element_blank(),
@@ -89,6 +91,7 @@ blocked <- total_df %>%
                     shape = collection
                   )) +
   ggforce::geom_sina(size = 1, scale = FALSE) +
+  ggplot2::geom_boxplot(color = "black", outlier.shape = NA, fill = NA) +
   base_layers +
   ggplot2::scale_x_discrete(labels = collection_labels) +
   ggplot2::theme(
