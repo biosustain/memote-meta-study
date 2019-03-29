@@ -44,7 +44,7 @@ y_axis_labels <- c(
   "test_biomass_presence" = "No biomass reaction identified [Boolean]",
   "test_biomass_specific_sbo_presence" = "Biomass reactions with SBO:0000629 annotations [fraction of total biomass reactions]",
   "test_blocked_reactions" = "Universally blocked reactions [fraction of total reactions]",
-  "test_compartments_presence" = "Number of compartments < 2 [Boolean]",
+  "test_compartments_presence" = "Number of compartments > 2 [Boolean]",
   "test_degrees_of_freedom" = "Degrees of freedom [fraction of total reactions]",
   "test_demand_specific_sbo_presence" = "Demand reactions with SBO:0000628 annotations [fraction of total demand reactions]",
   "test_direct_metabolites_in_biomass" = "Direct metabolites [fraction of total precursors for given biomass reaction]",
