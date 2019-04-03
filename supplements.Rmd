@@ -1,6 +1,5 @@
 ---
-title: 'Supplement to Memote: A community driven effort towards a standardized genome-scale
-  metabolic model test suite'
+title: 'Supplemental Figures Depicting the Comparative Analysis of Model Collections'
 date: 
 output:
   bookdown::pdf_document2:
@@ -25,8 +24,6 @@ header-includes:
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, error = FALSE)
 ```
 
-# Supplemental figures from the comparative analysis of model collections
-
 ```{r dependencies, include=FALSE}
 library(readr)
 library(dplyr)
@@ -42,7 +39,7 @@ source("scripts/helpers.R")
 
 To simplify interpretation the following figures are grouped by the sections of their corresponding test cases as they appear in a snapshot report. The code that was used to generate the data and figures has been deposited on GitHub https://github.com/biosustain/memote-meta-study.
 
-## Tested models
+# Tested models
 
 In order to respect the limited resources on the [DTU high performance computing infrastructure](https://www.hpc.dtu.dk/), we set a maximum time limit for running the memote test suite. This introduced a bias against large models. Additionally, certain models failed the testing procedure. In the following we tabulate the total size of the collections as well as the final number of tested models. The results are shown in Table \@ref(tab:numbers).
 
@@ -82,30 +79,76 @@ dplyr::tibble(
   kableExtra::kable_styling(full_width = FALSE, protect_latex = TRUE) %>%
   kableExtra::footnote(
     symbol = c(
-      "Please note that we removed the large number of Escherichia coli strain models from the BiGG collection and only included results from the models iJR904, iAF1260, iJO1366, and iML1515.",
+      "Please note that we removed the large number of \\textit{Escherichia coli} strain models from the BiGG collection and only included results from the models iJR904, iAF1260, iJO1366, and iML1515.",
       "39 models from these two collections are likely identical based on a filename comparison."
     ),
     threeparttable = TRUE
   )
 ```
 
-## Clustering
-
-```{r, include=FALSE}
+```{r theme, include=FALSE}
 # Ignore all textual result output in the following code chunks.
 # Set the figure chunk options.
 knitr::opts_chunk$set(results = 'hide', out.width = '100%', fig.asp = 0.618047, fig.align = 'center')
+ggplot2::theme_set(cowplot::theme_cowplot(font_size = 11))
 ```
+
+```{r cluster-layers, include=FALSE}
+cluster_layers <- list(
+  ggplot2::geom_point(size = 1),
+  ggplot2::scale_color_manual("Collection", values = colors, labels = collection_labels),
+  ggplot2::scale_shape_manual("Collection", values = shapes, labels = collection_labels),
+  ggplot2::theme(
+    axis.title = ggplot2::element_blank(),
+    axis.text = ggplot2::element_blank(),
+    axis.ticks = ggplot2::element_blank()
+  )
+)
+```
+
+# Clustering
+
+```{r pca, fig.cap='PCA of Normalized Test Features', cache=TRUE, dependson='load'}
+ggplot2::ggplot(metric_pca_tbl,
+                ggplot2::aes(
+                  x = x,
+                  y = y,
+                  color = collection,
+                  shape = collection
+                )) +
+  cluster_layers
+```
+
+```{r tsne, fig.cap='t-SNE of Normalized Test Features', cache=TRUE, dependson='load'}
+ggplot2::ggplot(metric_tsne_tbl,
+                ggplot2::aes(
+                  x = x,
+                  y = y,
+                  color = collection,
+                  shape = collection
+                )) +
+  cluster_layers
+```
+
+```{r umap, fig.cap='UMAP of Normalized Test Features', cache=TRUE, dependson='load'}
+ggplot2::ggplot(metric_umap_tbl,
+                ggplot2::aes(
+                  x = x,
+                  y = y,
+                  color = collection,
+                  shape = collection
+                )) +
+  cluster_layers
+```
+
 
 Explain which features were used and methods + parameters. Show all plots here.
 
 \FloatBarrier
 
-## Independent Section
+# Test Suite
 
-```{r theming, include=FALSE}
-ggplot2::theme_set(cowplot::theme_cowplot(font_size = 14))
-
+```{r sina-layers, include=FALSE}
 sina_layers <- list(
   ggforce::geom_sina(size = 1, scale = FALSE),
   ggplot2::geom_boxplot(color = "black", outlier.shape = NA, fill = NA),
@@ -123,40 +166,110 @@ sina_layers <- list(
 )
 ```
 
-```{r rawplotting, cache=TRUE, include=FALSE}
-raw_plots <- total_df %>%
-  dplyr::filter(is.finite(numeric)) %>%
-  dplyr::group_by(test) %>%
+```{r scores, cache=TRUE, dependson='load', include=FALSE}
+scores_df <- total_df %>%
+  dplyr::filter(test %in% only_scored_tests) %>%
+  droplevels() %>%
+  dplyr::mutate(score = 1 - metric)
+```
+
+## Summary of Observations
+
+<!-- TODO: Change references from Google Doc to Rmarkdown. -->
+
+* SBO terms are only used consistently by models from KBase and BiGG (see Figures \@ref(fig:metabolite-sbo-presence) & \@ref(fig:reaction-sbo-presence)).
+* Models from Path2Models and Opflux Models are formatted in legacy SBML (< Level 3,Version 1) without FBC package (Figures \@ref(fig:sbml-level) & \@ref(fig:fbc-presence)).
+* Models from the collections of Ebrahim \\textit{et al.} and OptFlux Models are highly variable for many specific tests. Models from automatic reconstruction pipelines (AGORA, CarveMe, Path2Models and KBase) or the controlled BiGG collection are much more similar within each collection yet still different from each other. This could be due to each collection focusing on a distinct set of taxonomies but could also be related to the algorithms and databases behind each collection. (Sections 3.b.8, 3.b.7c, 3.b.6.i, 3.b.5.a, 3.b.4.h, 3.b.4.c, 3.b.4.a).
+* On Biomass: Only for a minority of models in BiGG, Ebrahim et al and OptFlux Models memote could not identify a biomass reaction (Section 3.b.6.a). A portion of models in the BiGG collections have inconsistent biomass equations followed by OptFlux Models and models in the collection by Ebrahim et al (Section 3.b.6.b). Models that cannot be simulated using the default or complete medium exist in Path2Models, BiGG, Ebrahim et al. and OptFlux Models (Section 3.b.6.c).
+* Possible artifacts from automatic reconstruction with models from AGORA and KBase that grow despite some biomass precursors being blocked when they are optimized individually in default and complete medium (compare sections 3.b.6.f and 3.b.6.g with 3.b.6.c and 3.b.6.d).
+* The average fraction of reactions that participate in stoichiometrically-balanced cycles is larger for models from automatic reconstruction pipelines (AGORA, CarveMe, Path2Models, KBase) than for BiGG, Ebrahim et al. and OptfluxModels (Section 3.b.8.d). This could be an artefact from automatic reconstruction processes
+* Reactions that involve oxygen are integral to the energy metabolism of many organisms. Not constraining these reactions carefully can lead to predictions that deviate from the expected phenotype, i.e., allowing anaerobic growth that should not be possible. The portion of oxygen-containing reactions that are reversible varies strongly across all seven collections. Models in BiGG have the lowest variance while that of models from Path2Models, Ebrahim et al. and OptFlux is relatively high (Section 3.b.7.c).
+
+## Scores
+
+```{r total-plot, fig.cap='Total Score'}
+scores_df %>%
+  dplyr::group_by(collection, model, section) %>%
+  dplyr::summarize(total = sum(score) / n()) %>%
+  dplyr::ungroup() %>%
+  ggplot2::ggplot(
+      .,
+      ggplot2::aes(
+        x = collection,
+        y = total,
+        color = collection,
+        shape = collection,
+        label = model
+      )
+    ) + sina_layers + ggplot2::ylab("Total Score") + ggplot2::ylim(0, 1)
+```
+
+
+```{r sum-plots, cache=TRUE, dependson='scores', include=FALSE}
+sum_plots <- scores_df %>%
+  dplyr::group_by(collection, model, section) %>%
+  dplyr::summarize(total = sum(score) / n()) %>%
+  dplyr::ungroup() %>%
+  dplyr::group_by(section) %>%
   dplyr::do(
     plot_sina = ggplot2::ggplot(
       .,
       ggplot2::aes(
         x = collection,
-        y = numeric,
+        y = total,
         color = collection,
         shape = collection,
         label = model
       )
-    ) + sina_layers + ggplot2::ylab(stringr::str_wrap(y_axis_labels[unique(.$test)], width = 35))
+    ) + sina_layers + ggplot2::ylab("Section Score Sub Total") + ggplot2::ylim(0, 1)
   )
 ```
 
-```{r plotting, cache=TRUE, include=FALSE}
-all_plots <- total_df %>%
-  dplyr::filter(is.finite(metric)) %>%
-  dplyr::mutate(score = ifelse(test %in% only_scored_tests, 1 - metric, metric)) %>%
+\FloatBarrier
+
+## Independent Section
+
+```{r plot-function, include=FALSE}
+do_plot <- function(sub_tbl, var, label_width = 40) {
+  test_id <- dplyr::first(as.character(sub_tbl$test))
+  ggplot2::ggplot(
+    sub_tbl,
+    ggplot2::aes_string(
+      x = "collection",
+      y = var,
+      color = "collection",
+      shape = "collection",
+      label = "model"
+    )
+  ) + sina_layers + ggplot2::ylab(stringr::str_wrap(y_axis_labels[test_id],
+                                                    width = label_width))
+}
+```
+
+
+```{r scored-plots, cache=TRUE, dependson='scores', include=FALSE}
+score_plots <- scores_df %>%
   dplyr::group_by(test) %>%
   dplyr::do(
-    plot_sina = ggplot2::ggplot(
-      .,
-      ggplot2::aes(
-        x = collection,
-        y = score,
-        color = collection,
-        shape = collection,
-        label = model
-      )
-    ) + sina_layers + ggplot2::ylab(stringr::str_wrap(y_axis_labels[unique(.$test)], width = 35))
+    plot_sina = do_plot(., "score") + ggplot2::ylim(0, 1)
+  )
+```
+
+```{r metric-plots, cache=TRUE, dependson='load', include=FALSE}
+metric_plots <- total_df %>%
+  dplyr::filter(is.finite(metric)) %>%
+  dplyr::group_by(test) %>%
+  dplyr::do(
+    plot_sina = do_plot(., "metric") + ggplot2::ylim(0, 1)
+  )
+```
+
+```{r numeric-plots, cache=TRUE, dependson='load', include=FALSE}
+numeric_plots <- total_df %>%
+  dplyr::filter(is.finite(numeric)) %>%
+  dplyr::group_by(test) %>%
+  dplyr::do(
+    plot_sina = do_plot(., "numeric")
   )
 ```
 
@@ -164,33 +277,40 @@ all_plots <- total_df %>%
 
 ### Consistency
 
+```{r consistency-score, fig.cap='Consistency'}
+sum_plots$plot_sina[sum_plots$section == "consistency"][[1]]
+```
+
 ```{r stoichiometricconsistency, fig.cap='Stoichiometric consistency'}
-all_plots$plot_sina[all_plots$test == "test_stoichiometric_consistency"]
-message("")
+score_plots$plot_sina[score_plots$test == "test_stoichiometric_consistency"][[1]]
 ```
 
 ```{r reactionmassbalance, fig.cap='Mass Balance'}
-all_plots$plot_sina[all_plots$test == "test_reaction_mass_balance"]
+score_plots$plot_sina[score_plots$test == "test_reaction_mass_balance"][[1]]
 ```
 
 ```{r reactionchargebalance, fig.cap='Charge Balance'}
-all_plots$plot_sina[all_plots$test == "test_reaction_charge_balance"]
+score_plots$plot_sina[score_plots$test == "test_reaction_charge_balance"][[1]]
 ```
 
 ```{r finddisconnected, fig.cap='Metabolite Connectivity'}
-all_plots$plot_sina[all_plots$test == "test_find_disconnected"]
+score_plots$plot_sina[score_plots$test == "test_find_disconnected"][[1]]
 ```
 
 ```{r unboundedflux, fig.cap='Unbounded Flux in Default Medium'}
-all_plots$plot_sina[all_plots$test == "test_find_reactions_unbounded_flux_default_condition"]
+score_plots$plot_sina[score_plots$test == "test_find_reactions_unbounded_flux_default_condition"][[1]]
 ```
 
 \FloatBarrier
 
 ### Annotation - Metabolites
 
+```{r annotation-met-score, fig.cap='Annotation - Metabolites'}
+sum_plots$plot_sina[sum_plots$section == "annotation_met"][[1]]
+```
+
 ```{r metaboliteannotationpresence, fig.cap='Presence of Metabolite Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_presence"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_presence"][[1]]
 ```
 
 \FloatBarrier
@@ -198,47 +318,47 @@ all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_presence"]
 #### Metabolite Annotations Per Database
 
 ```{r metaboliteannotationpubmed, fig.cap='Metabolite Pubchem.compound Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_overview-pubchem.compound"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-pubchem.compound"][[1]]
 ```
 
 ```{r metaboliteannotationkegg, fig.cap='Metabolite KEGG.compound Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_overview-kegg.compound"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-kegg.compound"][[1]]
 ```
 
 ```{r metaboliteannotationseed, fig.cap='Metabolite SEED.compound Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_overview-seed.compound"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-seed.compound"][[1]]
 ```
 
 ```{r metaboliteannotationinchikey, fig.cap='Metabolite InChIKey Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_overview-inchikey"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-inchikey"][[1]]
 ```
 
 ```{r metaboliteannotationinchi, fig.cap='Metabolite InChI Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_overview-inchi"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-inchi"][[1]]
 ```
 
 ```{r metaboliteannotationchebi, fig.cap='Metabolite ChEBI Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_overview-chebi"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-chebi"][[1]]
 ```
 
 ```{r metaboliteannotationhmdb, fig.cap='Metabolite HMDB Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_overview-hmdb"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-hmdb"][[1]]
 ```
 
 ```{r metaboliteannotationreactome, fig.cap='Metabolite Reactome Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_overview-reactome"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-reactome"][[1]]
 ```
 
 ```{r metaboliteannotationmetanetx, fig.cap='Metabolite MetaNetX.chemical Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_overview-metanetx.chemical"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-metanetx.chemical"][[1]]
 ```
 
 ```{r metaboliteannotationbigg, fig.cap='Metabolite BiGG.metabolite Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_overview-bigg.metabolite"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-bigg.metabolite"][[1]]
 ```
 
 ```{r metaboliteannotationbiocyc, fig.cap='Metabolite BioCyc Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_overview-biocyc"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-biocyc"][[1]]
 ```
 
 \FloatBarrier
@@ -246,59 +366,63 @@ all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_overview-biocy
 #### Metabolite Annotation Conformity per Database
 
 ```{r wrongmetaboliteannotationpubmed, fig.cap='Correct Metabolite Pubchem.compound Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_wrong_ids-pubchem.compound"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-pubchem.compound"][[1]]
 ```
 
 ```{r wrongmetaboliteannotationkegg, fig.cap='Correct Metabolite KEGG.compound Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_wrong_ids-kegg.compound"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-kegg.compound"][[1]]
 ```
 
 ```{r wrongmetaboliteannotationseed, fig.cap='Correct Metabolite SEED.compound Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_wrong_ids-seed.compound"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-seed.compound"][[1]]
 ```
 
 ```{r wrongmetaboliteannotationinchikey, fig.cap='Correct Metabolite InChIKey Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_wrong_ids-inchikey"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-inchikey"][[1]]
 ```
 
 ```{r wrongmetaboliteannotationinchi, fig.cap='Correct Metabolite InChI Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_wrong_ids-inchi"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-inchi"][[1]]
 ```
 
 ```{r wrongmetaboliteannotationchebi, fig.cap='Correct Metabolite ChEBI Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_wrong_ids-chebi"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-chebi"][[1]]
 ```
 
 ```{r wrongmetaboliteannotationhmdb, fig.cap='Correct Metabolite HMDB Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_wrong_ids-hmdb"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-hmdb"][[1]]
 ```
 
 ```{r wrongmetaboliteannotationreactome, fig.cap='Correct Metabolite Reactome Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_wrong_ids-reactome"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-reactome"][[1]]
 ```
 
 ```{r wrongmetaboliteannotationmetanetx, fig.cap='Correct Metabolite MetaNetX.chemical Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_wrong_ids-metanetx.chemical"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-metanetx.chemical"][[1]]
 ```
 
 ```{r wrongmetaboliteannotationbigg, fig.cap='Correct Metabolite BiGG.metabolite Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_wrong_ids-bigg.metabolite"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-bigg.metabolite"][[1]]
 ```
 
 ```{r wrongmetaboliteannotationbiocyc, fig.cap='Correct Metabolite BioCyc Annotation'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_annotation_wrong_ids-biocyc"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-biocyc"][[1]]
 ```
 
 ```{r metabolitenamespaceconsistency, fig.cap='Uniform Metabolite Identifier Namespace'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_id_namespace_consistency"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_id_namespace_consistency"][[1]]
 ```
 
 \FloatBarrier
 
 ### Annotation - Reactions
 
+```{r annotation-rxn-score, fig.cap='Annotation - Reactions'}
+sum_plots$plot_sina[sum_plots$section == "annotation_rxn"][[1]]
+```
+
 ```{r reactionannotationpresence, fig.cap='Presence of Reaction Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_presence"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_presence"][[1]]
 ```
 
 \FloatBarrier
@@ -306,39 +430,39 @@ all_plots$plot_sina[all_plots$test == "test_reaction_annotation_presence"]
 #### Reaction Annotations Per Database
 
 ```{r reactionannotationrhea, fig.cap='Reaction Rhea Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-rhea"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-rhea"][[1]]
 ```
 
 ```{r reactionannotationkegg, fig.cap='Reaction KEGG.reaction Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-kegg.reaction"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-kegg.reaction"][[1]]
 ```
 
 ```{r reactionannotationseed, fig.cap='Reaction SEED.reaction Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-seed.reaction"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-seed.reaction"][[1]]
 ```
 
 ```{r reactionannotationmetanetx, fig.cap='Reaction MetaNetX.reaction Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-metanetx.reaction"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-metanetx.reaction"][[1]]
 ```
 
 ```{r reactionannotationbigg, fig.cap='Reaction BiGG.reaction Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-bigg.reaction"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-bigg.reaction"][[1]]
 ```
 
 ```{r reactionannotationreactome, fig.cap='Reaction Reactome Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-reactome"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-reactome"][[1]]
 ```
 
 ```{r reactionannotationec, fig.cap='Reaction Enzyme Classification Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-ec-code"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-ec-code"][[1]]
 ```
 
 ```{r reactionannotationbrenda, fig.cap='Reaction BRENDA Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-brenda"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-brenda"][[1]]
 ```
 
 ```{r reactionannotationbiocyc, fig.cap='Reaction BioCyc Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-biocyc"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-biocyc"][[1]]
 ```
 
 \FloatBarrier
@@ -346,95 +470,99 @@ all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-biocyc"
 #### Reaction Annotation Conformity Per Database
 
 ```{r wrongreactionannotationrhea, fig.cap='Correct Reaction Rhea Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-rhea"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-rhea"][[1]]
 ```
 
 ```{r wrongreactionannotationkegg, fig.cap='Correct Reaction KEGG.reaction Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-kegg.reaction"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-kegg.reaction"][[1]]
 ```
 
 ```{r wrongreactionannotationseed, fig.cap='Correct Reaction SEED.reaction Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-seed.reaction"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-seed.reaction"][[1]]
 ```
 
 ```{r wrongreactionannotationmetanetx, fig.cap='Correct Reaction MetaNetX.reaction Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-metanetx.reaction"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-metanetx.reaction"][[1]]
 ```
 
 ```{r wrongreactionannotationbigg, fig.cap='Correct Reaction BiGG.reaction Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-bigg.reaction"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-bigg.reaction"][[1]]
 ```
 
 ```{r wrongreactionannotationreactome, fig.cap='Correct Reaction Reactome Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-reactome"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-reactome"][[1]]
 ```
 
 ```{r wrongreactionannotationec, fig.cap='Correct Reaction Enzyme Classification Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-ec-code"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-ec-code"][[1]]
 ```
 
 ```{r wrongreactionannotationbrenda, fig.cap='Correct Reaction BRENDA Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-brenda"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-brenda"][[1]]
 ```
 
 ```{r wrongreactionannotationbiocyc, fig.cap='Correct Reaction BioCyc Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-biocyc"]
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-biocyc"][[1]]
 ```
 
 ```{r reactionnamespaceconsistency, fig.cap='Uniform Reaction Identifier Namespace'}
-all_plots$plot_sina[all_plots$test == "test_reaction_id_namespace_consistency"]
+score_plots$plot_sina[score_plots$test == "test_reaction_id_namespace_consistency"][[1]]
 ```
 
 \FloatBarrier
 
 ### Annotation - Genes
 
-```{r genenannotationpresence, fig.cap='Presence of Gene Annotation'}
-all_plots$plot_sina[all_plots$test == "test_gene_product_annotation_presence"]
+```{r annotation-gene-score, fig.cap='Annotation - Genes'}
+sum_plots$plot_sina[sum_plots$section == "annotation_gene"][[1]]
+```
+
+```{r gene-annotation-presence, fig.cap='Presence of Gene Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_presence"][[1]]
 ```
 
 \FloatBarrier
 
 #### Gene Annotations Per Database
 
-```{r genenannotationrefseq, fig.cap='Gene RefSeq Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-refseq"]
+```{r gene-annotation-refseq, fig.cap='Gene RefSeq Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-refseq"][[1]]
 ```
 
 ```{r genenannotationuniprot, fig.cap='Gene UniProt Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-uniprot"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-uniprot"][[1]]
 ```
 
 ```{r genenannotationecogene, fig.cap='Gene EcoGene Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-ecogene"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-ecogene"][[1]]
 ```
 
 ```{r genenannotationkegg, fig.cap='Gene KEGG.genes Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-kegg.genes"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-kegg.genes"][[1]]
 ```
 
 ```{r genenannotationncbigi, fig.cap='Gene NCBIgi Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-ncbigi"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-ncbigi"][[1]]
 ```
 
 ```{r genenannotationncbigene, fig.cap='Gene NCBIgene Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-ncbigene"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-ncbigene"][[1]]
 ```
 
 ```{r genenannotationncbiprotein, fig.cap='Gene NCBIprotein Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-ncbiprotein"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-ncbiprotein"][[1]]
 ```
 
 ```{r genenannotationccds, fig.cap='Gene CCDS Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-ccds"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-ccds"][[1]]
 ```
 
 ```{r genenannotationhprd, fig.cap='Gene HPRD Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-hprd"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-hprd"][[1]]
 ```
 
 ```{r genenannotationasap, fig.cap='Gene ASAP Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-asap"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-asap"][[1]]
 ```
 
 \FloatBarrier
@@ -442,93 +570,95 @@ all_plots$plot_sina[all_plots$test == "test_reaction_annotation_overview-asap"]
 #### Gene Annotation Conformity Per Database
 
 ```{r wronggenenannotationrefseq, fig.cap='Correct Gene RefSeq Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-refseq"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-refseq"][[1]]
 ```
 
 ```{r wronggenenannotationuniprot, fig.cap='Correct Gene UniProt Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-uniprot"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-uniprot"][[1]]
 ```
 
 ```{r wronggenenannotationecogene, fig.cap='Correct Gene EcoGene Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-ecogene"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-ecogene"][[1]]
 ```
 
 ```{r wronggenenannotationkegg, fig.cap='Correct Gene KEGG.genes Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-kegg.genes"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-kegg.genes"][[1]]
 ```
 
 ```{r wronggenenannotationncbigi, fig.cap='Correct Gene NCBIgi Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-ncbigi"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-ncbigi"][[1]]
 ```
 
 ```{r wronggenenannotationncbigene, fig.cap='Correct Gene NCBIgene Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-ncbigene"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-ncbigene"][[1]]
 ```
 
 ```{r wronggenenannotationncbiprotein, fig.cap='Correct Gene NCBIprotein Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-ncbiprotein"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-ncbiprotein"][[1]]
 ```
 
 ```{r wronggenenannotationccds, fig.cap='Correct Gene CCDS Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-ccds"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-ccds"][[1]]
 ```
 
 ```{r wronggenenannotationhprd, fig.cap='Correct Gene HPRD Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-hprd"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-hprd"][[1]]
 ```
 
 ```{r wronggenenannotationasap, fig.cap='Correct Gene ASAP Annotation'}
-all_plots$plot_sina[all_plots$test == "test_reaction_annotation_wrong_ids-asap"]
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-asap"][[1]]
 ```
-
-We're missing a test for uniform gene identifier namespace.
 
 \FloatBarrier
 
 ### Annotation - SBO Terms
 
-```{r metabolitesbopresence, fig.cap='Metabolite General SBO Presence'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_sbo_presence"]
+```{r annotation-sbo-score, fig.cap='Annotation - SBO Terms'}
+sum_plots$plot_sina[sum_plots$section == "annotation_sbo"][[1]]
+```
+
+```{r metabolite-sbo-presence, fig.cap='Metabolite General SBO Presence'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_sbo_presence"][[1]]
 ```
 
 ```{r metabolitesbospecificpresence, fig.cap='Metabolite SBO:0000247 Presence'}
-all_plots$plot_sina[all_plots$test == "test_metabolite_specific_sbo_presence"]
+score_plots$plot_sina[score_plots$test == "test_metabolite_specific_sbo_presence"][[1]]
 ```
 
-```{r reactionsbopresence, fig.cap='Reaction General SBO Presence'}
-all_plots$plot_sina[all_plots$test == "test_reaction_sbo_presence"]
+```{r reaction-sbo-presence, fig.cap='Reaction General SBO Presence'}
+score_plots$plot_sina[score_plots$test == "test_reaction_sbo_presence"][[1]]
 ```
 
 ```{r reactionsbospecificpresence, fig.cap='Metabolic Reaction SBO:0000176 Presence'}
-all_plots$plot_sina[all_plots$test == "test_metabolic_reaction_specific_sbo_presence"]
+score_plots$plot_sina[score_plots$test == "test_metabolic_reaction_specific_sbo_presence"][[1]]
 ```
 
 ```{r transportreactionsbospecificpresence, fig.cap='Transport Reaction SBO:0000185 Presence'}
-all_plots$plot_sina[all_plots$test == "test_transport_reaction_specific_sbo_presence"]
+score_plots$plot_sina[score_plots$test == "test_transport_reaction_specific_sbo_presence"][[1]]
 ```
 
 ```{r exchangereactionsbospecificpresence, fig.cap='Exchange Reaction SBO:0000627 Presence'}
-all_plots$plot_sina[all_plots$test == "test_exchange_specific_sbo_presence"]
+score_plots$plot_sina[score_plots$test == "test_exchange_specific_sbo_presence"][[1]]
 ```
 
 ```{r demandreactionsbospecificpresence, fig.cap='Demand Reaction SBO:0000628 Presence'}
-all_plots$plot_sina[all_plots$test == "test_demand_specific_sbo_presence"]
+score_plots$plot_sina[score_plots$test == "test_demand_specific_sbo_presence"][[1]]
 ```
 
 ```{r sinkreactionsbospecificpresence, fig.cap='Sink Reaction SBO:0000632 Presence'}
-all_plots$plot_sina[all_plots$test == "test_sink_specific_sbo_presence"]
+score_plots$plot_sina[score_plots$test == "test_sink_specific_sbo_presence"][[1]]
 ```
 
 ```{r genesbopresence, fig.cap='Gene General SBO Presence'}
-all_plots$plot_sina[all_plots$test == "test_gene_sbo_presence"]
+score_plots$plot_sina[score_plots$test == "test_gene_sbo_presence"][[1]]
 ```
 
 ```{r genesbospecificpresence, fig.cap='Gene SBO:0000243 Presence'}
-all_plots$plot_sina[all_plots$test == "test_gene_specific_sbo_presence"]
+score_plots$plot_sina[score_plots$test == "test_gene_specific_sbo_presence"][[1]]
 ```
 
 ```{r biomassreactionsbospecificpresence, fig.cap='Biomass Reaction SBO:0000629 Presence'}
-all_plots$plot_sina[all_plots$test == "test_biomass_specific_sbo_presence"]
+score_plots$plot_sina[score_plots$test == "test_biomass_specific_sbo_presence"][[1]]
 ```
 
 \FloatBarrier
@@ -537,12 +667,12 @@ all_plots$plot_sina[all_plots$test == "test_biomass_specific_sbo_presence"]
 
 ### SBML
 
-```{r sbmllevel, fig.cap='SBML Level and Version'}
-all_plots$plot_sina[all_plots$test == "test_sbml_level"]
+```{r sbml-level, fig.cap='SBML Level and Version'}
+metric_plots$plot_sina[metric_plots$test == "test_sbml_level"][[1]]
 ```
 
-```{r fbcpresence, fig.cap='FBC Enabled'}
-all_plots$plot_sina[all_plots$test == "test_fbc_presence"]
+```{r fbc-presence, fig.cap='FBC not Enabled'}
+metric_plots$plot_sina[metric_plots$test == "test_fbc_presence"][[1]]
 ```
 
 \FloatBarrier
@@ -550,27 +680,27 @@ all_plots$plot_sina[all_plots$test == "test_fbc_presence"]
 ### Basic Information
 
 ```{r modelid, fig.cap='Model Identifier Presence'}
-all_plots$plot_sina[all_plots$test == "test_model_id_presence"]
+metric_plots$plot_sina[metric_plots$test == "test_model_id_presence"][[1]]
 ```
 
 ```{r nummetabolites, fig.cap='Number of Metabolites'}
-raw_plots$plot_sina[raw_plots$test == "test_metabolites_presence"]
+numeric_plots$plot_sina[numeric_plots$test == "test_metabolites_presence"][[1]] + ggplot2::scale_y_log10()
 ```
 
 ```{r numreactions, fig.cap='Number of Reactions'}
-raw_plots$plot_sina[raw_plots$test == "test_reactions_presence"]
+numeric_plots$plot_sina[numeric_plots$test == "test_reactions_presence"][[1]] + ggplot2::scale_y_log10()
 ```
 
 ```{r numgenes, fig.cap='Number of Genes'}
-raw_plots$plot_sina[raw_plots$test == "test_genes_presence"]
+numeric_plots$plot_sina[numeric_plots$test == "test_genes_presence"][[1]] + ggplot2::scale_y_log10()
 ```
 
-```{r compartmentspresence, fig.cap='Compartments Presence'}
-all_plots$plot_sina[all_plots$test == "test_compartments_presence"]
+```{r compartmentspresence, fig.cap='Number of Compartments'}
+numeric_plots$plot_sina[numeric_plots$test == "test_compartments_presence"][[1]]
 ```
 
 ```{r metaboliccoverage, fig.cap='Metabolic Coverage'}
-all_plots$plot_sina[all_plots$test == "test_metabolic_coverage"]
+metric_plots$plot_sina[metric_plots$test == "test_metabolic_coverage"][[1]]
 ```
 
 \FloatBarrier
@@ -578,25 +708,175 @@ all_plots$plot_sina[all_plots$test == "test_metabolic_coverage"]
 ### Metabolite Information
 
 ```{r uniquemetabolic, fig.cap='Unique Metabolites'}
-all_plots$plot_sina[all_plots$test == "test_find_unique_metabolites"]
+metric_plots$plot_sina[metric_plots$test == "test_find_unique_metabolites"][[1]]
 ```
 
 ```{r duplicatemetabolites, fig.cap='Duplicate Metabolites in Identical Compartments'}
-all_plots$plot_sina[all_plots$test == "test_find_duplicate_metabolites_in_compartments"]
+metric_plots$plot_sina[metric_plots$test == "test_find_duplicate_metabolites_in_compartments"][[1]]
 ```
 
 ```{r metaboliteswithoutcharge, fig.cap='Metabolites Without Charge'}
-all_plots$plot_sina[all_plots$test == "test_metabolites_charge_presence"]
+metric_plots$plot_sina[metric_plots$test == "test_metabolites_charge_presence"][[1]]
 ```
 
 ```{r metaboliteswithoutformula, fig.cap='Metabolites Without Formula'}
-all_plots$plot_sina[all_plots$test == "test_metabolites_formula_presence"]
+metric_plots$plot_sina[metric_plots$test == "test_metabolites_formula_presence"][[1]]
 ```
 
-```{r mediumcomponents, fig.cap='Medium Components'}
-raw_plots$plot_sina[raw_plots$test == "test_find_medium_metabolites"]
+```{r mediumcomponents, fig.cap='Number of Medium Components'}
+numeric_plots$plot_sina[numeric_plots$test == "test_find_medium_metabolites"][[1]] + ggplot2::scale_y_log10()
 ```
 
 \FloatBarrier
 
 ### Reaction Information
+
+```{r metabolicreactions, fig.cap='Purely Metabolic Reactions'}
+metric_plots$plot_sina[metric_plots$test == "test_find_pure_metabolic_reactions"][[1]]
+```
+
+```{r constrainedmetabolicreactions, fig.cap='Purely Metabolic Reactions with Constraints'}
+metric_plots$plot_sina[metric_plots$test == "test_find_constrained_pure_metabolic_reactions"][[1]]
+```
+
+```{r transportreactions, fig.cap='Transport Reactions'}
+metric_plots$plot_sina[metric_plots$test == "test_find_transport_reactions"][[1]]
+```
+
+```{r constrainedtransportreactions, fig.cap='Transport Reactions with Constraints'}
+metric_plots$plot_sina[metric_plots$test == "test_find_constrained_transport_reactions"][[1]]
+```
+
+```{r candidateirreversiblereactions, fig.cap='Thermodynamic Reversibility of Purely Metabolic Reactions'}
+metric_plots$plot_sina[metric_plots$test == "test_find_candidate_irreversible_reactions"][[1]]
+```
+
+```{r reactionsidenticalannotations, fig.cap='Reactions with Partially Identical Annotations'}
+metric_plots$plot_sina[metric_plots$test == "test_find_reactions_with_partially_identical_annotations"][[1]]
+```
+
+```{r duplicatereactions, fig.cap='Duplicate Reactions'}
+metric_plots$plot_sina[metric_plots$test == "test_find_duplicate_reactions"][[1]]
+```
+
+```{r reactionsidenticalgenes, fig.cap='Reactions with Identical Genes'}
+metric_plots$plot_sina[metric_plots$test == "test_find_reactions_with_identical_genes"][[1]]
+```
+
+\FloatBarrier
+
+### Gene-Protein-Reaction (GPR) Association
+
+```{r gprpresence, fig.cap='Reactions without GPR'}
+metric_plots$plot_sina[metric_plots$test == "test_gene_protein_reaction_rule_presence"][[1]]
+```
+
+```{r transport-reaction-gpr, fig.cap='Fraction of Transport Reactions without GPR'}
+metric_plots$plot_sina[metric_plots$test == "test_transport_reaction_gpr_presence"][[1]]
+```
+
+```{r protein-complex-presence, fig.cap='Enzyme Complexes'}
+metric_plots$plot_sina[metric_plots$test == "test_protein_complex_presence"][[1]]
+```
+
+\FloatBarrier
+
+### Biomass
+
+```{r biomass-presence, fig.cap='Biomass Reactions Identified'}
+metric_plots$plot_sina[metric_plots$test == "test_biomass_presence"][[1]]
+```
+
+```{r biomass-consistency, fig.cap='Biomass Production'}
+numeric_plots$plot_sina[numeric_plots$test == "test_biomass_consistency"][[1]] + ggplot2::ylab("Biomass production [gDW / h]") + ggplot2::scale_y_log10()
+```
+
+```{r biomass-default-production, fig.cap='Biomass Production in Default Medium'}
+metric_plots$plot_sina[metric_plots$test == "test_biomass_default_production"][[1]]
+```
+
+```{r biomass-open-production, fig.cap='Biomass Production in Complete Medium'}
+metric_plots$plot_sina[metric_plots$test == "test_biomass_open_production"][[1]]
+```
+
+```{r biomass-precursors-default, fig.cap='Blocked Biomass Precursors in Default Medium'}
+metric_plots$plot_sina[metric_plots$test == "test_biomass_precursors_default_production"][[1]]
+```
+
+```{r biomass-precursors-open, fig.cap='Blocked Biomass Precursors in Complete Medium'}
+metric_plots$plot_sina[metric_plots$test == "test_biomass_precursors_open_production"][[1]]
+```
+
+```{r direct-metabolites-biomass, fig.cap='Ratio of Direct Metabolites in Biomass Reaction'}
+metric_plots$plot_sina[metric_plots$test == "test_direct_metabolites_in_biomass"][[1]]
+```
+
+```{r essential-precursors, fig.cap='Number of Missing Essential Biomass Precursors'}
+metric_plots$plot_sina[metric_plots$test == "test_essential_precursors_not_in_biomass"][[1]]
+```
+
+\FloatBarrier
+
+### Energy Metabolism
+
+```{r ngam-presence, fig.cap='Non-Growth Associated Maintenance Reaction'}
+metric_plots$plot_sina[metric_plots$test == "test_ngam_presence"][[1]]
+```
+
+```{r gam-presence, fig.cap='Growth-associated Maintenance in Biomass Reaction'}
+metric_plots$plot_sina[metric_plots$test == "test_gam_in_biomass"][[1]]
+```
+
+```{r reversible-oxygen-reactions, fig.cap='Number of Reversible Oxygen-Containing Reactions'}
+metric_plots$plot_sina[metric_plots$test == "test_find_reversible_oxygen_reactions"][[1]]
+```
+
+\FloatBarrier
+
+### Network Topology
+
+```{r blocked-reactions, fig.cap='Universally Blocked Reactions'}
+metric_plots$plot_sina[metric_plots$test == "test_blocked_reactions"][[1]]
+```
+
+```{r orphans, fig.cap='Orphan Metabolites'}
+metric_plots$plot_sina[metric_plots$test == "test_find_orphans"][[1]]
+```
+
+```{r dead-ends, fig.cap='Dead-end Metabolites'}
+metric_plots$plot_sina[metric_plots$test == "test_find_deadends"][[1]]
+```
+
+```{r balanced-cycles, fig.cap='Stoichiometrically Balanced Cycles'}
+metric_plots$plot_sina[metric_plots$test == "test_find_stoichiometrically_balanced_cycles"][[1]]
+```
+
+```{r metabolites-not-produced, fig.cap='Metabolite Production in Complete Medium'}
+metric_plots$plot_sina[metric_plots$test == "test_find_metabolites_not_produced_with_open_bounds"][[1]]
+```
+
+```{r metabolites-not-consumed, fig.cap='Metabolite Consumption in Complete Medium'}
+metric_plots$plot_sina[metric_plots$test == "test_find_metabolites_not_consumed_with_open_bounds"][[1]]
+```
+
+\FloatBarrier
+
+### Matrix Conditioning
+
+```{r extreme-coefficient-ratio, fig.cap='Ratio Min/Max Non-Zero Coefficients'}
+metric_plots$plot_sina[metric_plots$test == "test_absolute_extreme_coefficient_ratio"][[1]]
+```
+
+```{r independent-conservation-relations, fig.cap='Independent Conservation Relations'}
+metric_plots$plot_sina[metric_plots$test == "test_number_independent_conservation_relations"][[1]]
+```
+
+```{r rank, fig.cap='Rank'}
+metric_plots$plot_sina[metric_plots$test == "test_matrix_rank"][[1]]
+```
+
+```{r degrees-freedom, fig.cap='Degrees of Freedom'}
+metric_plots$plot_sina[metric_plots$test == "test_degrees_of_freedom"][[1]]
+```
+
+\FloatBarrier
