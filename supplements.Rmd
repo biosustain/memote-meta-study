@@ -79,9 +79,10 @@ dplyr::tibble(
   kableExtra::kable_styling(full_width = FALSE, protect_latex = TRUE) %>%
   kableExtra::footnote(
     symbol = c(
-      "Please note that we removed the large number of \\textit{Escherichia coli} strain models from the BiGG collection and only included results from the models iJR904, iAF1260, iJO1366, and iML1515.",
+      "Please note that we removed the large number of \\\\textit{Escherichia coli} strain models from the BiGG collection and only included results from the models iJR904, iAF1260, iJO1366, and iML1515.",
       "39 models from these two collections are likely identical based on a filename comparison."
     ),
+    escape = FALSE,
     threeparttable = TRUE
   )
 ```
@@ -177,13 +178,16 @@ scores_df <- total_df %>%
 
 <!-- TODO: Change references from Google Doc to Rmarkdown. -->
 
-* SBO terms are only used consistently by models from KBase and BiGG (see Figures \@ref(fig:metabolite-sbo-presence) & \@ref(fig:reaction-sbo-presence)).
+* SBO terms are only used consistently by models from KBase and BiGG (see Figures \@ref(fig:annotation-sbo-score)).
 * Models from Path2Models and Opflux Models are formatted in legacy SBML (< Level 3,Version 1) without FBC package (Figures \@ref(fig:sbml-level) & \@ref(fig:fbc-presence)).
-* Models from the collections of Ebrahim \\textit{et al.} and OptFlux Models are highly variable for many specific tests. Models from automatic reconstruction pipelines (AGORA, CarveMe, Path2Models and KBase) or the controlled BiGG collection are much more similar within each collection yet still different from each other. This could be due to each collection focusing on a distinct set of taxonomies but could also be related to the algorithms and databases behind each collection. (Sections 3.b.8, 3.b.7c, 3.b.6.i, 3.b.5.a, 3.b.4.h, 3.b.4.c, 3.b.4.a).
-* On Biomass: Only for a minority of models in BiGG, Ebrahim et al and OptFlux Models memote could not identify a biomass reaction (Section 3.b.6.a). A portion of models in the BiGG collections have inconsistent biomass equations followed by OptFlux Models and models in the collection by Ebrahim et al (Section 3.b.6.b). Models that cannot be simulated using the default or complete medium exist in Path2Models, BiGG, Ebrahim et al. and OptFlux Models (Section 3.b.6.c).
-* Possible artifacts from automatic reconstruction with models from AGORA and KBase that grow despite some biomass precursors being blocked when they are optimized individually in default and complete medium (compare sections 3.b.6.f and 3.b.6.g with 3.b.6.c and 3.b.6.d).
-* The average fraction of reactions that participate in stoichiometrically-balanced cycles is larger for models from automatic reconstruction pipelines (AGORA, CarveMe, Path2Models, KBase) than for BiGG, Ebrahim et al. and OptfluxModels (Section 3.b.8.d). This could be an artefact from automatic reconstruction processes
-* Reactions that involve oxygen are integral to the energy metabolism of many organisms. Not constraining these reactions carefully can lead to predictions that deviate from the expected phenotype, i.e., allowing anaerobic growth that should not be possible. The portion of oxygen-containing reactions that are reversible varies strongly across all seven collections. Models in BiGG have the lowest variance while that of models from Path2Models, Ebrahim et al. and OptFlux is relatively high (Section 3.b.7.c).
+* Models from the collections of Ebrahim \textit{et al.} and OptFlux Models are highly variable for many specific tests. Models from automatic reconstruction pipelines (AGORA, CarveMe, Path2Models and KBase) or the controlled BiGG collection are much more similar within each collection yet still different from each other. This could be due to each collection focusing on a distinct set of taxonomies but could also be related to the algorithms and databases behind each collection (Section \@ref(sec:network-topology)).
+* On biomass:
+    * Only for a minority of models in BiGG, Ebrahim \textit{et al.} and OptFlux Models memote could not identify a biomass reaction (Figure \@ref(fig:biomass-presence)).
+    * A portion of models in the BiGG collections have inconsistent biomass equations followed by OptFlux Models and models in the collection by Ebrahim \textit{et al.} (Figure \@ref(fig:biomass-consistency)).
+    * Models that cannot be simulated using the default or complete medium exist in Path2Models, BiGG, Ebrahim \textit{et al.} and OptFlux Models (Figure \@ref(fig:biomass-default-production) & \@ref(fig:biomass-open-production)).
+* Possible artifacts from automatic reconstruction with models from AGORA and KBase that grow despite some biomass precursors being blocked when each precursor is optimized individually in default and complete medium (compare Figures \@ref(fig:biomass-precursors-default) & \@ref(fig:biomass-precursors-open) with \@ref(fig:biomass-default-production) & \@ref(fig:biomass-open-production)).
+* The average fraction of reactions that participate in stoichiometrically-balanced cycles is larger for models from automatic reconstruction pipelines (AGORA, CarveMe, Path2Models, KBase) than for BiGG, Ebrahim \textit{et al.} and OptfluxModels (Figure \@ref(fig:balanced-cycles)). This could be an artifact from automatic reconstruction processes
+* Reactions that involve oxygen are integral to the energy metabolism of many organisms. Not constraining these reactions carefully can lead to predictions that deviate from the expected phenotype, i.e., allowing anaerobic growth that should not be possible. The portion of oxygen-containing reactions that are reversible varies strongly across all seven collections. Models in BiGG have the lowest variance while that of models from Path2Models, Ebrahim \textit{et al.} and OptFlux is relatively high (Figure \@ref(fig:reversible-oxygen-reactions)).
 
 ## Scores
 
@@ -787,8 +791,8 @@ metric_plots$plot_sina[metric_plots$test == "test_protein_complex_presence"][[1]
 metric_plots$plot_sina[metric_plots$test == "test_biomass_presence"][[1]]
 ```
 
-```{r biomass-consistency, fig.cap='Biomass Production'}
-numeric_plots$plot_sina[numeric_plots$test == "test_biomass_consistency"][[1]] + ggplot2::ylab("Biomass production [gDW / h]") + ggplot2::scale_y_log10()
+```{r biomass-consistency, fig.cap='Biomass Consistency'}
+metric_plots$plot_sina[metric_plots$test == "test_biomass_consistency"][[1]]
 ```
 
 ```{r biomass-default-production, fig.cap='Biomass Production in Default Medium'}
@@ -833,7 +837,7 @@ metric_plots$plot_sina[metric_plots$test == "test_find_reversible_oxygen_reactio
 
 \FloatBarrier
 
-### Network Topology
+### Network Topology {#sec:network-topology}
 
 ```{r blocked-reactions, fig.cap='Universally Blocked Reactions'}
 metric_plots$plot_sina[metric_plots$test == "test_blocked_reactions"][[1]]
