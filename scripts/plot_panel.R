@@ -57,10 +57,10 @@ stoich_consistency <- total_df %>%
   ) +
   ggplot2::ylab(stringr::str_wrap("Fraction of Unbalanced Metabolites", width = 30))
 
-# Reversible oxygen-consuming reactions plot ------------------------------
+# Reactions without GPR ---------------------------------------------------
 
-oxygen <- total_df %>%
-  dplyr::filter(test == "test_find_reversible_oxygen_reactions") %>%
+gpr <- total_df %>%
+  dplyr::filter(test == "test_gene_protein_reaction_rule_presence") %>%
   droplevels() %>%
   ggplot2::ggplot(.,
                   ggplot2::aes(
@@ -76,7 +76,7 @@ oxygen <- total_df %>%
     axis.title.x = ggplot2::element_blank(),
     axis.text.x = ggplot2::element_blank()
   ) +
-  ggplot2::ylab(stringr::str_wrap("Fraction of Reversible Oxygen-Containing Reactions", width = 30))
+  ggplot2::ylab(stringr::str_wrap("Fraction of Reactions Without GPR Rules", width = 30))
 
 # Blocked reactions plot --------------------------------------------------
 
@@ -114,7 +114,7 @@ grid <-
     egg::ggarrange(
     clustering,
     stoich_consistency,
-    oxygen,
+    gpr,
     blocked,
     nrow = 4,
     labels = letters[1:4],
