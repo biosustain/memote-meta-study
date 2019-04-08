@@ -195,7 +195,7 @@ scores_df <- total_df %>%
 
 ```{r total-plot, fig.cap='Total Score. Depicted are the sums of all test scores in all independent sections, assuming a uniform weight across the tests and sections.'}
 scores_df %>%
-  dplyr::group_by(collection, model, section) %>%
+  dplyr::group_by(collection, model) %>%
   dplyr::summarize(total = sum(score) / n()) %>%
   dplyr::ungroup() %>%
   ggplot2::ggplot(
