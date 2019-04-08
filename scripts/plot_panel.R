@@ -11,7 +11,9 @@ source("scripts/helpers.R")
 
 # Panel plots -------------------------------------------------------------
 
-size <- 18
+size <- 18  # Base font size applied to the theme.
+
+label_width <- 28  # Number of characters to wrap lines by.
 
 ggplot2::theme_set(cowplot::theme_cowplot(font_size = size))
 
@@ -55,7 +57,7 @@ stoich_consistency <- total_df %>%
     axis.title.x = ggplot2::element_blank(),
     axis.text.x = ggplot2::element_blank()
   ) +
-  ggplot2::ylab(stringr::str_wrap("Fraction of Unbalanced Metabolites", width = 30))
+  ggplot2::ylab(stringr::str_wrap("Fraction of Unbalanced Metabolites", width = label_width))
 
 # Reactions without GPR ---------------------------------------------------
 
@@ -76,7 +78,7 @@ gpr <- total_df %>%
     axis.title.x = ggplot2::element_blank(),
     axis.text.x = ggplot2::element_blank()
   ) +
-  ggplot2::ylab(stringr::str_wrap("Fraction of Reactions Without GPR Rules", width = 30))
+  ggplot2::ylab(stringr::str_wrap("Fraction of Reactions Without GPR Rules", width = label_width))
 
 # Blocked reactions plot --------------------------------------------------
 
@@ -102,7 +104,7 @@ blocked <- total_df %>%
       vjust = 1
     )
   ) +
-  ggplot2::ylab(stringr::str_wrap("Fraction of Blocked Reactions", width = 30)) +
+  ggplot2::ylab(stringr::str_wrap("Fraction of Blocked Reactions", width = label_width)) +
   ggplot2::theme(plot.margin =
                    ggplot2::margin(
                      l = size
