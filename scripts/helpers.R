@@ -93,7 +93,7 @@ y_axis_labels <- c(
   "test_gene_product_annotation_wrong_ids-ncbiprotein" = "Genes with correct NCBIprotein annotations [fraction of total genes]",
   "test_gene_product_annotation_wrong_ids-refseq" = "Genes with correct Refseq annotations [fraction of total genes]",
   "test_gene_product_annotation_wrong_ids-uniprot" = "Genes with correct Uniprot annotations [fraction of total genes]",
-  "test_gene_protein_reaction_rule_presence" = "Reactions with GPR rules [fraction of total genes]",
+  "test_gene_protein_reaction_rule_presence" = "Reactions without GPR rules [fraction of total reactions]",
   "test_gene_sbo_presence" = "Genes with any SBO term annotations [fraction of total genes]",
   "test_gene_specific_sbo_presence" = "Genes with SBO:0000243 annotations [fraction of total genes]",
   "test_genes_presence" = "Total number of genes",

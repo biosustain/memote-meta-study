@@ -189,6 +189,8 @@ scores_df <- total_df %>%
 * The average fraction of reactions that participate in stoichiometrically-balanced cycles is larger for models from automatic reconstruction pipelines (AGORA, CarveMe, Path2Models, KBase) than for BiGG, Ebrahim \textit{et al.} and OptfluxModels (Figure \@ref(fig:balanced-cycles)). This could be an artifact from automatic reconstruction processes
 * Reactions that involve oxygen are integral to the energy metabolism of many organisms. Not constraining these reactions carefully can lead to predictions that deviate from the expected phenotype, i.e., allowing anaerobic growth that should not be possible. The portion of oxygen-containing reactions that are reversible varies strongly across all seven collections. Models in BiGG have the lowest variance while that of models from Path2Models, Ebrahim \textit{et al.} and OptFlux is relatively high (Figure \@ref(fig:reversible-oxygen-reactions)).
 
+\FloatBarrier
+
 ## Scores
 
 ```{r total-plot, fig.cap='Total Score. Depicted are the sums of all test scores in all independent sections, assuming a uniform weight across the tests and sections.'}
