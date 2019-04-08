@@ -191,7 +191,7 @@ scores_df <- total_df %>%
 
 ## Scores
 
-```{r total-plot, fig.cap='Total Score'}
+```{r total-plot, fig.cap='Total Score. Depicted are the sums of all test scores in all independent sections, assuming a uniform weight across the tests and sections.'}
 scores_df %>%
   dplyr::group_by(collection, model, section) %>%
   dplyr::summarize(total = sum(score) / n()) %>%
@@ -281,7 +281,7 @@ numeric_plots <- total_df %>%
 
 ### Consistency
 
-```{r consistency-score, fig.cap='Consistency'}
+```{r consistency-score, fig.cap='Consistency. Depicted are the sums of all test scores in this section, assuming a uniform weight across the tests.'}
 sum_plots$plot_sina[sum_plots$section == "consistency"][[1]]
 ```
 
@@ -309,7 +309,7 @@ score_plots$plot_sina[score_plots$test == "test_find_reactions_unbounded_flux_de
 
 ### Annotation - Metabolites
 
-```{r annotation-met-score, fig.cap='Annotation - Metabolites'}
+```{r annotation-met-score, fig.cap='Annotation - Metabolites. Depicted are the sums of all test scores in this section, assuming a uniform weight across the tests.'}
 sum_plots$plot_sina[sum_plots$section == "annotation_met"][[1]]
 ```
 
@@ -421,7 +421,7 @@ score_plots$plot_sina[score_plots$test == "test_metabolite_id_namespace_consiste
 
 ### Annotation - Reactions
 
-```{r annotation-rxn-score, fig.cap='Annotation - Reactions'}
+```{r annotation-rxn-score, fig.cap='Annotation - Reactions. Depicted are the sums of all test scores in this section, assuming a uniform weight across the tests.'}
 sum_plots$plot_sina[sum_plots$section == "annotation_rxn"][[1]]
 ```
 
@@ -517,7 +517,7 @@ score_plots$plot_sina[score_plots$test == "test_reaction_id_namespace_consistenc
 
 ### Annotation - Genes
 
-```{r annotation-gene-score, fig.cap='Annotation - Genes'}
+```{r annotation-gene-score, fig.cap='Annotation - Genes. Depicted are the sums of all test scores in this section, assuming a uniform weight across the tests.'}
 sum_plots$plot_sina[sum_plots$section == "annotation_gene"][[1]]
 ```
 
@@ -617,7 +617,7 @@ score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_id
 
 ### Annotation - SBO Terms
 
-```{r annotation-sbo-score, fig.cap='Annotation - SBO Terms'}
+```{r annotation-sbo-score, fig.cap='Annotation - SBO Terms. Depicted are the sums of all test scores in this section, assuming a uniform weight across the tests.'}
 sum_plots$plot_sina[sum_plots$section == "annotation_sbo"][[1]]
 ```
 
