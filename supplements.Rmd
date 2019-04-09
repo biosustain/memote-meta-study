@@ -291,11 +291,11 @@ sum_plots$plot_sina[sum_plots$section == "consistency"][[1]]
 score_plots$plot_sina[score_plots$test == "test_stoichiometric_consistency"][[1]]
 ```
 
-```{r reactionmassbalance, fig.cap='Mass Balance'}
+```{r reactionmassbalance, fig.cap='Mass Balance. Please note that any reaction where at least one metabolite lacks a formula annotation is considered as unbalanced for the purpose of this test.'}
 score_plots$plot_sina[score_plots$test == "test_reaction_mass_balance"][[1]]
 ```
 
-```{r reactionchargebalance, fig.cap='Charge Balance'}
+```{r reactionchargebalance, fig.cap='Charge Balance. Please note that any reaction where at least one metabolite lacks charge information is considered as unbalanced for the purpose of this test.'}
 score_plots$plot_sina[score_plots$test == "test_reaction_charge_balance"][[1]]
 ```
 
