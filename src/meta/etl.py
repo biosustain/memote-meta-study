@@ -76,7 +76,9 @@ def transform_element(result, element, format_type, case=""):
         if isinstance(element, bool):
             return int(element)
         elif isinstance(element, str):
-            return 1.0
+            # Return negative number to denote that string was there but it's
+            # not a meaningful value.
+            return -1.0
         elif isinstance(element, int):
             return element
         else:
@@ -92,10 +94,11 @@ def transform(result, name, biomass, sections):
     metrics = []
     numbers = []
     section = []
+    status = []
     times = []
     for key, test in result["tests"].items():
         if isinstance(test["metric"], dict):
-            for sub_key in test["metric"]:
+            for sub_key in test["result"]:
                 test_name = f"{key}-{sub_key}"
                 if key in biomass:
                     # We do not distinguish the different biomass reactions.
@@ -105,10 +108,11 @@ def transform(result, name, biomass, sections):
                     tests.append(test_name)
                     titles.append(f'{test["title"]} - {sub_key}')
                 section.append(sections[key])
-                metrics.append(test["metric"][sub_key])
+                metrics.append(test["metric"].get(sub_key))
                 numbers.append(transform_element(
-                    result, test["data"][sub_key], test["format_type"]))
-                times.append(test["duration"][sub_key])
+                    result, test["data"].get(sub_key), test["format_type"]))
+                times.append(test["duration"].get(sub_key))
+                status.append(test["result"].get(sub_key))
         else:
             tests.append(key)
             titles.append(test["title"])
@@ -117,6 +121,7 @@ def transform(result, name, biomass, sections):
             numbers.append(transform_element(
                 result, test["data"], test["format_type"], case=key))
             times.append(test["duration"])
+            status.append(test["result"])
     return pd.DataFrame({
         "test": tests,
         "title": titles,
@@ -124,7 +129,8 @@ def transform(result, name, biomass, sections):
         "metric": metrics,
         "numeric": numbers,
         "model": name,
-        "time": times
+        "time": times,
+        "status": status
     })
 
 
