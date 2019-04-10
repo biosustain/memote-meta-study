@@ -263,7 +263,7 @@ score_plots <- scores_df %>%
 
 ```{r metric-plots, cache=TRUE, dependson='load', include=FALSE}
 metric_plots <- total_df %>%
-  dplyr::filter(is.finite(metric)) %>%
+  dplyr::filter(is.finite(metric), is.finite(numeric)) %>%
   dplyr::group_by(test) %>%
   dplyr::do(
     plot_sina = do_plot(., "metric") + ggplot2::ylim(0, 1)
