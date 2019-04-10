@@ -170,13 +170,10 @@ sina_layers <- list(
 ```{r scores, cache=TRUE, dependson='load', include=FALSE}
 scores_df <- total_df %>%
   dplyr::filter(test %in% only_scored_tests) %>%
-  droplevels() %>%
   dplyr::mutate(score = 1 - metric)
 ```
 
 ## Summary of Observations
-
-<!-- TODO: Change references from Google Doc to Rmarkdown. -->
 
 * SBO terms are only used consistently by models from KBase and BiGG (see Figures \@ref(fig:annotation-sbo-score)).
 * Models from Path2Models and Opflux Models are formatted in legacy SBML (< Level 3,Version 1) without FBC package (Figures \@ref(fig:sbml-level) & \@ref(fig:fbc-presence)).
@@ -263,7 +260,7 @@ score_plots <- scores_df %>%
 
 ```{r metric-plots, cache=TRUE, dependson='load', include=FALSE}
 metric_plots <- total_df %>%
-  dplyr::filter(is.finite(metric), is.finite(numeric)) %>%
+  dplyr::mutate(metric = ifelse(is.na(numeric), NA, metric)) %>%
   dplyr::group_by(test) %>%
   dplyr::do(
     plot_sina = do_plot(., "metric") + ggplot2::ylim(0, 1)
@@ -272,7 +269,6 @@ metric_plots <- total_df %>%
 
 ```{r numeric-plots, cache=TRUE, dependson='load', include=FALSE}
 numeric_plots <- total_df %>%
-  dplyr::filter(is.finite(numeric)) %>%
   dplyr::group_by(test) %>%
   dplyr::do(
     plot_sina = do_plot(., "numeric")
