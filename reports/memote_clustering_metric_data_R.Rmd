@@ -1,6 +1,6 @@
 ---
 title: "memote_clustering_metric_data_R"
-output: html_notebook
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(fpc) # pamk
 library(cluster) # pam
 library('ape')
-df=read.csv('data-clustering-metric-data-R/memote_clustering_table.tsv',sep='\t')
+df=read.csv('memote_clustering_table.tsv',sep='\t')
 id.vector=paste(df$collection,df$model,sep='_')
 rownames(df)=id.vector
 df.num=subset(df,select=-c(1:2))
@@ -86,7 +86,7 @@ plot.rf.var.importance.by.class.dotplot <- function(model,predVar,classVar,title
 #   classVar: string of class variable in 'df'
 #   title: header of the plot
 plot.rf.var.importance.by.class.andMean.heatmap <- function(model,predVar,classVar,title){
-  imp.df=melt(importance(model)[,1:length(model$classes)+1])
+  imp.df=melt(importance(model)[,1:(length(model$classes)+1)])
   colnames(imp.df)=c(predVar,classVar,'testImportance')
   # a.-Order rows
   pred.order=names(sort(importance(model)[,'MeanDecreaseAccuracy'])) # My order according to global MeandDecreaseAccuracy
@@ -111,14 +111,19 @@ plot.rf.var.importance.by.class.andMean.heatmap <- function(model,predVar,classV
 #   classVar: string of class variable in 'df'
 #   colorVector: vector of colors
 #   nBestFeatures: number of top relevant features to show in the plot.
-plot.rf.var.importance.by.class.andMean.dotplot <- function(model,predVar,classVar,colorVector=NULL,nBestFeatures=NULL){
+#   classNames: vector with ad-hoc class names.
+plot.rf.var.importance.by.class.andMean.dotplot <- function(model,predVar,classVar,colorVector=NULL,nBestFeatures=NULL,classNames=NULL){
   imp.df=melt(importance(model)[,1:(length(model$classes)+1)])
   colnames(imp.df)=c(predVar,classVar,'value')
   # a.-Order rows
   pred.order=names(sort(importance(model)[,'MeanDecreaseAccuracy'])) # My order according to global MeandDecreaseAccuracy
   imp.df[,predVar] <- factor(imp.df[,predVar], levels = pred.order)
   class.names=levels(imp.df[,classVar])
-  levels(imp.df[,classVar]) <- c(class.names[1:(length(class.names)-1)],"MEAN")
+  if(!is.null(classNames)){
+    levels(imp.df[,classVar]) <- c(classNames,'MEAN')
+  }else{
+    levels(imp.df[,classVar]) <- c(class.names[1:(length(class.names)-1)],'MEAN')
+  }
   imp.df[,classVar] <- factor(imp.df[,classVar])
   # b.- Subset test to show
   if(!is.null(nBestFeatures)){
@@ -126,7 +131,7 @@ plot.rf.var.importance.by.class.andMean.dotplot <- function(model,predVar,classV
   }
   p <- ggplot(imp.df, aes_string(x = 'value', y = predVar, group = predVar, colour = classVar)) +
     geom_segment(aes_string(yend=predVar), xend=0, colour="grey50") +
-    geom_point( size = 1) +
+    geom_point( size = 3) +
     theme_bw() +
     facet_grid(reformulate(classVar)) +
     theme(panel.grid.major.y = element_blank()) +
@@ -150,8 +155,8 @@ df.rf=subset(df,select=-c(2))
 set.seed(123)
 train_control <- trainControl(method="cv", number=10, savePredictions = TRUE)
 #model <- train(form=collection~.,data=df.rf, trControl=train_control, method="rf",ntree=1000,importance=TRUE,localImp=TRUE,na.action=na.omit)
-#save(model,file="data-clustering-metric-data-R/rf_model_classCollection.Rdata")
-load('data-clustering-metric-data-R/rf_model_classCollection.Rdata')
+#save(model,file="rf_model_classCollection.Rdata")
+load('rf_model_classCollection.Rdata')
 ```
 
 ```{r fig.width=18, fig.height=9}
@@ -162,6 +167,10 @@ varImpPlot(model$finalModel,type=1)
 print(confusionMatrix(model$pred$pred,model$pred$obs))
 model=model$finalModel
 pred=model$pred
+# Change names classes (MeanDecreasAccuracy --> Mean)
+class.names=levels(model$classes)
+levels(model$classes) <-c('AGORA','CarveMe','Path2Models','KBase','BiGG','Ebrahim et al.','OptFlux')
+model$classes <- factor(model$classes)
 ```
 
 ```{r fig.width=10, fig.height=18}
@@ -171,14 +180,14 @@ plot.rf.var.importance.by.class.andMean.heatmap(model,'test','collection','Featu
 ```
 
 ```{r fig.width=10, fig.height=5}
-plot.rf.var.importance.by.class.andMean.dotplot(model,'test','collection',colorVec=c(colsCollection,'#60d660'),nBestFeatures=15)
+plot.rf.var.importance.by.class.andMean.dotplot(model,'test','collection',colorVec=c(colsCollection,'#60d660'),nBestFeatures=15,classNames=c('AGORA','CarveMe','Path2Models','KBase','BiGG','Ebrahim et al.','OptFlux'))
 ```
 
 ## Clustering
 ```{r pamk, eval=FALSE}
 fitPamBest <- pamk(df.num,krange=2:25)
-save(fitPamBest,file='data-clustering-metric-data-R/fitPamBest_k2-25.Rdata')
-write.table(as.matrix(fitPamBest$pamobject$clustering),paste("data-clustering-metric-data-R/pam_clusters_k",fitPamBest$nc,".txt",sep=""),quote=FALSE,sep='\t',col.names=NA,row.names=TRUE)
+save(fitPamBest,file='fitPamBest_k2-25.Rdata')
+write.table(as.matrix(fitPamBest$pamobject$clustering),paste("pam_clusters_k",fitPamBest$nc,".txt",sep=""),quote=FALSE,sep='\t',col.names=NA,row.names=TRUE)
  #[1] 0.0000000 0.6994101 0.5969360 0.6976904 0.5068908 0.4770732 0.4372348
  #[8] 0.4513308 0.4319778 0.4467728 0.4305388 0.3842136 0.3688111 0.3674104
 #[15] 0.3331504 0.3097679 0.3130108 0.3412444 0.3377852 0.3110066 0.3153869
@@ -229,7 +238,7 @@ plot(as.phylo(fitH), type='unrooted', cex=0.5, label.offset=0.5, no.margin=TRUE,
 
 ```{r}
 groups <- as.factor(cutree(fitH.labelModels,k=kbest))
-write.table(as.matrix(groups),paste("data-clustering-metric-data-R/hclust_clusters_k",kbest,".txt",sep=""),quote=FALSE,sep='\t',col.names=NA,row.names=TRUE)
+write.table(as.matrix(groups),paste("hclust_clusters_k",kbest,".txt",sep=""),quote=FALSE,sep='\t',col.names=NA,row.names=TRUE)
 ```
 
 
@@ -285,8 +294,9 @@ ggd1 <- as.ggdend(dend)
 # Create a radial plot and remove labels
 ggplot(ggd1, labels = FALSE) + 
   scale_y_reverse(expand = c(0.2, 0)) +
-  coord_polar(theta="x") 
+  coord_polar(theta="x")
 ```
+
 
 
 
@@ -297,8 +307,8 @@ df.rf=df.num
 df.rf$cluster=as.factor(cutree(fitH,kbest))
 #set.seed(123)
 #model.cl <- train(form=cluster~.,data=df.rf, trControl=train_control, method="rf",ntree=1000,importance=TRUE,localImp=TRUE,na.action=na.omit,do.trace=10)
-#save(model.cl,file="data-clustering-metric-data-R/rf_model_classCluster.Rdata")
-load("data-clustering-metric-data-R/rf_model_classCluster.Rdata")
+#save(model.cl,file="rf_model_classCluster.Rdata")
+load("rf_model_classCluster.Rdata")
 ```
 
 ```{r fig.width=18, fig.height=9}
