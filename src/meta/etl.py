@@ -18,7 +18,6 @@
 
 """Extract, transform, load."""
 
-
 import json
 import logging
 import os
@@ -31,8 +30,60 @@ from tqdm import tqdm
 
 __all__ = ("extract_transform_load",)
 
-
 logger = logging.getLogger(__name__)
+
+
+def transform_candidate_irreversible_reactions(result, element):
+    # Test case errored.
+    if element is None:
+        return
+    if (len(element[1]) + len(element[2]) + len(element[3])) == len(
+        result["tests"]["test_find_pure_metabolic_reactions"]["data"]
+    ):
+        return float("nan")
+    else:
+        return len(element[0])
+
+
+SPECIAL_PERCENT = {
+    "test_find_reactions_with_identical_genes":
+        lambda r, x: len(x),
+    "test_find_reactions_with_partially_identical_annotations":
+        lambda r, x: len(x),
+    "test_find_candidate_irreversible_reactions":
+        transform_candidate_irreversible_reactions,
+}
+
+
+def transform_element(result, element, format_type, case=""):
+    if format_type == "number":
+        return element
+    elif format_type == "count":
+        if isinstance(element, list):
+            return len(element)
+        else:
+            logger.debug(case)
+            logger.debug("Format 'count' of element %r.", element)
+            return element
+    elif format_type == "percent":
+        if case in SPECIAL_PERCENT:
+            return SPECIAL_PERCENT[case](result, element)
+        elif isinstance(element, list):
+            return len(element)
+        else:
+            return element
+    elif format_type == "raw":
+        if isinstance(element, bool):
+            return int(element)
+        elif isinstance(element, str):
+            return 1.0
+        elif isinstance(element, int):
+            return element
+        else:
+            logger.debug(case)
+            logger.debug("Raw element %r.", element)
+    else:
+        return float("nan")
 
 
 def transform(result, name, biomass, sections):
@@ -45,35 +96,26 @@ def transform(result, name, biomass, sections):
     for key, test in result["tests"].items():
         if isinstance(test["metric"], dict):
             for sub_key in test["metric"]:
+                test_name = f"{key}-{sub_key}"
                 if key in biomass:
+                    # We do not distinguish the different biomass reactions.
                     tests.append(f"{key}")
                     titles.append(f'{test["title"]}')
                 else:
-                    tests.append(f"{key}-{sub_key}")
+                    tests.append(test_name)
                     titles.append(f'{test["title"]} - {sub_key}')
                 section.append(sections[key])
                 metrics.append(test["metric"][sub_key])
-                if test["format_type"] == "number":
-                    numbers.append(test["data"][sub_key])
-                elif test["format_type"] == "count":
-                    numbers.append(len(test["data"][sub_key]))
-                else:
-                    numbers.append(float("nan"))
+                numbers.append(transform_element(
+                    result, test["data"][sub_key], test["format_type"]))
                 times.append(test["duration"][sub_key])
         else:
             tests.append(key)
             titles.append(test["title"])
             section.append(sections[key])
             metrics.append(test["metric"])
-            if test["format_type"] == "number":
-                numbers.append(test["data"])
-            elif test["format_type"] == "count":
-                try:
-                    numbers.append(len(test["data"]))
-                except TypeError:
-                    numbers.append(float("nan"))
-            else:
-                numbers.append(float("nan"))
+            numbers.append(transform_element(
+                result, test["data"], test["format_type"], case=key))
             times.append(test["duration"])
     return pd.DataFrame({
         "test": tests,
