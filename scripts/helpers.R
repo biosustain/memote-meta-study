@@ -264,7 +264,7 @@ bigg_df <- readr::read_csv("data/bigg.csv.gz") %>%
   dplyr::mutate(collection = "bigg")
 
 uminho_df <- readr::read_csv("data/uminho.csv.gz") %>%
-  mutate(collection = "uminho")
+  dplyr::mutate(collection = "uminho")
 
 mmodel_df <- readr::read_csv("data/mmodel.csv.gz") %>%
   dplyr::mutate(collection = "ebrahim")

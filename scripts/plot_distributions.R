@@ -31,7 +31,7 @@ sina_layers <- list(
 # Plot per Test -----------------------------------------------------------
 
 all_plots <- total_df %>%
-  dplyr::filter(is.finite(metric)) %>%
+  dplyr::filter(is.finite(numeric)) %>%
   dplyr::mutate(score = ifelse(test %in% only_scored_tests, 1 - metric, metric)) %>%
   dplyr::group_by(test) %>%
   dplyr::do(
@@ -44,7 +44,7 @@ all_plots <- total_df %>%
         shape = collection,
         label = model
       )
-    ) + sina_layers + ggplot2::ylab(stringr::str_wrap(y_axis_labels[unique(.$test)], width = 40))
+    ) + sina_layers + ggplot2::ylab(stringr::str_wrap(y_axis_labels[unique(.$test)], width = 40)) + ggplot2::ylim(0, 1)
   )
 
 for (i in 1:nrow(all_plots)) {

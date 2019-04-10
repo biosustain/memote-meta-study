@@ -195,7 +195,7 @@ scores_df <- total_df %>%
 
 ```{r total-plot, fig.cap='Total Score. Depicted are the sums of all test scores in all independent sections, assuming a uniform weight across the tests and sections.'}
 scores_df %>%
-  dplyr::group_by(collection, model, section) %>%
+  dplyr::group_by(collection, model) %>%
   dplyr::summarize(total = sum(score) / n()) %>%
   dplyr::ungroup() %>%
   ggplot2::ggplot(
@@ -263,7 +263,7 @@ score_plots <- scores_df %>%
 
 ```{r metric-plots, cache=TRUE, dependson='load', include=FALSE}
 metric_plots <- total_df %>%
-  dplyr::filter(is.finite(metric)) %>%
+  dplyr::filter(is.finite(metric), is.finite(numeric)) %>%
   dplyr::group_by(test) %>%
   dplyr::do(
     plot_sina = do_plot(., "metric") + ggplot2::ylim(0, 1)
@@ -291,11 +291,11 @@ sum_plots$plot_sina[sum_plots$section == "consistency"][[1]]
 score_plots$plot_sina[score_plots$test == "test_stoichiometric_consistency"][[1]]
 ```
 
-```{r reactionmassbalance, fig.cap='Mass Balance'}
+```{r reactionmassbalance, fig.cap='Mass Balance. Please note that any reaction where at least one metabolite lacks a formula annotation is considered as unbalanced for the purpose of this test.'}
 score_plots$plot_sina[score_plots$test == "test_reaction_mass_balance"][[1]]
 ```
 
-```{r reactionchargebalance, fig.cap='Charge Balance'}
+```{r reactionchargebalance, fig.cap='Charge Balance. Please note that any reaction where at least one metabolite lacks charge information is considered as unbalanced for the purpose of this test.'}
 score_plots$plot_sina[score_plots$test == "test_reaction_charge_balance"][[1]]
 ```
 
