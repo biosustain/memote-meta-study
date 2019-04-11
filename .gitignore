@@ -60,7 +60,5 @@ packrat/lib*/
 packrat/src/
 # Project
 models/**
-data/**/*.json
-data/**/*.json.gz
 supplements_cache/
 supplements_files/
