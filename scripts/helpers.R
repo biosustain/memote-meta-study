@@ -1,5 +1,6 @@
 
 
+
 # Configuration Values ----------------------------------------------------
 
 file_format <- "png"
@@ -10,8 +11,8 @@ colors <- c(
   "carveme" = "#A3D2E2",
   "ebrahim" = "#3E7CBC",
   "kbase" = "#EDA85F",
-  "path" = "#737878",
-  "optflux" = "#CD2028"
+  "optflux" = "#CD2028",
+  "path" = "#737878"
 )
 
 # Take a look at http://www.cookbook-r.com/Graphs/Shapes_and_line_types/.
@@ -21,8 +22,8 @@ shapes <- c(
   "carveme" = 18,
   "ebrahim" = 17,
   "kbase" = 4,
-  "path" = 5,
-  "optflux" = 8
+  "optflux" = 8,
+  "path" = 5
 )
 
 collection_labels <- c(
@@ -31,8 +32,8 @@ collection_labels <- c(
   "carveme" = "CarveMe",
   "ebrahim" = expression(paste("Ebrahim ", italic("et al."))),
   "kbase" = "KBase",
-  "path" = "Path2Models",
-  "optflux" = "OptFlux Models"
+  "optflux" = "OptFlux Models",
+  "path" = "Path2Models"
 )
 
 y_axis_labels <- c(
@@ -276,21 +277,30 @@ kbase_df <- readr::read_csv("data/kbase.csv.gz") %>%
 optflux_df <- readr::read_csv("data/optflux.csv.gz") %>%
   dplyr::mutate(collection = "optflux")
 
-path_df <- readr::read_csv("data/path2models.csv.gz") %>%
+path_df <- readr::read_csv("data/path.csv.gz") %>%
   dplyr::mutate(collection = "path")
 
 total_df <- dplyr::bind_rows(agora_df,
                              bigg_df,
-                             ebrahim_df,
-                             optflux_df,
                              carveme_df,
-                             path_df,
-                             kbase_df) %>%
+                             ebrahim_df,
+                             kbase_df,
+                             optflux_df,
+
+                             path_df) %>%
   dplyr::mutate(
     model = factor(model),
     collection = factor(
       collection,
-      levels = c("agora", "carveme", "path", "kbase", "bigg", "ebrahim", "optflux")
+      levels = c(
+        "agora",
+        "carveme",
+        "path",
+        "kbase",
+        "bigg",
+        "ebrahim",
+        "optflux"
+      )
     ),
     test = factor(test),
     section = factor(section),
