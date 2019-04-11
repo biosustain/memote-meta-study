@@ -6,8 +6,8 @@
 
 ## Install Python Dependencies
 requirements:
-	pip install -U pip setuptools wheel pipenv
-	pipenv install
+	pip install -U pip setuptools wheel
+	pip install -r dev-requirements.txt
 
 ## Extract all test results
 etl:
@@ -25,6 +25,16 @@ clean:
 	find . -type d -name "__pycache__" -delete
 	rm -rf supplements_cache/*
 	rm -rf supplements_files/*
+
+## Generate all plots and supplementary material
+plot: clean etl
+
+	jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 \
+		--execute --inplace reports/clustering_metric_data.ipynb
+	jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 \
+		--execute --inplace reports/clustering_score.ipynb
+	Rscript scripts/plot_panel.R
+	Rscript scripts/knit.R
 
 ## Lint using flake8
 lint:
