@@ -1,4 +1,4 @@
-.PHONY: requirements etl clean lint jupyter
+.PHONY: requirements etl clean plot lint jupyter
 
 ################################################################################
 # COMMANDS                                                                     #
@@ -32,7 +32,7 @@ plot: clean etl
 	jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 \
 		--execute --inplace reports/clustering_metric_data.ipynb
 	jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 \
-		--execute --inplace reports/clustering_score.ipynb
+		--execute --inplace reports/clustering_scored_data.ipynb
 	Rscript scripts/plot_panel.R
 	Rscript scripts/knit.R
 

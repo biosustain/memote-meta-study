@@ -37,7 +37,7 @@ collection_labels <- c(
 )
 
 y_axis_labels <- c(
-  "test_absolute_extreme_coefficient_ratio" = "Ratio min/max of absolute values of coefficients",
+  "test_absolute_extreme_coefficient_ratio" = "Ratio max/min of absolute values of coefficients > 1E-09 [Boolean]",
   "test_biomass_consistency" = "Biomass consistency deviating from 1 g/mmol [Boolean]",
   "test_biomass_default_production" = "No detectable Biomass flux in default medium [Boolean]",
   "test_biomass_open_production" = "No detectable Biomass flux in complete medium [Boolean]",
@@ -260,7 +260,8 @@ ecoli_models <- readr::read_csv("data/bigg_taxonomy.csv.gz") %>%
   dplyr::pull(model)
 
 bigg_df <- readr::read_csv("data/bigg.csv.gz") %>%
-  dplyr::filter(# Filter excessive amount of E. coli strain models.!(model %in% ecoli_models) |
+  # Filter excessive amount of E. coli strain models.
+  dplyr::filter(!(model %in% ecoli_models) |
     # Maintain latest E. coli model.
     (model %in% c("iML1515", "iJO1366", "iAF1260", "iJR904"))) %>%
   dplyr::mutate(collection = "bigg")
