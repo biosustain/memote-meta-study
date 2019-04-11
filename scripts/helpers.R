@@ -7,8 +7,8 @@ file_format <- "png"
 colors <- c(
   "agora" = "#A6A9AA",
   "bigg" = "#000000",
+  "carveme" = "#A3D2E2",
   "ebrahim" = "#3E7CBC",
-  "embl" = "#A3D2E2",
   "path" = "#737878",
   "seed" = "#EDA85F",
   "optflux" = "#CD2028"
@@ -18,8 +18,8 @@ colors <- c(
 shapes <- c(
   "agora" = 1,
   "bigg" = 16,
+  "carveme" = 18,
   "ebrahim" = 17,
-  "embl" = 18,
   "path" = 5,
   "seed" = 4,
   "optflux" = 8
@@ -28,8 +28,8 @@ shapes <- c(
 collection_labels <- c(
   "agora" = "AGORA",
   "bigg" = "BiGG",
+  "carveme" = "CarveMe",
   "ebrahim" = expression(paste("Ebrahim ", italic("et al."))),
-  "embl" = "CarveMe",
   "path" = "Path2Models",
   "seed" = "KBase",
   "optflux" = "OptFlux Models"
@@ -264,14 +264,14 @@ bigg_df <- readr::read_csv("data/bigg.csv.gz") %>%
     (model %in% c("iML1515", "iJO1366", "iAF1260", "iJR904"))) %>%
   dplyr::mutate(collection = "bigg")
 
+carveme_df <- readr::read_csv("data/carveme.csv.gz") %>%
+  dplyr::mutate(collection = "carveme")
+
 ebrahim_df <- readr::read_csv("data/ebrahim.csv.gz") %>%
   dplyr::mutate(collection = "ebrahim")
 
 optflux_df <- readr::read_csv("data/optflux.csv.gz") %>%
   dplyr::mutate(collection = "optflux")
-
-embl_df <- readr::read_csv("data/embl_gems.csv.gz") %>%
-  dplyr::mutate(collection = "embl")
 
 path_df <- readr::read_csv("data/path2models.csv.gz") %>%
   dplyr::mutate(collection = "path")
@@ -283,14 +283,14 @@ total_df <- dplyr::bind_rows(agora_df,
                              bigg_df,
                              ebrahim_df,
                              optflux_df,
-                             embl_df,
+                             carveme_df,
                              path_df,
                              seed_df) %>%
   dplyr::mutate(
     model = factor(model),
     collection = factor(
       collection,
-      levels = c("agora", "embl", "path", "seed", "bigg", "ebrahim", "optflux")
+      levels = c("agora", "carveme", "path", "seed", "bigg", "ebrahim", "optflux")
     ),
     test = factor(test),
     section = factor(section),
