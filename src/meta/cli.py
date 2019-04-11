@@ -36,7 +36,7 @@ logging.getLogger("memote").setLevel(logging.WARNING)
     logger,
     default="INFO",
     show_default=True,
-    type=click.Choice(["CRITICAL", "ERROR", "WARN", "INFO", "DEBUG"])
+    type=click.Choice(["CRITICAL", "ERROR", "WARN", "INFO", "DEBUG"]),
 )
 def cli():
     """Command line tools for a memote meta study."""
@@ -45,20 +45,16 @@ def cli():
 
 @cli.command()
 @click.help_option("--help", "-h")
+@click.argument("data", type=click.Path(exists=True, file_okay=False))
 @click.argument(
-    "data",
-    type=click.Path(exists=True, file_okay=False)
-)
-@click.argument(
-    "output",
-    type=click.Path(exists=False, file_okay=True, writable=True)
+    "output", type=click.Path(exists=False, file_okay=True, writable=True)
 )
 @click.option(
     "--file-format",
     default=".json.gz",
     show_default=True,
     type=click.Choice([".json.gz", ".json"]),
-    help="Choose the desired file format to look for."
+    help="Choose the desired file format to look for.",
 )
 def etl(data, output, file_format):
     """Extract all results and transform them to a tabular format."""
