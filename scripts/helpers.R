@@ -9,8 +9,8 @@ colors <- c(
   "bigg" = "#000000",
   "carveme" = "#A3D2E2",
   "ebrahim" = "#3E7CBC",
+  "kbase" = "#EDA85F",
   "path" = "#737878",
-  "seed" = "#EDA85F",
   "optflux" = "#CD2028"
 )
 
@@ -20,8 +20,8 @@ shapes <- c(
   "bigg" = 16,
   "carveme" = 18,
   "ebrahim" = 17,
+  "kbase" = 4,
   "path" = 5,
-  "seed" = 4,
   "optflux" = 8
 )
 
@@ -30,8 +30,8 @@ collection_labels <- c(
   "bigg" = "BiGG",
   "carveme" = "CarveMe",
   "ebrahim" = expression(paste("Ebrahim ", italic("et al."))),
+  "kbase" = "KBase",
   "path" = "Path2Models",
-  "seed" = "KBase",
   "optflux" = "OptFlux Models"
 )
 
@@ -270,14 +270,14 @@ carveme_df <- readr::read_csv("data/carveme.csv.gz") %>%
 ebrahim_df <- readr::read_csv("data/ebrahim.csv.gz") %>%
   dplyr::mutate(collection = "ebrahim")
 
+kbase_df <- readr::read_csv("data/kbase.csv.gz") %>%
+  dplyr::mutate(collection = "kbase")
+
 optflux_df <- readr::read_csv("data/optflux.csv.gz") %>%
   dplyr::mutate(collection = "optflux")
 
 path_df <- readr::read_csv("data/path2models.csv.gz") %>%
   dplyr::mutate(collection = "path")
-
-seed_df <- readr::read_csv("data/seed.csv.gz") %>%
-  dplyr::mutate(collection = "seed")
 
 total_df <- dplyr::bind_rows(agora_df,
                              bigg_df,
@@ -285,12 +285,12 @@ total_df <- dplyr::bind_rows(agora_df,
                              optflux_df,
                              carveme_df,
                              path_df,
-                             seed_df) %>%
+                             kbase_df) %>%
   dplyr::mutate(
     model = factor(model),
     collection = factor(
       collection,
-      levels = c("agora", "carveme", "path", "seed", "bigg", "ebrahim", "optflux")
+      levels = c("agora", "carveme", "path", "kbase", "bigg", "ebrahim", "optflux")
     ),
     test = factor(test),
     section = factor(section),
