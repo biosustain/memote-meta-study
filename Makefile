@@ -14,7 +14,7 @@ etl:
 	./cli.py etl data/agora data/agora.csv.gz
 	./cli.py etl data/bigg data/bigg.csv.gz
 	./cli.py etl data/ebrahim data/ebrahim.csv.gz
-	./cli.py etl data/uminho data/uminho.csv.gz
+	./cli.py etl data/optflux data/optflux.csv.gz
 	./cli.py etl data/embl_gems data/embl_gems.csv.gz
 	./cli.py etl data/BioModels_Database-r27_p2m-whole_genome_metabolism data/path2models.csv.gz
 	./cli.py etl data/seed data/seed.csv.gz

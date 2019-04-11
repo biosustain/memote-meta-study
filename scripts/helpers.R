@@ -11,7 +11,7 @@ colors <- c(
   "embl" = "#A3D2E2",
   "path" = "#737878",
   "seed" = "#EDA85F",
-  "uminho" = "#CD2028"
+  "optflux" = "#CD2028"
 )
 
 # Take a look at http://www.cookbook-r.com/Graphs/Shapes_and_line_types/.
@@ -22,7 +22,7 @@ shapes <- c(
   "embl" = 18,
   "path" = 5,
   "seed" = 4,
-  "uminho" = 8
+  "optflux" = 8
 )
 
 collection_labels <- c(
@@ -32,7 +32,7 @@ collection_labels <- c(
   "embl" = "CarveMe",
   "path" = "Path2Models",
   "seed" = "KBase",
-  "uminho" = "OptFlux Models"
+  "optflux" = "OptFlux Models"
 )
 
 y_axis_labels <- c(
@@ -267,8 +267,8 @@ bigg_df <- readr::read_csv("data/bigg.csv.gz") %>%
 ebrahim_df <- readr::read_csv("data/ebrahim.csv.gz") %>%
   dplyr::mutate(collection = "ebrahim")
 
-uminho_df <- readr::read_csv("data/uminho.csv.gz") %>%
-  dplyr::mutate(collection = "uminho")
+optflux_df <- readr::read_csv("data/optflux.csv.gz") %>%
+  dplyr::mutate(collection = "optflux")
 
 embl_df <- readr::read_csv("data/embl_gems.csv.gz") %>%
   dplyr::mutate(collection = "embl")
@@ -282,7 +282,7 @@ seed_df <- readr::read_csv("data/seed.csv.gz") %>%
 total_df <- dplyr::bind_rows(agora_df,
                              bigg_df,
                              ebrahim_df,
-                             uminho_df,
+                             optflux_df,
                              embl_df,
                              path_df,
                              seed_df) %>%
@@ -290,7 +290,7 @@ total_df <- dplyr::bind_rows(agora_df,
     model = factor(model),
     collection = factor(
       collection,
-      levels = c("agora", "embl", "path", "seed", "bigg", "ebrahim", "uminho")
+      levels = c("agora", "embl", "path", "seed", "bigg", "ebrahim", "optflux")
     ),
     test = factor(test),
     section = factor(section),
