@@ -250,7 +250,7 @@ only_scored_tests <- c(
 
 # Load base data ----------------------------------------------------------
 
-ecoli_models <- readr::read_csv("data/bigg/organism.csv.gz") %>%
+ecoli_models <- readr::read_csv("data/bigg_taxonomy.csv.gz") %>%
   dplyr::filter(grepl("^Escherichia coli", .$strain, ignore.case = TRUE)) %>%
   dplyr::pull(model)
 
