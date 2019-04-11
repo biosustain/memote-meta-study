@@ -1,4 +1,5 @@
 
+
 # Configuration Values ----------------------------------------------------
 
 file_format <- "png"
@@ -250,27 +251,24 @@ only_scored_tests <- c(
 
 # Load base data ----------------------------------------------------------
 
+agora_df <- readr::read_csv("data/agora.csv.gz") %>%
+  dplyr::mutate(collection = "agora")
+
 ecoli_models <- readr::read_csv("data/bigg_taxonomy.csv.gz") %>%
   dplyr::filter(grepl("^Escherichia coli", .$strain, ignore.case = TRUE)) %>%
   dplyr::pull(model)
 
 bigg_df <- readr::read_csv("data/bigg.csv.gz") %>%
-  dplyr::filter(
-    # Filter excessive amount of E. coli strain models.
-    !(model %in% ecoli_models) |
-      # Maintain latest E. coli model.
-      (model %in% c("iML1515", "iJO1366", "iAF1260", "iJR904"))
-  ) %>%
+  dplyr::filter(# Filter excessive amount of E. coli strain models.!(model %in% ecoli_models) |
+    # Maintain latest E. coli model.
+    (model %in% c("iML1515", "iJO1366", "iAF1260", "iJR904"))) %>%
   dplyr::mutate(collection = "bigg")
+
+ebrahim_df <- readr::read_csv("data/ebrahim.csv.gz") %>%
+  dplyr::mutate(collection = "ebrahim")
 
 uminho_df <- readr::read_csv("data/uminho.csv.gz") %>%
   dplyr::mutate(collection = "uminho")
-
-mmodel_df <- readr::read_csv("data/mmodel.csv.gz") %>%
-  dplyr::mutate(collection = "ebrahim")
-
-agora_df <- readr::read_csv("data/agora.csv.gz") %>%
-  dplyr::mutate(collection = "agora")
 
 embl_df <- readr::read_csv("data/embl_gems.csv.gz") %>%
   dplyr::mutate(collection = "embl")
@@ -281,10 +279,10 @@ path_df <- readr::read_csv("data/path2models.csv.gz") %>%
 seed_df <- readr::read_csv("data/seed.csv.gz") %>%
   dplyr::mutate(collection = "seed")
 
-total_df <- dplyr::bind_rows(bigg_df,
+total_df <- dplyr::bind_rows(agora_df,
+                             bigg_df,
+                             ebrahim_df,
                              uminho_df,
-                             mmodel_df,
-                             agora_df,
                              embl_df,
                              path_df,
                              seed_df) %>%
@@ -302,31 +300,19 @@ total_df <- dplyr::bind_rows(bigg_df,
 # Load clustering data ----------------------------------------------------
 
 score_pca_tbl <- readr::read_csv("data/score_pca.csv.gz") %>%
-  dplyr::mutate(
-    collection = factor(collection)
-  )
+  dplyr::mutate(collection = factor(collection))
 
 score_tsne_tbl <- readr::read_csv("data/score_tsne.csv.gz") %>%
-  dplyr::mutate(
-    collection = factor(collection)
-  )
+  dplyr::mutate(collection = factor(collection))
 
 score_umap_tbl <- readr::read_csv("data/score_umap.csv.gz") %>%
-  dplyr::mutate(
-    collection = factor(collection)
-  )
+  dplyr::mutate(collection = factor(collection))
 
 metric_pca_tbl <- readr::read_csv("data/metric_pca.csv.gz") %>%
-  dplyr::mutate(
-    collection = factor(collection)
-  )
+  dplyr::mutate(collection = factor(collection))
 
 metric_tsne_tbl <- readr::read_csv("data/metric_tsne.csv.gz") %>%
-  dplyr::mutate(
-    collection = factor(collection)
-  )
+  dplyr::mutate(collection = factor(collection))
 
 metric_umap_tbl <- readr::read_csv("data/metric_umap.csv.gz") %>%
-  dplyr::mutate(
-    collection = factor(collection)
-  )
+  dplyr::mutate(collection = factor(collection))
