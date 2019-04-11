@@ -24,14 +24,16 @@ make requirements
 make jupyter
 ```
 
-This will install all requirements and configure the Jupyter notebook
-extensions.
+This will install all Python requirements and configure the Jupyter notebook
+extensions. R dependencies are handled by
+[packrat](https://rstudio.github.io/packrat/). Simply start R (or RStudio) in
+the project directory.
 
 ## Usage
 
-The main work can be performed via the make command `make test` or for
+The main work can be performed via the make command `make plot` or for
 more fine grained control via the command line interface exposed by
-`./cli.py`.
+`./cli.py` and the relevant R scripts.
 
 ## Contact
 
