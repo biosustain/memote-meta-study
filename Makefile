@@ -1,10 +1,4 @@
-.PHONY: requirements download test clean lint jupyter
-
-################################################################################
-# GLOBALS                                                                      #
-################################################################################
-
-PYTHON_INTERPRETER = python3
+.PHONY: requirements etl clean lint jupyter
 
 ################################################################################
 # COMMANDS                                                                     #
@@ -14,21 +8,6 @@ PYTHON_INTERPRETER = python3
 requirements:
 	pip install -U pip setuptools wheel pipenv
 	pipenv install
-
-## Download all metabolic models
-download:
-	./cli.py bigg download
-	./cli.py uminho download
-	git fetch https://github.com/opencobra/m_model_collection.git master
-	git subtree pull --prefix models/mmodel https://github.com/opencobra/m_model_collection.git master --squash
-	git fetch https://github.com/cdanielmachado/embl_gems.git master
-	git subtree pull --prefix models/carveme https://github.com/cdanielmachado/embl_gems.git master --squash
-
-## Run memote on all models
-test:
-	./cli.py bigg test
-	./cli.py uminho test
-	./cli.py mmodel test
 
 ## Extract all test results
 etl:

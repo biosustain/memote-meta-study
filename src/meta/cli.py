@@ -24,10 +24,6 @@ import click
 import click_log
 
 from meta.etl import extract_transform_load
-from meta.bigg.commands import bigg
-# from meta.biomodels.commands import biomodels
-from meta.mmodel.commands import mmodel
-from meta.uminho.commands import uminho
 
 logger = logging.getLogger()
 click_log.basic_config(logger)
@@ -65,11 +61,5 @@ def cli():
     help="Choose the desired file format to look for."
 )
 def etl(data, output, file_format):
-    """Extract all results."""
+    """Extract all results and transform them to a tabular format."""
     extract_transform_load(data, output, file_format)
-
-
-cli.add_command(bigg)
-# cli.add_command(biomodels)
-cli.add_command(mmodel)
-cli.add_command(uminho)
