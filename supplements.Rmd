@@ -47,8 +47,8 @@ In order to respect the limited resources on the [DTU high performance computing
 kableExtra::usepackage_latex("threeparttable")
 dplyr::tibble(
   collection = factor(
-    c("agora", "embl", "path", "seed", "bigg", "ebrahim", "uminho"),
-    levels = c("agora", "embl", "path", "seed", "bigg", "ebrahim", "uminho")
+    c("agora", "carveme", "path", "kbase", "bigg", "ebrahim", "uminho"),
+    levels = c("agora", "carveme", "path", "kbase", "bigg", "ebrahim", "uminho")
   ),
   name = c(
     "AGORA",
@@ -109,7 +109,7 @@ cluster_layers <- list(
 
 # Clustering
 
-```{r pca, fig.cap='PCA of Normalized Test Features', cache=TRUE, dependson='load'}
+```{r pca, fig.cap='Depicted are the first two components of a principal components analysis of the normalized test features (metrics).', cache=TRUE, dependson='load'}
 ggplot2::ggplot(metric_pca_tbl,
                 ggplot2::aes(
                   x = x,
@@ -120,7 +120,7 @@ ggplot2::ggplot(metric_pca_tbl,
   cluster_layers
 ```
 
-```{r tsne, fig.cap='t-SNE of Normalized Test Features', cache=TRUE, dependson='load'}
+```{r tsne, fig.cap='Depicted are the distances between models in higher order space given by the normalized test features reduced to two dimensions using t-SNE.', cache=TRUE, dependson='load'}
 ggplot2::ggplot(metric_tsne_tbl,
                 ggplot2::aes(
                   x = x,
@@ -131,7 +131,7 @@ ggplot2::ggplot(metric_tsne_tbl,
   cluster_layers
 ```
 
-```{r umap, fig.cap='UMAP of Normalized Test Features', cache=TRUE, dependson='load'}
+```{r umap, fig.cap='Depicted are the distances between models in higher order space given by the normalized test features reduced to two dimensions using t-SNE.', cache=TRUE, dependson='load'}
 ggplot2::ggplot(metric_umap_tbl,
                 ggplot2::aes(
                   x = x,
@@ -143,7 +143,7 @@ ggplot2::ggplot(metric_umap_tbl,
 ```
 
 
-Explain which features were used and methods + parameters. Show all plots here.
+In order to perform the clustering analyses, we used all normalized test metrics excluding some particular cases. Excluded are the Sections \@ref(sec:basic-info) & \@ref(sec:biomass) because the basic information only contains unnormalized model dimensions and because a biomass formulation is not present in all models. We further removed individual biomass related test cases, as well as the metabolic coverage since that is not properly normalized. Additionally, test cases that contained errors were penalized with the worst metric of one.
 
 \FloatBarrier
 
@@ -167,12 +167,6 @@ sina_layers <- list(
 )
 ```
 
-```{r scores, cache=TRUE, dependson='load', include=FALSE}
-scores_df <- total_df %>%
-  dplyr::filter(test %in% only_scored_tests) %>%
-  dplyr::mutate(score = 1 - metric)
-```
-
 ## Summary of Observations
 
 * SBO terms are only used consistently by models from KBase and BiGG (see Figures \@ref(fig:annotation-sbo-score)).
@@ -190,10 +184,25 @@ scores_df <- total_df %>%
 
 ## Scores
 
-```{r total-plot, fig.cap='Total Score. Depicted are the sums of all test scores in all independent sections, assuming a uniform weight across the tests and sections.'}
-scores_df %>%
-  dplyr::group_by(collection, model) %>%
-  dplyr::summarize(total = sum(score) / n()) %>%
+```{r total-plot, fig.cap='Total Score. Depicted are the sums of all test scores in all independent sections, applying the weights for individual test cases and sections as detailed in the snapshot report.'}
+section_weights <- tibble::tibble(
+  section = c(
+  "consistency",
+  "annotation_met",
+  "annotation_rxn",
+  "annotation_gene",
+  "annotation_sbo"
+  ),
+  weight = c(3, 1, 1, 1, 2)
+  )
+total_df %>%
+  dplyr::filter(is.finite(score)) %>%
+  # First, sum the weighted test scores per section.
+  dplyr::group_by(collection, model, section) %>%
+  dplyr::summarize(score = sum(score * weight) / sum(weight)) %>%
+  # Second, sum the weighted section scores to a total.
+  dplyr::left_join(., section_weights, by = "section") %>%
+  dplyr::summarize(total = sum(score * weight) / sum(weight)) %>%
   dplyr::ungroup() %>%
   ggplot2::ggplot(
       .,
@@ -209,9 +218,11 @@ scores_df %>%
 
 
 ```{r sum-plots, cache=TRUE, dependson='scores', include=FALSE}
-sum_plots <- scores_df %>%
+sum_plots <- total_df %>%
+  dplyr::filter(is.finite(score)) %>%
+  # Sum the weighted test scores per section.
   dplyr::group_by(collection, model, section) %>%
-  dplyr::summarize(total = sum(score) / n()) %>%
+  dplyr::summarize(total = sum(score * weight) / sum(weight)) %>%
   dplyr::ungroup() %>%
   dplyr::group_by(section) %>%
   dplyr::do(
@@ -235,7 +246,7 @@ sum_plots <- scores_df %>%
 ```{r plot-function, include=FALSE}
 do_plot <- function(sub_tbl, var, label_width = 40) {
   test_id <- dplyr::first(as.character(sub_tbl$test))
-  ggplot2::ggplot(
+  base_plot <- ggplot2::ggplot(
     sub_tbl,
     ggplot2::aes_string(
       x = "collection",
@@ -246,12 +257,18 @@ do_plot <- function(sub_tbl, var, label_width = 40) {
     )
   ) + sina_layers + ggplot2::ylab(stringr::str_wrap(y_axis_labels[test_id],
                                                     width = label_width))
+  if ((min(sub_tbl[[var]], na.rm = TRUE) < 0) | (max(sub_tbl[[var]], na.rm = TRUE) > 1)) {
+    return(base_plot)
+  } else {
+    return(base_plot + ggplot2::ylim(0, 1))
+  }
 }
 ```
 
 
 ```{r scored-plots, cache=TRUE, dependson='scores', include=FALSE}
-score_plots <- scores_df %>%
+score_plots <- total_df %>%
+  dplyr::filter(is.finite(score)) %>%
   dplyr::group_by(test) %>%
   dplyr::do(
     plot_sina = do_plot(., "score") + ggplot2::ylim(0, 1)
@@ -263,7 +280,7 @@ metric_plots <- total_df %>%
   dplyr::mutate(metric = ifelse(is.na(numeric), NA, metric)) %>%
   dplyr::group_by(test) %>%
   dplyr::do(
-    plot_sina = do_plot(., "metric") + ggplot2::ylim(0, 1)
+    plot_sina = do_plot(., "metric")
   )
 ```
 
@@ -279,7 +296,7 @@ numeric_plots <- total_df %>%
 
 ### Consistency
 
-```{r consistency-score, fig.cap='Consistency. Depicted are the sums of all test scores in this section, assuming a uniform weight across the tests.'}
+```{r consistency-score, fig.cap='Consistency. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
 sum_plots$plot_sina[sum_plots$section == "consistency"][[1]]
 ```
 
@@ -307,7 +324,7 @@ score_plots$plot_sina[score_plots$test == "test_find_reactions_unbounded_flux_de
 
 ### Annotation - Metabolites
 
-```{r annotation-met-score, fig.cap='Annotation - Metabolites. Depicted are the sums of all test scores in this section, assuming a uniform weight across the tests.'}
+```{r annotation-met-score, fig.cap='Annotation - Metabolites. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
 sum_plots$plot_sina[sum_plots$section == "annotation_met"][[1]]
 ```
 
@@ -419,7 +436,7 @@ score_plots$plot_sina[score_plots$test == "test_metabolite_id_namespace_consiste
 
 ### Annotation - Reactions
 
-```{r annotation-rxn-score, fig.cap='Annotation - Reactions. Depicted are the sums of all test scores in this section, assuming a uniform weight across the tests.'}
+```{r annotation-rxn-score, fig.cap='Annotation - Reactions. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
 sum_plots$plot_sina[sum_plots$section == "annotation_rxn"][[1]]
 ```
 
@@ -515,7 +532,7 @@ score_plots$plot_sina[score_plots$test == "test_reaction_id_namespace_consistenc
 
 ### Annotation - Genes
 
-```{r annotation-gene-score, fig.cap='Annotation - Genes. Depicted are the sums of all test scores in this section, assuming a uniform weight across the tests.'}
+```{r annotation-gene-score, fig.cap='Annotation - Genes. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
 sum_plots$plot_sina[sum_plots$section == "annotation_gene"][[1]]
 ```
 
@@ -615,7 +632,7 @@ score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_id
 
 ### Annotation - SBO Terms
 
-```{r annotation-sbo-score, fig.cap='Annotation - SBO Terms. Depicted are the sums of all test scores in this section, assuming a uniform weight across the tests.'}
+```{r annotation-sbo-score, fig.cap='Annotation - SBO Terms. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
 sum_plots$plot_sina[sum_plots$section == "annotation_sbo"][[1]]
 ```
 
@@ -679,7 +696,7 @@ metric_plots$plot_sina[metric_plots$test == "test_fbc_presence"][[1]]
 
 \FloatBarrier
 
-### Basic Information
+### Basic Information {#sec:basic-info}
 
 ```{r modelid, fig.cap='Model Identifier Presence'}
 metric_plots$plot_sina[metric_plots$test == "test_model_id_presence"][[1]]
@@ -750,7 +767,13 @@ metric_plots$plot_sina[metric_plots$test == "test_find_constrained_transport_rea
 ```
 
 ```{r candidateirreversiblereactions, fig.cap='Thermodynamic Reversibility of Purely Metabolic Reactions'}
-metric_plots$plot_sina[metric_plots$test == "test_find_candidate_irreversible_reactions"][[1]]
+print(metric_plots$plot_sina[metric_plots$test == "test_find_candidate_irreversible_reactions"][[1]])
+print(numeric_plots$plot_sina[numeric_plots$test == "test_find_candidate_irreversible_reactions"][[1]] + ggplot2::ylab(
+  stringr::str_wrap(
+    "Number of reactions estimated to be thermodynamically irreversible",
+    width = 40
+  )
+))
 ```
 
 ```{r reactionsidenticalannotations, fig.cap='Reactions with Partially Identical Annotations'}
@@ -783,7 +806,7 @@ metric_plots$plot_sina[metric_plots$test == "test_protein_complex_presence"][[1]
 
 \FloatBarrier
 
-### Biomass
+### Biomass {#sec:biomass}
 
 ```{r biomass-presence, fig.cap='Biomass Reactions Identified'}
 metric_plots$plot_sina[metric_plots$test == "test_biomass_presence"][[1]]

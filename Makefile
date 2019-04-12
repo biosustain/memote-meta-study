@@ -27,7 +27,7 @@ clean:
 	rm -rf supplements_files/*
 
 ## Generate all plots and supplementary material
-plot: clean etl
+plot: clean
 
 	jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 \
 		--execute --inplace reports/clustering_metric_data.ipynb
