@@ -1,5 +1,7 @@
 # Memote Meta Study
 
+[![DOI](https://zenodo.org/badge/100613212.svg)](https://zenodo.org/badge/latestdoi/100613212)
+
 We have collected a large number of genome-scale metabolic models (GEMs) and
 investigated the aggregated results of running the models through memote's test
 suite. The models can be found separately at
