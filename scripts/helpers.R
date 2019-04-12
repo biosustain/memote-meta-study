@@ -28,12 +28,12 @@ shapes <- c(
 
 collection_labels <- c(
   "agora" = "AGORA",
-  "bigg" = "BiGG",
   "carveme" = "CarveMe",
-  "ebrahim" = expression(paste("Ebrahim ", italic("et al."))),
+  "path" = "Path2Models",
   "kbase" = "KBase",
-  "optflux" = "OptFlux Models",
-  "path" = "Path2Models"
+  "bigg" = "BiGG",
+  "ebrahim" = expression(paste("Ebrahim ", italic("et al."))),
+  "optflux" = "OptFlux"
 )
 
 y_axis_labels <- c(
@@ -309,6 +309,8 @@ total_df <- dplyr::bind_rows(agora_df,
   )
 
 # Load clustering data ----------------------------------------------------
+
+features_df <- readr::read_csv("data/clustering_features.csv.gz")
 
 score_pca_tbl <- readr::read_csv("data/score_pca.csv.gz") %>%
   dplyr::mutate(collection = factor(collection))
