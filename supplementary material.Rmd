@@ -1,10 +1,10 @@
 ---
-title: 'Supplementary Material Depicting the Comparative Analysis of Model Collections'
+title: 'Supplementary Material'
 date: 
 output:
   bookdown::pdf_document2:
     toc: true
-    toc_depth: 3
+    toc_depth: 4
 fontsize: 11pt
 bibliography: ["references.bib"]
 biblio-style: "nature"
@@ -45,9 +45,115 @@ library(cowplot)
 source("scripts/helpers.R")
 ```
 
+# Supplementary Note 1: Guide on how to understand the reports
+
+The following text is a verbatim copy modified to work in print taken from memote’s documentation at the time of publication. For an updated version please check the latest [memote documentation](https://memote.readthedocs.io/en/latest/understanding_reports.html).
+
+## Understanding the reports
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image2.png}
+  \caption{Snapshot Report}
+  \label{fig:snapshot}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image5.png}
+  \caption{Diff Report}
+  \label{fig:diff}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image7.png}
+  \caption{History Report}
+  \label{fig:history}
+\end{figure}
+
+Memote will return one of four possible outputs. If your preferred workflow is to benchmark one or several genome-scale metabolic models (GSM) memote generates either a snapshot (Figure \@ref(fig:snapshot)) or a diff report (Figure  \@ref(fig:diff)), respectively. For the reconstruction workflow the primary output is a history report (Figure  \@ref(fig:history)). This will only work if the provided input models are formatted correctly in the [systems biology markup language (SBML)](http://sbml.org/Main_Page). However, if a provided model is not a valid SBML file, memote composes a report enumerating errors and warnings from the SBML validator the order of appearance. To better understand the output of the error report we refer the reader to this section of the [SBML documentation](http://sbml.org/Facilities/Documentation/Error_Categories). In this section, we will focus on how to understand the snapshot, diff and history reports.
+
+### Orientation
+
+#### Toolbar
+
+In all three reports, the blue toolbar at the top shows (from left to right) the memote logo, a button which expands and collapses all test results, a button which displays the readme and the github icon which links to memote's github page. On the snapshot report, the toolbar will also display the identifier of the tested GEM and a timestamp showing when the test run was initiated.
+
+#### Main Body
+
+The main body of the reports is divided into an independent section to the left and a specific section to the right.
+
+The tests in the independent section are agnostic of the type of modeled organism, preferred modeling paradigms, the complexity of a genome-scale metabolic model (GEM) or the types of identifiers that are used to describe its components. The tests in this section focus on testing adherence to fundamental principles of constraint-based modeling: mass, charge and stoichiometric balance as well as the presence of annotations. The results in this section can be normalized, and thus enable a comparison of GEMs. The **Score** at the bottom of the page summarises the results to further simplify comparison. While calculating an overall score for this section allows for the quick comparison of any two given models at a glance, we recommend a thorough analysis of all results with respect to the desired use case.
+
+The specific section on the right provides model specific statistics and covers aspects of a metabolic network that can not be normalized without introducing bias. For instance, dedicated quality control of the biomass equation only applies to GEMs which are used to investigate cell growth, i.e., those for which a biomass equation has been generated. Some tests in this section are also influenced by whether the tested GEM represents a prokaryote or a eukaryote. Therefore the results cannot be generalized and direct comparisons ought to take bias into account.
+
+#### Test Results
+
+Test results are arranged in rows with the title visible to the left and the result on the right. The result is displayed as white text in a coloured rectangle detailed below in the subsection **Color**.
+
+By default only the minimum information is visible as indicated by an arrow pointing down right of the result. Clicking anywhere in the row will expand the result revealing a description of the concept behind the test, its implementation and a brief summary of the result. In addition, there is a text field which contains plain text representations of Python objects which can be copied and pasted into Python code for follow up procedures.
+
+Some tests carry out one operation on several parameters and therefore deviate slightly from the descriptions above. Expanding the title row reveals only the description, while rows of the individual parameters reveal the text fields.
+
+In the history report, instead of text fields scatterplots show how the respective metrics developed over the commit history for each branch of a repository. By clicking an entry in the legend, it is possible to toggle its visibility in the plot.
+
+### Interpretation
+
+The variety of constraints-based modeling approaches and differences between various organisms compound the assessment of GSMs. While memote facilitates model assessment it can only do so within limitations. Please bear in mind the diversity of Paradigms that challenge some of memote's results.
+
+#### Color
+**Snapshot Report**
+
+Results without highlights are kept in the main <span style="color:#2a7bb8">blue</span> color of the memote color scheme. Scored results (Figure G1) will be marked with a gradient ranging from <span style="color:#a11212">red</span> to <span style="color:#12a12e">green</span> denoting a low or a high score respectively:
+
+![Snapshot Report Score Gradient](figures/guide/image6.png)
+
+**Diff Report**
+The colour in the Diff Report (Figure G2) depends on the ratio of the sample minimum to the sample maximum. Result sets where the sample minimum and the sample maximum are identical will be coloured in the main <span style="color:#2a7bb8">blue</span> color of the memote color scheme. Result sets where the sample minimum is very small relative to the sample maximum will appear <span style="color:#a11212">red</span. This ratio is calculated with as $$ 1 - (Min / Max)) * 100 $$.
+
+This is then mapped to the following gradient:
+
+![Diff Report Ratio Gradient](figures/guide/image4.png)
+
+#### Score
+
+Each test in the independent section provides a relative measure of completeness with regard to the tested property. The final score is the weighted sum of all individual test results normalized by the maximally achievable score, i.e., all individual results at 100%. Individual tests can be weighted, but it is also possible to apply weighting to entire subsections. Hence the final score is calculated:
+
+$$ TotalScore = \frac{\sum_{Subsections} weight_{subsection}\times(\sum_{Tests} weight_{test} \times TestScore)}{Max Score} $$
+
+Weights for sections and individual tests are indicated by a white number inside a magenta badge. No badge means that the weight defaults to 1.
+
+The subsections “Consistency” and “Annotation - SBO” have weights of 3 and 2, respectively. The test “Stoichiometric Consistency” itself is weighted 3 times stronger than the remaining tests in the “Consistency” subsection. The remaining subsections and tests which cover annotations of metabolites, reactions and genes have weights of 1 (Supplementary Figure G1).
+
+### Paradigms
+
+#### "Reconstructions" and "Models"
+Some authors may publish metabolic networks which are parameterized, ready to run flux balance analysis (FBA), these are referred to simply as 'models'. Alternatively, others may publish unconstrained metabolic knowledge bases (referred to as 'reconstructions'), from which several models can be derived by applying different constraints. Both can be encoded in SBML. With having an independent test section, we attempt to make both 'models' and 'reconstructions' comparable, although a user should be aware that this difference exists and is subject to some discussion [https://github.com/opencobra/memote/issues/228]. Please note that some tests in the specific section may error for a reconstruction as they require initialization.
+
+#### "Lumped" and "Split" Biomass Reaction
+There are two basic ways of specifying the biomass composition. The most common is a single lumped reaction containing all biomass precursors. Alternatively, the biomass equation can be split into several reactions each focusing on a different macromolecular component for instance a (1 gDW ash) + b (1 gDW phospholipids) + c (free fatty acids)+
+d (1 gDW carbohydrates) + e (1 gDW protein) + f (1 gDW RNA) + g (1 gDW DNA) + h (vitamins/cofactors) + x ATP + x H2O-> 1 gDCW biomass + x ADP + x H + x Pi. The benefit of either approach depends very much on the use cases which are [discussed by the community](https://github.com/opencobra/memote/issues/243). Memote employs heuristics to identify the type of biomass which may fail to distinguish edge cases.
+
+#### "Average" and "Unique" Metabolites
+A metabolite consisting of a fixed core with variable branches such as a membrane lipid is sometimes implemented by averaging over the distribution of individual lipid species. The resulting pseudo-metabolite is assigned an average chemical formula, which requires scaling of stoichiometries of associated reactions to avoid floating point numbers in the chemical formulae. An alternative approach is to implement each species as a distinct metabolite in the model, which increases the total count of reactions. Memote cannot yet distinguish between these paradigms, which means that results in the specific sections that rely on the total number of reactions or scaling of stoichiometric parameters may be biased.
+
+# Supplementary Note 2: Validation against experimental data
+
+To compare model predictions to experimental measurements, a researcher would typically write a short script. The reproducibility of this script may be limited by the original author's style of writing code, whether the code has been rigorously checked for errors, and whether it is dependent on obsolete libraries. The latter, so called software rot, arises from a lack of active maintenance [@Beaulieu-Jones2017-tg]. 
+
+In contrast, with memote researchers may optionally define a configuration file (in YAML format) in which they can set the medium and FBA objective. This file can be used by researchers without prior programming experience. It configures memote to execute clearly defined, formulaic operations, which are unit tested. Lastly, it confers the burden of maintenance to the memote community represented through this consortium. This does not only distribute the necessity for funding onto many shoulders, but also increases the likelihood of the codebase keeping up with advances in its core dependencies, i.e., keeping software rot at bay. The development of the COBRAToolbox [@Heirendt2017-ra] and cobrapy [@Ebrahim2013-wf] are pertinent examples of community projects that operate on a similar strategy. Moreover, frequent versioning ensures that users can return to previous versions to re-run analyses. 
+
+Setting up a version-controlled model repository not only allows researchers to publish a ‘default’ unspecific GEM of the investigated organism, but also reproducible instructions on how to obtain a model that is specific to the organism in a defined experimental context including, and validated against the data supporting this context. This formulaic approach of deriving a GEM into a condition-specific form supports Heavner and Price’s [@Heavner2015-gq] call for more transparency and reproducibility in metabolic network reconstruction (\@ref(fig:validation)).
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image3.png}
+  \caption{Experimental tests can be tailored to a specific condition through the use of one or several configuration files (configs). (a) To validate GEMs against experimental data measured in specific conditions, researchers usually write their scripts which constrain the model. This is problematic as scripts can vary a lot and they are, unless actively maintained, susceptible to software rot. (b) With memote, user-defined configuration files replace scripts, which allows the experimental validation of GEMs to be unified and formalized. Bundling the model, configuration files, and experimental data within a version-controlled repository (indicated by the blue asterisk*) facilitates reproducibility.}
+  \label{fig:validation}
+\end{figure}
+
+# Supplementary Methods 
+
 To simplify interpretation, the following figures are grouped by the sections of their corresponding test cases as they appear in a snapshot report. The code that was used to generate the data and figures has been deposited on GitHub https://github.com/biosustain/memote-meta-study.
 
-# Tested models
+## Tested models
 
 In order to respect the limited resources on the [DTU high performance computing infrastructure](https://www.hpc.dtu.dk/), we set a maximum time limit for running the memote test suite. This introduced a bias against large models. Additionally, certain models failed the testing procedure. In the following we tabulate the total size of the collections as well as the final number of tested models. The results are shown in Table \@ref(tab:numbers).
 
@@ -115,7 +221,7 @@ cluster_layers <- list(
 )
 ```
 
-# Clustering
+## Clustering
 
 ```{r pca, fig.cap='Depicted are the first two components of a principal components analysis of the normalized test features (metrics).', cache=TRUE, dependson='load'}
 ggplot2::ggplot(metric_pca_tbl,
@@ -238,7 +344,7 @@ ggplot2::theme_set(cowplot::theme_cowplot(font_size = 11))
 
 \FloatBarrier
 
-# Test Suite
+## Test Suite
 
 ```{r sina-layers, include=FALSE}
 sina_layers <- list(
@@ -258,7 +364,7 @@ sina_layers <- list(
 )
 ```
 
-## Summary of Observations
+### Summary of Observations
 
 * SBO terms are only used by models from KBase and BiGG (Figure \@ref(fig:annotation-sbo-score)).
 * Models from Path2Models and Opflux Models are formatted in legacy SBML (< Level 3,Version 1) without FBC package (Figures \@ref(fig:sbml-level) & \@ref(fig:fbc-presence)).
@@ -273,7 +379,7 @@ sina_layers <- list(
 
 \FloatBarrier
 
-## Scores
+### Scores
 
 ```{r total-plot, fig.cap='Total Score. Depicted are the sums of all test scores in all independent sections, applying the weights for individual test cases and sections as detailed in the snapshot report.'}
 section_weights <- tibble::tibble(
@@ -332,7 +438,7 @@ sum_plots <- total_df %>%
 
 \FloatBarrier
 
-## Independent Section
+### Independent Section
 
 ```{r plot-function, include=FALSE}
 do_plot <- function(sub_tbl, var, label_width = 40) {
@@ -385,7 +491,7 @@ numeric_plots <- total_df %>%
 
 \FloatBarrier
 
-### Consistency
+#### Consistency
 
 ```{r consistency-score, fig.cap='Consistency. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
 sum_plots$plot_sina[sum_plots$section == "consistency"][[1]]
@@ -413,7 +519,7 @@ score_plots$plot_sina[score_plots$test == "test_find_reactions_unbounded_flux_de
 
 \FloatBarrier
 
-### Annotation - Metabolites
+#### Annotation - Metabolites
 
 ```{r annotation-met-score, fig.cap='Annotation - Metabolites. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
 sum_plots$plot_sina[sum_plots$section == "annotation_met"][[1]]
@@ -425,7 +531,7 @@ score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_presence"]
 
 \FloatBarrier
 
-#### Metabolite Annotations Per Database
+##### Metabolite Annotations Per Database
 
 ```{r metaboliteannotationpubmed, fig.cap='Metabolite Pubchem.compound Annotation'}
 score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-pubchem.compound"][[1]]
@@ -473,7 +579,7 @@ score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-b
 
 \FloatBarrier
 
-#### Metabolite Annotation Conformity per Database
+##### Metabolite Annotation Conformity per Database
 
 ```{r wrongmetaboliteannotationpubmed, fig.cap='Correct Metabolite Pubchem.compound Annotation'}
 score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-pubchem.compound"][[1]]
@@ -525,7 +631,7 @@ score_plots$plot_sina[score_plots$test == "test_metabolite_id_namespace_consiste
 
 \FloatBarrier
 
-### Annotation - Reactions
+#### Annotation - Reactions
 
 ```{r annotation-rxn-score, fig.cap='Annotation - Reactions. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
 sum_plots$plot_sina[sum_plots$section == "annotation_rxn"][[1]]
@@ -537,7 +643,7 @@ score_plots$plot_sina[score_plots$test == "test_reaction_annotation_presence"][[
 
 \FloatBarrier
 
-#### Reaction Annotations Per Database
+##### Reaction Annotations Per Database
 
 ```{r reactionannotationrhea, fig.cap='Reaction Rhea Annotation'}
 score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-rhea"][[1]]
@@ -577,7 +683,7 @@ score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-bio
 
 \FloatBarrier
 
-#### Reaction Annotation Conformity Per Database
+##### Reaction Annotation Conformity Per Database
 
 ```{r wrongreactionannotationrhea, fig.cap='Correct Reaction Rhea Annotation'}
 score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-rhea"][[1]]
@@ -621,7 +727,7 @@ score_plots$plot_sina[score_plots$test == "test_reaction_id_namespace_consistenc
 
 \FloatBarrier
 
-### Annotation - Genes
+#### Annotation - Genes
 
 ```{r annotation-gene-score, fig.cap='Annotation - Genes. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
 sum_plots$plot_sina[sum_plots$section == "annotation_gene"][[1]]
@@ -633,7 +739,7 @@ score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_presence
 
 \FloatBarrier
 
-#### Gene Annotations Per Database
+##### Gene Annotations Per Database
 
 ```{r gene-annotation-refseq, fig.cap='Gene RefSeq Annotation'}
 score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-refseq"][[1]]
@@ -677,7 +783,7 @@ score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview
 
 \FloatBarrier
 
-#### Gene Annotation Conformity Per Database
+##### Gene Annotation Conformity Per Database
 
 ```{r wronggenenannotationrefseq, fig.cap='Correct Gene RefSeq Annotation'}
 score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-refseq"][[1]]
@@ -721,7 +827,7 @@ score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_id
 
 \FloatBarrier
 
-### Annotation - SBO Terms
+#### Annotation - SBO Terms
 
 ```{r annotation-sbo-score, fig.cap='Annotation - SBO Terms. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
 sum_plots$plot_sina[sum_plots$section == "annotation_sbo"][[1]]
@@ -773,9 +879,9 @@ score_plots$plot_sina[score_plots$test == "test_biomass_specific_sbo_presence"][
 
 \FloatBarrier
 
-## Specific Section
+### Specific Section
 
-### SBML
+#### SBML
 
 ```{r sbml-level, fig.cap='SBML Level and Version'}
 metric_plots$plot_sina[metric_plots$test == "test_sbml_level"][[1]]
@@ -787,7 +893,7 @@ metric_plots$plot_sina[metric_plots$test == "test_fbc_presence"][[1]]
 
 \FloatBarrier
 
-### Basic Information {#sec:basic-info}
+#### Basic Information {#sec:basic-info}
 
 ```{r modelid, fig.cap='Model Identifier Presence'}
 metric_plots$plot_sina[metric_plots$test == "test_model_id_presence"][[1]]
@@ -815,7 +921,7 @@ metric_plots$plot_sina[metric_plots$test == "test_metabolic_coverage"][[1]]
 
 \FloatBarrier
 
-### Metabolite Information
+#### Metabolite Information
 
 ```{r uniquemetabolic, fig.cap='Unique Metabolites'}
 metric_plots$plot_sina[metric_plots$test == "test_find_unique_metabolites"][[1]]
@@ -839,7 +945,7 @@ numeric_plots$plot_sina[numeric_plots$test == "test_find_medium_metabolites"][[1
 
 \FloatBarrier
 
-### Reaction Information
+#### Reaction Information
 
 ```{r metabolicreactions, fig.cap='Purely Metabolic Reactions'}
 metric_plots$plot_sina[metric_plots$test == "test_find_pure_metabolic_reactions"][[1]]
@@ -881,7 +987,7 @@ metric_plots$plot_sina[metric_plots$test == "test_find_reactions_with_identical_
 
 \FloatBarrier
 
-### Gene-Protein-Reaction (GPR) Association
+#### Gene-Protein-Reaction (GPR) Association
 
 ```{r gprpresence, fig.cap='Reactions without GPR'}
 metric_plots$plot_sina[metric_plots$test == "test_gene_protein_reaction_rule_presence"][[1]]
@@ -897,7 +1003,7 @@ metric_plots$plot_sina[metric_plots$test == "test_protein_complex_presence"][[1]
 
 \FloatBarrier
 
-### Biomass {#sec:biomass}
+#### Biomass {#sec:biomass}
 
 ```{r biomass-presence, fig.cap='Biomass Reactions Identified'}
 metric_plots$plot_sina[metric_plots$test == "test_biomass_presence"][[1]]
@@ -933,7 +1039,7 @@ metric_plots$plot_sina[metric_plots$test == "test_essential_precursors_not_in_bi
 
 \FloatBarrier
 
-### Energy Metabolism
+#### Energy Metabolism
 
 ```{r ngam-presence, fig.cap='Non-Growth Associated Maintenance Reaction'}
 metric_plots$plot_sina[metric_plots$test == "test_ngam_presence"][[1]]
@@ -949,7 +1055,7 @@ metric_plots$plot_sina[metric_plots$test == "test_find_reversible_oxygen_reactio
 
 \FloatBarrier
 
-### Network Topology {#sec:network-topology}
+#### Network Topology {#sec:network-topology}
 
 ```{r blocked-reactions, fig.cap='Universally Blocked Reactions'}
 metric_plots$plot_sina[metric_plots$test == "test_blocked_reactions"][[1]]
@@ -977,7 +1083,7 @@ metric_plots$plot_sina[metric_plots$test == "test_find_metabolites_not_consumed_
 
 \FloatBarrier
 
-### Matrix Conditioning
+#### Matrix Conditioning
 
 ```{r extreme-coefficient-ratio, fig.cap='Ratio Min/Max Non-Zero Coefficients'}
 metric_plots$plot_sina[metric_plots$test == "test_absolute_extreme_coefficient_ratio"][[1]]
@@ -996,3 +1102,5 @@ metric_plots$plot_sina[metric_plots$test == "test_degrees_of_freedom"][[1]]
 ```
 
 \FloatBarrier
+
+# Supplementary References
