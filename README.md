@@ -27,9 +27,11 @@ make jupyter
 ```
 
 This will install all Python requirements and configure the Jupyter notebook
-extensions. R dependencies are handled by
-[packrat](https://rstudio.github.io/packrat/). Simply start R (or RStudio) in
-the project directory.
+extensions. R dependencies are handled by a specialized Docker image
+[midnighter/knit-memote:3.6.1](https://hub.docker.com/r/midnighter/knit-memote).
+You can directly use that image in order to ensure reproducibility. If, for some
+reason, you wish to build the image yourself, you can do so with the command
+`make build`.
 
 ## Usage
 
