@@ -60,5 +60,5 @@ packrat/lib*/
 packrat/src/
 # Project
 models/**
-supplements_cache/
-supplements_files/
+supplementary_material_cache/
+supplementary_material_files/
