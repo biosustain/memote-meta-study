@@ -1,0 +1,1106 @@
+---
+title: 'Supplementary Material'
+date: 
+output:
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 4
+fontsize: 11pt
+bibliography: ["references.bib"]
+biblio-style: "nature"
+link-citations: true
+header-includes:
+  \usepackage[section]{placeins}
+  \setcounter{table}{0}
+  \renewcommand{\thetable}{S\arabic{table}}
+  \setcounter{figure}{0}
+  \renewcommand{\thefigure}{S\arabic{figure}}
+  \usepackage{hyperref}
+  \hypersetup{
+    colorlinks=true,
+    linktoc=all,
+    linkcolor=blue
+  }
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, error = FALSE)
+```
+
+```{r dependencies, include=FALSE}
+library(randomForest)
+library(caret)
+library(fpc) # pamk
+library(cluster) # pam
+library(ape)
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(ggforce)
+library(stringr)
+library(cowplot)
+```
+
+```{r load, cache=TRUE, include=FALSE}
+source("scripts/helpers.R")
+```
+
+# Supplementary Note 1: Guide on how to understand the reports
+
+The following text is a verbatim copy modified to work in print taken from memote’s documentation at the time of publication. For an updated version please check the latest [memote documentation](https://memote.readthedocs.io/en/latest/understanding_reports.html).
+
+## Understanding the reports
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image2.png}
+  \caption{Snapshot Report}
+  \label{fig:snapshot}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image5.png}
+  \caption{Diff Report}
+  \label{fig:diff}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image7.png}
+  \caption{History Report}
+  \label{fig:history}
+\end{figure}
+
+Memote will return one of four possible outputs. If your preferred workflow is to benchmark one or several genome-scale metabolic models (GSM) memote generates either a snapshot (Figure \@ref(fig:snapshot)) or a diff report (Figure  \@ref(fig:diff)), respectively. For the reconstruction workflow the primary output is a history report (Figure  \@ref(fig:history)). This will only work if the provided input models are formatted correctly in the [systems biology markup language (SBML)](http://sbml.org/Main_Page). However, if a provided model is not a valid SBML file, memote composes a report enumerating errors and warnings from the SBML validator the order of appearance. To better understand the output of the error report we refer the reader to this section of the [SBML documentation](http://sbml.org/Facilities/Documentation/Error_Categories). In this section, we will focus on how to understand the snapshot, diff and history reports.
+
+### Orientation
+
+#### Toolbar
+
+In all three reports, the blue toolbar at the top shows (from left to right) the memote logo, a button which expands and collapses all test results, a button which displays the readme and the github icon which links to memote's github page. On the snapshot report, the toolbar will also display the identifier of the tested GEM and a timestamp showing when the test run was initiated.
+
+#### Main Body
+
+The main body of the reports is divided into an independent section to the left and a specific section to the right.
+
+The tests in the independent section are agnostic of the type of modeled organism, preferred modeling paradigms, the complexity of a genome-scale metabolic model (GEM) or the types of identifiers that are used to describe its components. The tests in this section focus on testing adherence to fundamental principles of constraint-based modeling: mass, charge and stoichiometric balance as well as the presence of annotations. The results in this section can be normalized, and thus enable a comparison of GEMs. The **Score** at the bottom of the page summarises the results to further simplify comparison. While calculating an overall score for this section allows for the quick comparison of any two given models at a glance, we recommend a thorough analysis of all results with respect to the desired use case.
+
+The specific section on the right provides model specific statistics and covers aspects of a metabolic network that can not be normalized without introducing bias. For instance, dedicated quality control of the biomass equation only applies to GEMs which are used to investigate cell growth, i.e., those for which a biomass equation has been generated. Some tests in this section are also influenced by whether the tested GEM represents a prokaryote or a eukaryote. Therefore the results cannot be generalized and direct comparisons ought to take bias into account.
+
+#### Test Results
+
+Test results are arranged in rows with the title visible to the left and the result on the right. The result is displayed as white text in a coloured rectangle detailed below in the subsection **Color**.
+
+By default only the minimum information is visible as indicated by an arrow pointing down right of the result. Clicking anywhere in the row will expand the result revealing a description of the concept behind the test, its implementation and a brief summary of the result. In addition, there is a text field which contains plain text representations of Python objects which can be copied and pasted into Python code for follow up procedures.
+
+Some tests carry out one operation on several parameters and therefore deviate slightly from the descriptions above. Expanding the title row reveals only the description, while rows of the individual parameters reveal the text fields.
+
+In the history report, instead of text fields scatterplots show how the respective metrics developed over the commit history for each branch of a repository. By clicking an entry in the legend, it is possible to toggle its visibility in the plot.
+
+### Interpretation
+
+The variety of constraints-based modeling approaches and differences between various organisms compound the assessment of GSMs. While memote facilitates model assessment it can only do so within limitations. Please bear in mind the diversity of Paradigms that challenge some of memote's results.
+
+#### Color
+**Snapshot Report**
+
+Results without highlights are kept in the main <span style="color:#2a7bb8">blue</span> color of the memote color scheme. Scored results (Figure G1) will be marked with a gradient ranging from <span style="color:#a11212">red</span> to <span style="color:#12a12e">green</span> denoting a low or a high score respectively:
+
+![Snapshot Report Score Gradient](figures/guide/image6.png)
+
+**Diff Report**
+The colour in the Diff Report (Figure G2) depends on the ratio of the sample minimum to the sample maximum. Result sets where the sample minimum and the sample maximum are identical will be coloured in the main <span style="color:#2a7bb8">blue</span> color of the memote color scheme. Result sets where the sample minimum is very small relative to the sample maximum will appear <span style="color:#a11212">red</span. This ratio is calculated with as $$ 1 - (Min / Max)) * 100 $$.
+
+This is then mapped to the following gradient:
+
+![Diff Report Ratio Gradient](figures/guide/image4.png)
+
+#### Score
+
+Each test in the independent section provides a relative measure of completeness with regard to the tested property. The final score is the weighted sum of all individual test results normalized by the maximally achievable score, i.e., all individual results at 100%. Individual tests can be weighted, but it is also possible to apply weighting to entire subsections. Hence the final score is calculated:
+
+$$ TotalScore = \frac{\sum_{Subsections} weight_{subsection}\times(\sum_{Tests} weight_{test} \times TestScore)}{Max Score} $$
+
+Weights for sections and individual tests are indicated by a white number inside a magenta badge. No badge means that the weight defaults to 1.
+
+The subsections “Consistency” and “Annotation - SBO” have weights of 3 and 2, respectively. The test “Stoichiometric Consistency” itself is weighted 3 times stronger than the remaining tests in the “Consistency” subsection. The remaining subsections and tests which cover annotations of metabolites, reactions and genes have weights of 1 (Supplementary Figure G1).
+
+### Paradigms
+
+#### "Reconstructions" and "Models"
+Some authors may publish metabolic networks which are parameterized, ready to run flux balance analysis (FBA), these are referred to simply as 'models'. Alternatively, others may publish unconstrained metabolic knowledge bases (referred to as 'reconstructions'), from which several models can be derived by applying different constraints. Both can be encoded in SBML. With having an independent test section, we attempt to make both 'models' and 'reconstructions' comparable, although a user should be aware that this difference exists and [is subject to some discussion](https://github.com/opencobra/memote/issues/228). Please note that some tests in the specific section may error for a reconstruction as they require initialization.
+
+#### "Lumped" and "Split" Biomass Reaction
+There are two basic ways of specifying the biomass composition. The most common is a single lumped reaction containing all biomass precursors. Alternatively, the biomass equation can be split into several reactions each focusing on a different macromolecular component for instance a (1 gDW ash) + b (1 gDW phospholipids) + c (free fatty acids)+
+d (1 gDW carbohydrates) + e (1 gDW protein) + f (1 gDW RNA) + g (1 gDW DNA) + h (vitamins/cofactors) + x ATP + x H2O-> 1 gDCW biomass + x ADP + x H + x Pi. The benefit of either approach depends very much on the use cases which are [discussed by the community](https://github.com/opencobra/memote/issues/243). Memote employs heuristics to identify the type of biomass which may fail to distinguish edge cases.
+
+#### "Average" and "Unique" Metabolites
+A metabolite consisting of a fixed core with variable branches such as a membrane lipid is sometimes implemented by averaging over the distribution of individual lipid species. The resulting pseudo-metabolite is assigned an average chemical formula, which requires scaling of stoichiometries of associated reactions to avoid floating point numbers in the chemical formulae. An alternative approach is to implement each species as a distinct metabolite in the model, which increases the total count of reactions. Memote cannot yet distinguish between these paradigms, which means that results in the specific sections that rely on the total number of reactions or scaling of stoichiometric parameters may be biased.
+
+# Supplementary Note 2: Validation against experimental data
+
+To compare model predictions to experimental measurements, a researcher would typically write a short script. The reproducibility of this script may be limited by the original author's style of writing code, whether the code has been rigorously checked for errors, and whether it is dependent on obsolete libraries. The latter, so called software rot, arises from a lack of active maintenance [@Beaulieu-Jones2017-tg]. 
+
+In contrast, with memote researchers may optionally define a configuration file (in YAML format) in which they can set the medium and FBA objective. This file can be used by researchers without prior programming experience. It configures memote to execute clearly defined, formulaic operations, which are unit tested. Lastly, it confers the burden of maintenance to the memote community represented through this consortium. This does not only distribute the necessity for funding onto many shoulders, but also increases the likelihood of the codebase keeping up with advances in its core dependencies, i.e., keeping software rot at bay. The development of the COBRAToolbox [@Heirendt2017-ra] and cobrapy [@Ebrahim2013-wf] are pertinent examples of community projects that operate on a similar strategy. Moreover, frequent versioning ensures that users can return to previous versions to re-run analyses. 
+
+Setting up a version-controlled model repository not only allows researchers to publish a ‘default’ unspecific GEM of the investigated organism, but also reproducible instructions on how to obtain a model that is specific to the organism in a defined experimental context including, and validated against the data supporting this context. This formulaic approach of deriving a GEM into a condition-specific form supports Heavner and Price’s [@Heavner2015-gq] call for more transparency and reproducibility in metabolic network reconstruction (\@ref(fig:validation)).
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image3.png}
+  \caption{Experimental tests can be tailored to a specific condition through the use of one or several configuration files (configs). (a) To validate GEMs against experimental data measured in specific conditions, researchers usually write their scripts which constrain the model. This is problematic as scripts can vary a lot and they are, unless actively maintained, susceptible to software rot. (b) With memote, user-defined configuration files replace scripts, which allows the experimental validation of GEMs to be unified and formalized. Bundling the model, configuration files, and experimental data within a version-controlled repository (indicated by the blue asterisk*) facilitates reproducibility.}
+  \label{fig:validation}
+\end{figure}
+
+# Supplementary Methods 
+
+To simplify interpretation, the following figures are grouped by the sections of their corresponding test cases as they appear in a snapshot report. The code that was used to generate the data and figures has been deposited on GitHub https://github.com/biosustain/memote-meta-study.
+
+## Tested models
+
+In order to respect the limited resources on the [DTU high performance computing infrastructure](https://www.hpc.dtu.dk/), we set a maximum time limit for running the memote test suite. This introduced a bias against large models. Additionally, certain models failed the testing procedure. In the following we tabulate the total size of the collections as well as the final number of tested models. The results are shown in Table \@ref(tab:numbers).
+
+```{r numbers}
+kableExtra::usepackage_latex("threeparttable")
+dplyr::tibble(
+  collection = factor(
+    c("agora", "carveme", "path", "kbase", "bigg", "ebrahim", "optflux"),
+    levels = c("agora", "carveme", "path", "kbase", "bigg", "ebrahim", "optflux")
+  ),
+  name = c(
+    "AGORA",
+    "CarveMe",
+    "Path2Models",
+    "KBase",
+    paste0("BiGG", kableExtra::footnote_marker_symbol(1)),
+    paste0(
+      "Ebrahim \\textit{et al.}",
+      kableExtra::footnote_marker_symbol(2)
+    ),
+    paste0("OptFlux Models", kableExtra::footnote_marker_symbol(2))
+  ),
+  size = c(818, 5587, 2641, 1637, 36, 83, 100)
+) %>%
+  dplyr::inner_join(
+    total_df %>% dplyr::group_by(collection) %>% dplyr::summarize(num_test = dplyr::n_distinct(model))
+  ) %>%
+  dplyr::select(-collection) %>%
+  dplyr::mutate(percent = num_test * 100 / size) %>%
+  knitr::kable(
+    digits = 1,
+    booktabs = TRUE,
+    caption = "Number of tested models.",
+    col.names = c("Collection", "Number of Models", "Tested Models", "\\%"),
+    escape = FALSE
+  ) %>%
+  kableExtra::kable_styling(full_width = FALSE, protect_latex = TRUE) %>%
+  kableExtra::footnote(
+    symbol = c(
+      "Please note that we removed the large number of \\\\textit{Escherichia coli} strain models from the BiGG collection and only included results from the models iJR904, iAF1260, iJO1366, and iML1515.",
+      "39 models from these two collections are likely identical based on a filename comparison."
+    ),
+    escape = FALSE,
+    threeparttable = TRUE
+  )
+```
+
+```{r theme, include=FALSE}
+# Ignore all textual result output in the following code chunks.
+# Set the figure chunk options.
+knitr::opts_chunk$set(results = 'hide', out.width = '100%', fig.asp = 0.618047, fig.align = 'center')
+ggplot2::theme_set(cowplot::theme_cowplot(font_size = 11))
+```
+
+```{r cluster-layers, include=FALSE}
+cluster_layers <- list(
+  ggplot2::geom_point(size = 1),
+  ggplot2::scale_color_manual("Collection", values = colors, labels = collection_labels),
+  ggplot2::scale_shape_manual("Collection", values = shapes, labels = collection_labels),
+  ggplot2::theme(
+    axis.title = ggplot2::element_blank(),
+    axis.text = ggplot2::element_blank(),
+    axis.ticks = ggplot2::element_blank()
+  )
+)
+```
+
+## Clustering
+
+```{r pca, fig.cap='Depicted are the first two components of a principal components analysis of the normalized test features (metrics).', cache=TRUE, dependson='load'}
+ggplot2::ggplot(metric_pca_tbl,
+                ggplot2::aes(
+                  x = x,
+                  y = y,
+                  color = collection,
+                  shape = collection
+                )) +
+  cluster_layers
+```
+
+```{r tsne, fig.cap='Depicted are the distances between models in higher order space given by the normalized test features reduced to two dimensions using t-SNE.', cache=TRUE, dependson='load'}
+ggplot2::ggplot(metric_tsne_tbl,
+                ggplot2::aes(
+                  x = x,
+                  y = y,
+                  color = collection,
+                  shape = collection
+                )) +
+  cluster_layers
+```
+
+```{r umap, fig.cap='Depicted are the distances between models in higher order space given by the normalized test features reduced to two dimensions using UMAP.', cache=TRUE, dependson='load'}
+ggplot2::ggplot(metric_umap_tbl,
+                ggplot2::aes(
+                  x = x,
+                  y = y,
+                  color = collection,
+                  shape = collection
+                )) +
+  cluster_layers
+```
+
+
+In order to perform the clustering analyses, we used all normalized test metrics excluding some particular cases. Excluded are the Sections \@ref(sec:basic-info) & \@ref(sec:biomass) because the basic information only contains unnormalized model dimensions and because a biomass formulation is not present in all models. We further removed individual biomass related test cases, as well as the metabolic coverage since that is not properly normalized. Additionally, test cases that contained errors were penalized with the worst metric of one.
+
+```{r importance-plot, include=FALSE}
+####################################################
+### plot.rf.var.importance.by.class.andMean.dotplot
+####################################################
+# Plot dotplot with variable importance mean over all classes
+# Args:
+#   model: random forest model already build
+#   predVar: string of column ID with predictor/variables names values
+#   classVar: string of class variable in 'df'
+#   colorVector: vector of colors
+#   nBestFeatures: number of top relevant features to show in the plot.
+#   classNames: vector with ad-hoc class names.
+plot.rf.var.importance.by.class.andMean.dotplot <- function(model, test_labels) {
+    imp_df <- randomForest::importance(model) %>%
+      tibble::as.tibble(rownames = "test") %>%
+      dplyr::select(-MeanDecreaseGini, mean = MeanDecreaseAccuracy) %>%
+      # Order by descending mean decrease in accuracy.
+      dplyr::arrange(desc(mean)) %>%
+      head(n = 15) %>%
+      # For the plot we order the levels in reverse due to axis arrangement.
+      dplyr::mutate(
+        test = gsub("overview.", "overview-", test, fixed = TRUE),
+        test = gsub("wrong_ids.", "wrong_ids-", test, fixed = TRUE),
+        test = factor(
+          test,
+          levels = rev(test),
+          labels = stringr::str_wrap(test_labels[rev(test)], width = 32),
+          ordered = TRUE
+        )
+      ) %>%
+      tidyr::gather(key = "collection", value = "mean_da", -test) %>%
+      dplyr::mutate(collection = factor(
+        collection,
+        levels = c(
+          "agora",
+          "carveme",
+          "path",
+          "kbase",
+          "bigg",
+          "ebrahim",
+          "optflux",
+          "mean"
+        ))
+      )
+    
+    rf_colors <- c(colors, mean = "#60d660")
+    rf_labels <- c(collection_labels, mean = "Mean")
+    ggplot2::ggplot(imp_df,
+                    ggplot2::aes(
+                      x = mean_da,
+                      y = test,
+                      group = test,
+                      color = collection
+                    )) +
+      ggplot2::geom_segment(mapping = ggplot2::aes(yend = test),
+                            xend = 0,
+                            color = "grey50") +
+      ggplot2::geom_point(size = 2) +
+      ggplot2::scale_color_manual(values = rf_colors, guide = FALSE) +
+      ggplot2::facet_grid(. ~ collection) +
+      # ggplot2::facet_grid(. ~ collection, labeller = as_labeller(rf_labels, default = label_parsed)) +
+      ggplot2::xlab("Test Importance (Mean Decrease in Accuracy)") +
+      ggplot2::theme(
+        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+        strip.text.x = ggplot2::element_text(angle = 45),
+        axis.title.y = ggplot2::element_blank()
+      )
+  }
+```
+
+To determine the most relevant tests to discriminate between model collections, we built a classifier using a random forest [@Breiman2001] over the collections and normalized test results (0.99 accuracy and 0.01% out-of-bag (OOB) error). Then, the importance of each variable, i.e., test case, was ranked with the Mean Decrease in Accuracy (MDA) [@Louppe2013]. This metric measures the total decrease in accuracy, averaged over all trees of the forest, when the value of a given variable is permuted in the OOB samples. Figure \@ref(fig:random-forest) represents the 15 most discriminant features on average (see last column) and their independent relevance by collection. The higher the decrease in accuracy, the higher the relative contribution of such a test to differentiate among collections.
+Thus, the five most discriminant tests are purely metabolic reactions, transport reactions, dead-end metabolites, orphan metabolites, and the presence of a non-growth associated maintenance reaction. Although there is a variable range of importance for each collection, e.g., for CarveMe transport reactions and orphans are more relevant; for Kbase transport reactions; for Ebrahim \textit{et al.} purely metabolic reactions. For a detailed study of the clustering properties, please refer to the \textit{Supplementary Clustering Analysis} notebook.
+
+```{r random-forest, fig.cap='15 most relevant tests to discriminate among GEM collections, for each collection and the mean. Ranked in decreasing importance according to the \\textit{mean decrease in accuracy} metric averaged over all collections (last column), computed over a random forest classification model.', fig.asp=1.3}
+load("data/rf_model_classCollection.Rdata")
+model <-  model$finalModel
+test_labels <- total_df$title
+names(test_labels) <- total_df$test
+ggplot2::theme_set(cowplot::theme_cowplot(font_size = 8))
+plot.rf.var.importance.by.class.andMean.dotplot(model, test_labels)
+ggplot2::theme_set(cowplot::theme_cowplot(font_size = 11))
+```
+
+\FloatBarrier
+
+## Test Suite
+
+```{r sina-layers, include=FALSE}
+sina_layers <- list(
+  ggforce::geom_sina(size = 1, scale = FALSE),
+  ggplot2::geom_boxplot(color = "black", outlier.shape = NA, fill = NA),
+  ggplot2::scale_x_discrete(labels = collection_labels),
+  ggplot2::scale_color_manual(values = colors, guide = FALSE),
+  ggplot2::scale_shape_manual(values = shapes, guide = FALSE),
+  ggplot2::theme(
+    axis.title.x = ggplot2::element_blank(),
+    axis.text.x = ggplot2::element_text(
+      angle = 45,
+      hjust = 1,
+      vjust = 1
+    )
+  )
+)
+```
+
+### Summary of Observations
+
+* SBO terms are only used by models from KBase and BiGG (Figure \@ref(fig:annotation-sbo-score)).
+* Models from Path2Models and Opflux Models are formatted in legacy SBML (< Level 3,Version 1) without FBC package (Figures \@ref(fig:sbml-level) & \@ref(fig:fbc-presence)).
+* Models from the collections of Ebrahim \textit{et al.}, and OptFlux Models are highly variable for many specific tests. Models from automatic reconstruction pipelines (AGORA, CarveMe, Path2Models, and KBase) or the controlled BiGG collection are much more similar within each collection yet still different from each other. This could be due to each collection focusing on a distinct set of taxonomies but could also be related to the algorithms and databases behind each collection (Section \@ref(sec:network-topology); Figures \@ref(fig:metabolicreactions), \@ref(fig:transportreactions), and \@ref(fig:reactionsidenticalgenes)).
+* On biomass:
+    * Only for a minority of models in BiGG, Ebrahim \textit{et al.}, and OptFlux Models memote could not identify a biomass reaction (Figure \@ref(fig:biomass-presence)).
+    * A portion of models in the BiGG collections have inconsistent biomass equations followed by OptFlux Models and models in the collection by Ebrahim \textit{et al.}; all models in the CarveMe and Path2Model collections have inconsistent biomass reactions  (Figure \@ref(fig:biomass-consistency)).
+    * Models that cannot be simulated using the default or complete medium exist in Path2Models, BiGG, Ebrahim \textit{et al.}, and OptFlux Models (Figure \@ref(fig:biomass-default-production) & \@ref(fig:biomass-open-production)).
+    * Possible artifacts from automatic reconstruction are present in models from AGORA and KBase that grow despite some biomass precursors being blocked when each precursor is optimized individually in default and complete medium (compare Figures \@ref(fig:biomass-precursors-default) & \@ref(fig:biomass-precursors-open) with \@ref(fig:biomass-default-production) & \@ref(fig:biomass-open-production)).
+* The average fraction of reactions that participate in stoichiometrically-balanced cycles is larger for models from automatic reconstruction pipelines (AGORA, CarveMe, Path2Models, KBase) than for BiGG, Ebrahim \textit{et al.}, and OptfluxModels (Figure \@ref(fig:balanced-cycles)). This could be an artifact from automatic reconstruction processes.
+* Reactions that involve oxygen are integral to the energy metabolism of many organisms. Not constraining these reactions carefully can lead to predictions that deviate from the expected phenotype, i.e., allowing anaerobic growth that should not be possible. The portion of oxygen-containing reactions that are reversible varies strongly across all seven collections. Models in BiGG have the lowest variance whereas models from Path2Models, Ebrahim \textit{et al.}, and OptFlux vary strongly (Figure \@ref(fig:reversible-oxygen-reactions)).
+
+\FloatBarrier
+
+### Scores
+
+```{r total-plot, fig.cap='Total Score. Depicted are the sums of all test scores in all independent sections, applying the weights for individual test cases and sections as detailed in the snapshot report.'}
+section_weights <- tibble::tibble(
+  section = c(
+    "consistency",
+    "annotation_met",
+    "annotation_rxn",
+    "annotation_gene",
+    "annotation_sbo"
+  ),
+  weight = c(3, 1, 1, 1, 2)
+)
+total_df %>%
+  dplyr::filter(is.finite(score)) %>%
+  # First, sum the weighted test scores per section.
+  dplyr::group_by(collection, model, section) %>%
+  dplyr::summarize(score = sum(score * weight) / sum(weight)) %>%
+  # Second, sum the weighted section scores to a total.
+  dplyr::left_join(., section_weights, by = "section") %>%
+  dplyr::summarize(total = sum(score * weight) / sum(weight)) %>%
+  dplyr::ungroup() %>%
+  ggplot2::ggplot(
+    .,
+    ggplot2::aes(
+      x = collection,
+      y = total,
+      color = collection,
+      shape = collection,
+      label = model
+    )
+  ) + sina_layers + ggplot2::ylab("Total Score") + ggplot2::ylim(0, 1)
+```
+
+
+```{r sum-plots, cache=TRUE, dependson='scores', include=FALSE}
+sum_plots <- total_df %>%
+  dplyr::filter(is.finite(score)) %>%
+  # Sum the weighted test scores per section.
+  dplyr::group_by(collection, model, section) %>%
+  dplyr::summarize(total = sum(score * weight) / sum(weight)) %>%
+  dplyr::ungroup() %>%
+  dplyr::group_by(section) %>%
+  dplyr::do(
+    plot_sina = ggplot2::ggplot(
+      .,
+      ggplot2::aes(
+        x = collection,
+        y = total,
+        color = collection,
+        shape = collection,
+        label = model
+      )
+    ) + sina_layers + ggplot2::ylab("Section Score Sub Total") + ggplot2::ylim(0, 1)
+  )
+```
+
+\FloatBarrier
+
+### Independent Section
+
+```{r plot-function, include=FALSE}
+do_plot <- function(sub_tbl, var, label_width = 40) {
+  test_id <- dplyr::first(as.character(sub_tbl$test))
+  base_plot <- ggplot2::ggplot(
+    sub_tbl,
+    ggplot2::aes_string(
+      x = "collection",
+      y = var,
+      color = "collection",
+      shape = "collection",
+      label = "model"
+    )
+  ) + sina_layers + ggplot2::ylab(stringr::str_wrap(y_axis_labels[test_id],
+                                                    width = label_width))
+  if ((min(sub_tbl[[var]], na.rm = TRUE) < 0) | (max(sub_tbl[[var]], na.rm = TRUE) > 1)) {
+    return(base_plot)
+  } else {
+    return(base_plot + ggplot2::ylim(0, 1))
+  }
+}
+```
+
+
+```{r scored-plots, cache=TRUE, dependson='scores', include=FALSE}
+score_plots <- total_df %>%
+  dplyr::filter(is.finite(score)) %>%
+  dplyr::group_by(test) %>%
+  dplyr::do(
+    plot_sina = do_plot(., "score") + ggplot2::ylim(0, 1)
+  )
+```
+
+```{r metric-plots, cache=TRUE, dependson='load', include=FALSE}
+metric_plots <- total_df %>%
+  dplyr::mutate(metric = ifelse(is.na(numeric), NA, metric)) %>%
+  dplyr::group_by(test) %>%
+  dplyr::do(
+    plot_sina = do_plot(., "metric")
+  )
+```
+
+```{r numeric-plots, cache=TRUE, dependson='load', include=FALSE}
+numeric_plots <- total_df %>%
+  dplyr::group_by(test) %>%
+  dplyr::do(
+    plot_sina = do_plot(., "numeric")
+  )
+```
+
+\FloatBarrier
+
+#### Consistency
+
+```{r consistency-score, fig.cap='Consistency. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
+sum_plots$plot_sina[sum_plots$section == "consistency"][[1]]
+```
+
+```{r stoichiometricconsistency, fig.cap='Stoichiometric consistency'}
+score_plots$plot_sina[score_plots$test == "test_stoichiometric_consistency"][[1]]
+```
+
+```{r reactionmassbalance, fig.cap='Mass Balance. Please note that any reaction where at least one metabolite lacks a formula annotation is considered as unbalanced for the purpose of this test.'}
+score_plots$plot_sina[score_plots$test == "test_reaction_mass_balance"][[1]]
+```
+
+```{r reactionchargebalance, fig.cap='Charge Balance. Please note that any reaction where at least one metabolite lacks charge information is considered as unbalanced for the purpose of this test.'}
+score_plots$plot_sina[score_plots$test == "test_reaction_charge_balance"][[1]]
+```
+
+```{r finddisconnected, fig.cap='Metabolite Connectivity'}
+score_plots$plot_sina[score_plots$test == "test_find_disconnected"][[1]]
+```
+
+```{r unboundedflux, fig.cap='Unbounded Flux in Default Medium'}
+score_plots$plot_sina[score_plots$test == "test_find_reactions_unbounded_flux_default_condition"][[1]]
+```
+
+\FloatBarrier
+
+#### Annotation - Metabolites
+
+```{r annotation-met-score, fig.cap='Annotation - Metabolites. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
+sum_plots$plot_sina[sum_plots$section == "annotation_met"][[1]]
+```
+
+```{r metaboliteannotationpresence, fig.cap='Presence of Metabolite Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_presence"][[1]]
+```
+
+\FloatBarrier
+
+##### Metabolite Annotations Per Database
+
+```{r metaboliteannotationpubmed, fig.cap='Metabolite Pubchem.compound Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-pubchem.compound"][[1]]
+```
+
+```{r metaboliteannotationkegg, fig.cap='Metabolite KEGG.compound Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-kegg.compound"][[1]]
+```
+
+```{r metaboliteannotationseed, fig.cap='Metabolite SEED.compound Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-seed.compound"][[1]]
+```
+
+```{r metaboliteannotationinchikey, fig.cap='Metabolite InChIKey Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-inchikey"][[1]]
+```
+
+```{r metaboliteannotationinchi, fig.cap='Metabolite InChI Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-inchi"][[1]]
+```
+
+```{r metaboliteannotationchebi, fig.cap='Metabolite ChEBI Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-chebi"][[1]]
+```
+
+```{r metaboliteannotationhmdb, fig.cap='Metabolite HMDB Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-hmdb"][[1]]
+```
+
+```{r metaboliteannotationreactome, fig.cap='Metabolite Reactome Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-reactome"][[1]]
+```
+
+```{r metaboliteannotationmetanetx, fig.cap='Metabolite MetaNetX.chemical Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-metanetx.chemical"][[1]]
+```
+
+```{r metaboliteannotationbigg, fig.cap='Metabolite BiGG.metabolite Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-bigg.metabolite"][[1]]
+```
+
+```{r metaboliteannotationbiocyc, fig.cap='Metabolite BioCyc Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-biocyc"][[1]]
+```
+
+\FloatBarrier
+
+##### Metabolite Annotation Conformity per Database
+
+```{r wrongmetaboliteannotationpubmed, fig.cap='Correct Metabolite Pubchem.compound Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-pubchem.compound"][[1]]
+```
+
+```{r wrongmetaboliteannotationkegg, fig.cap='Correct Metabolite KEGG.compound Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-kegg.compound"][[1]]
+```
+
+```{r wrongmetaboliteannotationseed, fig.cap='Correct Metabolite SEED.compound Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-seed.compound"][[1]]
+```
+
+```{r wrongmetaboliteannotationinchikey, fig.cap='Correct Metabolite InChIKey Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-inchikey"][[1]]
+```
+
+```{r wrongmetaboliteannotationinchi, fig.cap='Correct Metabolite InChI Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-inchi"][[1]]
+```
+
+```{r wrongmetaboliteannotationchebi, fig.cap='Correct Metabolite ChEBI Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-chebi"][[1]]
+```
+
+```{r wrongmetaboliteannotationhmdb, fig.cap='Correct Metabolite HMDB Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-hmdb"][[1]]
+```
+
+```{r wrongmetaboliteannotationreactome, fig.cap='Correct Metabolite Reactome Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-reactome"][[1]]
+```
+
+```{r wrongmetaboliteannotationmetanetx, fig.cap='Correct Metabolite MetaNetX.chemical Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-metanetx.chemical"][[1]]
+```
+
+```{r wrongmetaboliteannotationbigg, fig.cap='Correct Metabolite BiGG.metabolite Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-bigg.metabolite"][[1]]
+```
+
+```{r wrongmetaboliteannotationbiocyc, fig.cap='Correct Metabolite BioCyc Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-biocyc"][[1]]
+```
+
+```{r metabolitenamespaceconsistency, fig.cap='Uniform Metabolite Identifier Namespace'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_id_namespace_consistency"][[1]]
+```
+
+\FloatBarrier
+
+#### Annotation - Reactions
+
+```{r annotation-rxn-score, fig.cap='Annotation - Reactions. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
+sum_plots$plot_sina[sum_plots$section == "annotation_rxn"][[1]]
+```
+
+```{r reactionannotationpresence, fig.cap='Presence of Reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_presence"][[1]]
+```
+
+\FloatBarrier
+
+##### Reaction Annotations Per Database
+
+```{r reactionannotationrhea, fig.cap='Reaction Rhea Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-rhea"][[1]]
+```
+
+```{r reactionannotationkegg, fig.cap='Reaction KEGG.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-kegg.reaction"][[1]]
+```
+
+```{r reactionannotationseed, fig.cap='Reaction SEED.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-seed.reaction"][[1]]
+```
+
+```{r reactionannotationmetanetx, fig.cap='Reaction MetaNetX.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-metanetx.reaction"][[1]]
+```
+
+```{r reactionannotationbigg, fig.cap='Reaction BiGG.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-bigg.reaction"][[1]]
+```
+
+```{r reactionannotationreactome, fig.cap='Reaction Reactome Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-reactome"][[1]]
+```
+
+```{r reactionannotationec, fig.cap='Reaction Enzyme Classification Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-ec-code"][[1]]
+```
+
+```{r reactionannotationbrenda, fig.cap='Reaction BRENDA Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-brenda"][[1]]
+```
+
+```{r reactionannotationbiocyc, fig.cap='Reaction BioCyc Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-biocyc"][[1]]
+```
+
+\FloatBarrier
+
+##### Reaction Annotation Conformity Per Database
+
+```{r wrongreactionannotationrhea, fig.cap='Correct Reaction Rhea Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-rhea"][[1]]
+```
+
+```{r wrongreactionannotationkegg, fig.cap='Correct Reaction KEGG.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-kegg.reaction"][[1]]
+```
+
+```{r wrongreactionannotationseed, fig.cap='Correct Reaction SEED.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-seed.reaction"][[1]]
+```
+
+```{r wrongreactionannotationmetanetx, fig.cap='Correct Reaction MetaNetX.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-metanetx.reaction"][[1]]
+```
+
+```{r wrongreactionannotationbigg, fig.cap='Correct Reaction BiGG.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-bigg.reaction"][[1]]
+```
+
+```{r wrongreactionannotationreactome, fig.cap='Correct Reaction Reactome Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-reactome"][[1]]
+```
+
+```{r wrongreactionannotationec, fig.cap='Correct Reaction Enzyme Classification Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-ec-code"][[1]]
+```
+
+```{r wrongreactionannotationbrenda, fig.cap='Correct Reaction BRENDA Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-brenda"][[1]]
+```
+
+```{r wrongreactionannotationbiocyc, fig.cap='Correct Reaction BioCyc Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-biocyc"][[1]]
+```
+
+```{r reactionnamespaceconsistency, fig.cap='Uniform Reaction Identifier Namespace'}
+score_plots$plot_sina[score_plots$test == "test_reaction_id_namespace_consistency"][[1]]
+```
+
+\FloatBarrier
+
+#### Annotation - Genes
+
+```{r annotation-gene-score, fig.cap='Annotation - Genes. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
+sum_plots$plot_sina[sum_plots$section == "annotation_gene"][[1]]
+```
+
+```{r gene-annotation-presence, fig.cap='Presence of Gene Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_presence"][[1]]
+```
+
+\FloatBarrier
+
+##### Gene Annotations Per Database
+
+```{r gene-annotation-refseq, fig.cap='Gene RefSeq Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-refseq"][[1]]
+```
+
+```{r genenannotationuniprot, fig.cap='Gene UniProt Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-uniprot"][[1]]
+```
+
+```{r genenannotationecogene, fig.cap='Gene EcoGene Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-ecogene"][[1]]
+```
+
+```{r genenannotationkegg, fig.cap='Gene KEGG.genes Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-kegg.genes"][[1]]
+```
+
+```{r genenannotationncbigi, fig.cap='Gene NCBIgi Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-ncbigi"][[1]]
+```
+
+```{r genenannotationncbigene, fig.cap='Gene NCBIgene Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-ncbigene"][[1]]
+```
+
+```{r genenannotationncbiprotein, fig.cap='Gene NCBIprotein Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-ncbiprotein"][[1]]
+```
+
+```{r genenannotationccds, fig.cap='Gene CCDS Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-ccds"][[1]]
+```
+
+```{r genenannotationhprd, fig.cap='Gene HPRD Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-hprd"][[1]]
+```
+
+```{r genenannotationasap, fig.cap='Gene ASAP Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_overview-asap"][[1]]
+```
+
+\FloatBarrier
+
+##### Gene Annotation Conformity Per Database
+
+```{r wronggenenannotationrefseq, fig.cap='Correct Gene RefSeq Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-refseq"][[1]]
+```
+
+```{r wronggenenannotationuniprot, fig.cap='Correct Gene UniProt Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-uniprot"][[1]]
+```
+
+```{r wronggenenannotationecogene, fig.cap='Correct Gene EcoGene Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-ecogene"][[1]]
+```
+
+```{r wronggenenannotationkegg, fig.cap='Correct Gene KEGG.genes Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-kegg.genes"][[1]]
+```
+
+```{r wronggenenannotationncbigi, fig.cap='Correct Gene NCBIgi Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-ncbigi"][[1]]
+```
+
+```{r wronggenenannotationncbigene, fig.cap='Correct Gene NCBIgene Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-ncbigene"][[1]]
+```
+
+```{r wronggenenannotationncbiprotein, fig.cap='Correct Gene NCBIprotein Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-ncbiprotein"][[1]]
+```
+
+```{r wronggenenannotationccds, fig.cap='Correct Gene CCDS Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-ccds"][[1]]
+```
+
+```{r wronggenenannotationhprd, fig.cap='Correct Gene HPRD Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-hprd"][[1]]
+```
+
+```{r wronggenenannotationasap, fig.cap='Correct Gene ASAP Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_wrong_ids-asap"][[1]]
+```
+
+\FloatBarrier
+
+#### Annotation - SBO Terms
+
+```{r annotation-sbo-score, fig.cap='Annotation - SBO Terms. Depicted are the sums of all test scores in this section, applying the weights of the individual test cases as detailed in the snapshot report.'}
+sum_plots$plot_sina[sum_plots$section == "annotation_sbo"][[1]]
+```
+
+```{r metabolite-sbo-presence, fig.cap='Metabolite General SBO Presence'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_sbo_presence"][[1]]
+```
+
+```{r metabolitesbospecificpresence, fig.cap='Metabolite SBO:0000247 Presence'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_specific_sbo_presence"][[1]]
+```
+
+```{r reaction-sbo-presence, fig.cap='Reaction General SBO Presence'}
+score_plots$plot_sina[score_plots$test == "test_reaction_sbo_presence"][[1]]
+```
+
+```{r reactionsbospecificpresence, fig.cap='Metabolic Reaction SBO:0000176 Presence'}
+score_plots$plot_sina[score_plots$test == "test_metabolic_reaction_specific_sbo_presence"][[1]]
+```
+
+```{r transportreactionsbospecificpresence, fig.cap='Transport Reaction SBO:0000185 Presence'}
+score_plots$plot_sina[score_plots$test == "test_transport_reaction_specific_sbo_presence"][[1]]
+```
+
+```{r exchangereactionsbospecificpresence, fig.cap='Exchange Reaction SBO:0000627 Presence'}
+score_plots$plot_sina[score_plots$test == "test_exchange_specific_sbo_presence"][[1]]
+```
+
+```{r demandreactionsbospecificpresence, fig.cap='Demand Reaction SBO:0000628 Presence'}
+score_plots$plot_sina[score_plots$test == "test_demand_specific_sbo_presence"][[1]]
+```
+
+```{r sinkreactionsbospecificpresence, fig.cap='Sink Reaction SBO:0000632 Presence'}
+score_plots$plot_sina[score_plots$test == "test_sink_specific_sbo_presence"][[1]]
+```
+
+```{r genesbopresence, fig.cap='Gene General SBO Presence'}
+score_plots$plot_sina[score_plots$test == "test_gene_sbo_presence"][[1]]
+```
+
+```{r genesbospecificpresence, fig.cap='Gene SBO:0000243 Presence'}
+score_plots$plot_sina[score_plots$test == "test_gene_specific_sbo_presence"][[1]]
+```
+
+```{r biomassreactionsbospecificpresence, fig.cap='Biomass Reaction SBO:0000629 Presence'}
+score_plots$plot_sina[score_plots$test == "test_biomass_specific_sbo_presence"][[1]]
+```
+
+\FloatBarrier
+
+### Specific Section
+
+#### SBML
+
+```{r sbml-level, fig.cap='SBML Level and Version'}
+metric_plots$plot_sina[metric_plots$test == "test_sbml_level"][[1]]
+```
+
+```{r fbc-presence, fig.cap='FBC not Enabled'}
+metric_plots$plot_sina[metric_plots$test == "test_fbc_presence"][[1]]
+```
+
+\FloatBarrier
+
+#### Basic Information {#sec:basic-info}
+
+```{r modelid, fig.cap='Model Identifier Presence'}
+metric_plots$plot_sina[metric_plots$test == "test_model_id_presence"][[1]]
+```
+
+```{r nummetabolites, fig.cap='Number of Metabolites'}
+numeric_plots$plot_sina[numeric_plots$test == "test_metabolites_presence"][[1]] + ggplot2::scale_y_log10()
+```
+
+```{r numreactions, fig.cap='Number of Reactions'}
+numeric_plots$plot_sina[numeric_plots$test == "test_reactions_presence"][[1]] + ggplot2::scale_y_log10()
+```
+
+```{r numgenes, fig.cap='Number of Genes'}
+numeric_plots$plot_sina[numeric_plots$test == "test_genes_presence"][[1]] + ggplot2::scale_y_log10()
+```
+
+```{r compartmentspresence, fig.cap='Number of Compartments'}
+numeric_plots$plot_sina[numeric_plots$test == "test_compartments_presence"][[1]]
+```
+
+```{r metaboliccoverage, fig.cap='Metabolic Coverage'}
+metric_plots$plot_sina[metric_plots$test == "test_metabolic_coverage"][[1]]
+```
+
+\FloatBarrier
+
+#### Metabolite Information
+
+```{r uniquemetabolic, fig.cap='Unique Metabolites'}
+metric_plots$plot_sina[metric_plots$test == "test_find_unique_metabolites"][[1]]
+```
+
+```{r duplicatemetabolites, fig.cap='Duplicate Metabolites in Identical Compartments'}
+metric_plots$plot_sina[metric_plots$test == "test_find_duplicate_metabolites_in_compartments"][[1]]
+```
+
+```{r metaboliteswithoutcharge, fig.cap='Metabolites Without Charge'}
+metric_plots$plot_sina[metric_plots$test == "test_metabolites_charge_presence"][[1]]
+```
+
+```{r metaboliteswithoutformula, fig.cap='Metabolites Without Formula'}
+metric_plots$plot_sina[metric_plots$test == "test_metabolites_formula_presence"][[1]]
+```
+
+```{r mediumcomponents, fig.cap='Number of Medium Components'}
+numeric_plots$plot_sina[numeric_plots$test == "test_find_medium_metabolites"][[1]] + ggplot2::scale_y_log10()
+```
+
+\FloatBarrier
+
+#### Reaction Information
+
+```{r metabolicreactions, fig.cap='Purely Metabolic Reactions'}
+metric_plots$plot_sina[metric_plots$test == "test_find_pure_metabolic_reactions"][[1]]
+```
+
+```{r constrainedmetabolicreactions, fig.cap='Purely Metabolic Reactions with Constraints'}
+metric_plots$plot_sina[metric_plots$test == "test_find_constrained_pure_metabolic_reactions"][[1]]
+```
+
+```{r transportreactions, fig.cap='Transport Reactions'}
+metric_plots$plot_sina[metric_plots$test == "test_find_transport_reactions"][[1]]
+```
+
+```{r constrainedtransportreactions, fig.cap='Transport Reactions with Constraints'}
+metric_plots$plot_sina[metric_plots$test == "test_find_constrained_transport_reactions"][[1]]
+```
+
+```{r candidateirreversiblereactions, fig.cap='Thermodynamic Reversibility of Purely Metabolic Reactions'}
+print(metric_plots$plot_sina[metric_plots$test == "test_find_candidate_irreversible_reactions"][[1]])
+print(numeric_plots$plot_sina[numeric_plots$test == "test_find_candidate_irreversible_reactions"][[1]] + ggplot2::ylab(
+  stringr::str_wrap(
+    "Number of reactions estimated to be thermodynamically irreversible",
+    width = 40
+  )
+))
+```
+
+```{r reactionsidenticalannotations, fig.cap='Reactions with Partially Identical Annotations'}
+metric_plots$plot_sina[metric_plots$test == "test_find_reactions_with_partially_identical_annotations"][[1]]
+```
+
+```{r duplicatereactions, fig.cap='Duplicate Reactions'}
+metric_plots$plot_sina[metric_plots$test == "test_find_duplicate_reactions"][[1]]
+```
+
+```{r reactionsidenticalgenes, fig.cap='Reactions with Identical Genes'}
+metric_plots$plot_sina[metric_plots$test == "test_find_reactions_with_identical_genes"][[1]]
+```
+
+\FloatBarrier
+
+#### Gene-Protein-Reaction (GPR) Association
+
+```{r gprpresence, fig.cap='Reactions without GPR'}
+metric_plots$plot_sina[metric_plots$test == "test_gene_protein_reaction_rule_presence"][[1]]
+```
+
+```{r transport-reaction-gpr, fig.cap='Fraction of Transport Reactions without GPR'}
+metric_plots$plot_sina[metric_plots$test == "test_transport_reaction_gpr_presence"][[1]]
+```
+
+```{r protein-complex-presence, fig.cap='Enzyme Complexes'}
+metric_plots$plot_sina[metric_plots$test == "test_protein_complex_presence"][[1]]
+```
+
+\FloatBarrier
+
+#### Biomass {#sec:biomass}
+
+```{r biomass-presence, fig.cap='Biomass Reactions Identified'}
+metric_plots$plot_sina[metric_plots$test == "test_biomass_presence"][[1]]
+```
+
+```{r biomass-consistency, fig.cap='Biomass Consistency'}
+metric_plots$plot_sina[metric_plots$test == "test_biomass_consistency"][[1]]
+```
+
+```{r biomass-default-production, fig.cap='Biomass Production in Default Medium'}
+metric_plots$plot_sina[metric_plots$test == "test_biomass_default_production"][[1]]
+```
+
+```{r biomass-open-production, fig.cap='Biomass Production in Complete Medium'}
+metric_plots$plot_sina[metric_plots$test == "test_biomass_open_production"][[1]]
+```
+
+```{r biomass-precursors-default, fig.cap='Blocked Biomass Precursors in Default Medium'}
+metric_plots$plot_sina[metric_plots$test == "test_biomass_precursors_default_production"][[1]]
+```
+
+```{r biomass-precursors-open, fig.cap='Blocked Biomass Precursors in Complete Medium'}
+metric_plots$plot_sina[metric_plots$test == "test_biomass_precursors_open_production"][[1]]
+```
+
+```{r direct-metabolites-biomass, fig.cap='Ratio of Direct Metabolites in Biomass Reaction'}
+metric_plots$plot_sina[metric_plots$test == "test_direct_metabolites_in_biomass"][[1]]
+```
+
+```{r essential-precursors, fig.cap='Number of Missing Essential Biomass Precursors'}
+metric_plots$plot_sina[metric_plots$test == "test_essential_precursors_not_in_biomass"][[1]]
+```
+
+\FloatBarrier
+
+#### Energy Metabolism
+
+```{r ngam-presence, fig.cap='Non-Growth Associated Maintenance Reaction'}
+metric_plots$plot_sina[metric_plots$test == "test_ngam_presence"][[1]]
+```
+
+```{r gam-presence, fig.cap='Growth-associated Maintenance in Biomass Reaction'}
+metric_plots$plot_sina[metric_plots$test == "test_gam_in_biomass"][[1]]
+```
+
+```{r reversible-oxygen-reactions, fig.cap='Number of Reversible Oxygen-Containing Reactions'}
+metric_plots$plot_sina[metric_plots$test == "test_find_reversible_oxygen_reactions"][[1]]
+```
+
+\FloatBarrier
+
+#### Network Topology {#sec:network-topology}
+
+```{r blocked-reactions, fig.cap='Universally Blocked Reactions'}
+metric_plots$plot_sina[metric_plots$test == "test_blocked_reactions"][[1]]
+```
+
+```{r orphans, fig.cap='Orphan Metabolites'}
+metric_plots$plot_sina[metric_plots$test == "test_find_orphans"][[1]]
+```
+
+```{r dead-ends, fig.cap='Dead-end Metabolites'}
+metric_plots$plot_sina[metric_plots$test == "test_find_deadends"][[1]]
+```
+
+```{r balanced-cycles, fig.cap='Stoichiometrically Balanced Cycles'}
+metric_plots$plot_sina[metric_plots$test == "test_find_stoichiometrically_balanced_cycles"][[1]]
+```
+
+```{r metabolites-not-produced, fig.cap='Metabolite Production in Complete Medium'}
+metric_plots$plot_sina[metric_plots$test == "test_find_metabolites_not_produced_with_open_bounds"][[1]]
+```
+
+```{r metabolites-not-consumed, fig.cap='Metabolite Consumption in Complete Medium'}
+metric_plots$plot_sina[metric_plots$test == "test_find_metabolites_not_consumed_with_open_bounds"][[1]]
+```
+
+\FloatBarrier
+
+#### Matrix Conditioning
+
+```{r extreme-coefficient-ratio, fig.cap='Ratio Min/Max Non-Zero Coefficients'}
+metric_plots$plot_sina[metric_plots$test == "test_absolute_extreme_coefficient_ratio"][[1]]
+```
+
+```{r independent-conservation-relations, fig.cap='Independent Conservation Relations'}
+metric_plots$plot_sina[metric_plots$test == "test_number_independent_conservation_relations"][[1]]
+```
+
+```{r rank, fig.cap='Rank'}
+metric_plots$plot_sina[metric_plots$test == "test_matrix_rank"][[1]]
+```
+
+```{r degrees-freedom, fig.cap='Degrees of Freedom'}
+metric_plots$plot_sina[metric_plots$test == "test_degrees_of_freedom"][[1]]
+```
+
+\FloatBarrier
+
+# Supplementary References

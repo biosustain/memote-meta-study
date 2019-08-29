@@ -1,1 +1,1 @@
-rmarkdown::render("supplements.Rmd")
+rmarkdown::render("supplementary_material.Rmd")
