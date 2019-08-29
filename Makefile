@@ -1,10 +1,16 @@
-.PHONY: requirements etl clean plot lint jupyter
+.PHONY: build requirements etl clean plot lint jupyter
+
+TAG ?= 3.6.1
 
 ################################################################################
 # COMMANDS                                                                     #
 ################################################################################
 
-## Install Python Dependencies
+## Build the Docker image
+build:
+	docker build --build-arg TAG=$(TAG) --tag midnighter/knit-memote:$(TAG) .
+
+## Install Python dependencies
 requirements:
 	pip install -U pip setuptools wheel
 	pip install -r dev-requirements.txt
@@ -28,13 +34,14 @@ clean:
 
 ## Generate all plots and supplementary material
 plot: clean
-
 	jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 \
 		--execute --inplace reports/clustering_metric_data.ipynb
 	jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 \
 		--execute --inplace reports/clustering_scored_data.ipynb
-	Rscript scripts/plot_panel.R
-	Rscript scripts/knit.R
+	docker run -v $(CURDIR):/home/rstudio --tty midnighter/knit-memote:$(TAG) \
+		Rscript scripts/plot_panel.R
+	docker run -v $(CURDIR):/home/rstudio --tty midnighter/knit-memote:$(TAG) \
+		Rscript -e "rmarkdown::render('supplementary_material.Rmd')"
 
 ## Lint using flake8
 lint:
