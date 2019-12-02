@@ -155,6 +155,11 @@ To simplify interpretation, the following figures are grouped by the sections of
 
 ## Tested models
 
+We tested models from seven GEM collections comprising manually and (semi)-automatically reconstructed GEMs (10,780 models in total): 
+(i) 801 semi-automatically built reconstructions of human gut bacteria from the AGORA [@Magnsdttir2016] collection (version 1.03; not condition-specific and including post-publication corrections [@Babaei2018], [@Magnsdttir2018]), (ii) 2,641 models from the Path2Models [@Bchel2013] branch of the BioModels [@Li2010], [@LeNovere2006], [@Chelliah2014] database hosting models automatically generated from pathway resources, and (iii) 5,511 and (iv) 1,632 models automatically reconstructed using CarveME [@Machado2018] and the Department of Energy’s Knowledge Base (KBase) [@Arkin2018] based on bacterial genomes in NCBI RefSeq, respectively. Furthermore, 36 manually reconstructed models from the (v) the BiGG25 database and two collections of published models as available from (vi) Ebrahim et al. [@Ebrahim2015] (80 models) and (vii) the OptFlux [@Rocha2010] software (79 models), of which 39 models are likely identical based on a filename comparison
+
+Two collections contained models in non-standard formats that were omitted entirely (15 from Ebrahim et al and 49 from OptFlux)
+
 In order to respect the limited resources on the [DTU high performance computing infrastructure](https://www.hpc.dtu.dk/), we set a maximum time limit for running the memote test suite. This introduced a bias against large models. Additionally, certain models failed the testing procedure. In the following we tabulate the total size of the collections as well as the final number of tested models. The results are shown in Table \@ref(tab:numbers).
 
 ```{r numbers}
