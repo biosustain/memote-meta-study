@@ -149,6 +149,18 @@ Setting up a version-controlled model repository not only allows researchers to 
   \label{fig:validation}
 \end{figure}
 
+# Supplementary Note 3: Discussion of alternatives to memote
+
+The cloud-based, distributed version control for GEMs encoded as SBML3FBC is only one possible implementation approach for version control and collaboration. Alternatives include Pathway Tools [@Karp2009] which internally stores organism data in the form of a database, and  AuReMe [@Aite2018], which allows users to interact with a database by wikis. Although databases offer greater capacity and speed than single, large data files, the programmatic or form-based interaction and more complex setup procedure required for databases may not be easily accessible to a broad community. We see Memote in combination with GitHub, GitLab, or BioModels as a means of version control that is simple to set up and easy to manage.
+
+For quality control, alternatives include rBioNet [@Thorleifsson2011], an extension to the COBRAToolbox [@Heirendt2017-ra]. It primarily focuses on guiding reconstruction by flagging operations which violate SOPs but also provides functions which print basic information such as the amount of model components and dead-end metabolites. Memote may be more widely adopted because no license for MATLAB is required. gsmodutils [@Gilbert2019] is another option but is less accessible to a wider community due to the need for proficiency in Python for use. We note that owing to the exchange format of SBML, memote is fully compatible with rBioNet and gsmodutils.
+
+# Supplementary Note 4: Outlook
+
+In future, memote could be extended to provide support for tests based on multi-omics data [@Hackett2016]. Moreover, to distribute all files of a model repository together, the model, supporting data and scripts could be automatically bundled into one ZIP-based archive file (so-called COMBINE archive) [@Bergmann2014]. These archives can include a formal description of simulation experiments to ensure exchangeability and reproducibility [@Waltemath2011].
+
+The tests that memote offers only apply to stoichiometric models. However, the underlying principles behind memote could be applied to other modeling paradigms, i.e., to models of metabolism and expression (ME-models) [@OBrien2013], kinetic [@Vasilakou2016], or even systems pharmacological models [@Thiel2017].
+
 # Supplementary Methods 
 
 To simplify interpretation, the following figures are grouped by the sections of their corresponding test cases as they appear in a snapshot report. The code that was used to generate the data and figures has been deposited on GitHub https://github.com/biosustain/memote-meta-study.
