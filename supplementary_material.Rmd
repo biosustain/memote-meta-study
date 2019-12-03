@@ -149,13 +149,17 @@ Setting up a version-controlled model repository not only allows researchers to 
   \label{fig:validation}
 \end{figure}
 
-# Supplementary Note 3: Discussion of alternatives to memote
+# Supplementary Note 3: Integration in third party tools and services
+
+Memote's core functions are available through a [python API](https://memote.readthedocs.io/en/latest/autoapi/) and the online service is available through either a [web interface](www.memote.io) or a programmatic [REST API](https://api.dd-decaf.eu/memote-webservice/#/). We have integrated memote in KBase [@Arkin2018] as an app, OptFlux [@Rocha2010] (version 3.4) as a plug-in and link to it from the BiGG Models Database [@King2015]. We plan to integrate it with BioModels [@Li2010], and the RAVEN toolbox [@Agren2013].
+
+# Supplementary Note 4: Discussion of alternatives to memote
 
 The cloud-based, distributed version control for GEMs encoded as SBML3FBC is only one possible implementation approach for version control and collaboration. Alternatives include Pathway Tools [@Karp2009] which internally stores organism data in the form of a database, and  AuReMe [@Aite2018], which allows users to interact with a database by wikis. Although databases offer greater capacity and speed than single, large data files, the programmatic or form-based interaction and more complex setup procedure required for databases may not be easily accessible to a broad community. We see Memote in combination with GitHub, GitLab, or BioModels as a means of version control that is simple to set up and easy to manage.
 
 For quality control, alternatives include rBioNet [@Thorleifsson2011], an extension to the COBRAToolbox [@Heirendt2017-ra]. It primarily focuses on guiding reconstruction by flagging operations which violate SOPs but also provides functions which print basic information such as the amount of model components and dead-end metabolites. Memote may be more widely adopted because no license for MATLAB is required. gsmodutils [@Gilbert2019] is another option but is less accessible to a wider community due to the need for proficiency in Python for use. We note that owing to the exchange format of SBML, memote is fully compatible with rBioNet and gsmodutils.
 
-# Supplementary Note 4: Outlook
+# Supplementary Note 5: Outlook
 
 In future, memote could be extended to provide support for tests based on multi-omics data [@Hackett2016]. Moreover, to distribute all files of a model repository together, the model, supporting data and scripts could be automatically bundled into one ZIP-based archive file (so-called COMBINE archive) [@Bergmann2014]. These archives can include a formal description of simulation experiments to ensure exchangeability and reproducibility [@Waltemath2011].
 
@@ -173,6 +177,28 @@ We tested models from seven GEM collections comprising manually and (semi)-autom
 Two collections contained models in non-standard formats that were omitted entirely (15 from Ebrahim et al and 49 from OptFlux)
 
 In order to respect the limited resources on the [DTU high performance computing infrastructure](https://www.hpc.dtu.dk/), we set a maximum time limit for running the memote test suite. This introduced a bias against large models. Additionally, certain models failed the testing procedure. In the following we tabulate the total size of the collections as well as the final number of tested models. The results are shown in Table \@ref(tab:numbers).
+
+```{r databases, results = 'asis'}
+kableExtra::usepackage_latex("threeparttable")
+dplyr::tibble(
+  databases = factor(
+    c("ASAP", "BiGG", "BioCyc", "BRENDA", "CCDS", "ChEBI", "EC-Code", "EcoGene", "HMDB", "HPRD", "InChI", "InChIKey", "Kegg", "MetaNetX", "NCBI Gene", "NCBI GI", "NCBI Protein", "PubChem", "Reactome", "RefSeq", "RHEA", "SEED", "Uniprot"),
+    levels = c("ASAP", "BiGG", "BioCyc", "BRENDA", "CCDS", "ChEBI", "EC-Code", "EcoGene", "HMDB", "HPRD", "InChI", "InChIKey", "Kegg", "MetaNetX", "NCBI Gene", "NCBI GI", "NCBI Protein", "PubChem", "Reactome", "RefSeq", "RHEA", "SEED", "Uniprot")
+  ),
+  name = c("ASAP", "BiGG", "BioCyc", "BRENDA", "CCDS", "ChEBI", "EC-Code", "EcoGene", "HMDB", "HPRD", "InChI", "InChIKey", "Kegg", "MetaNetX", "NCBI Gene", "NCBI GI", "NCBI Protein", "PubChem", "Reactome", "RefSeq", "RHEA", "SEED", "Uniprot"),
+  component = c("gene", "reaction, metabolite", "reaction, metabolite", "reaction", "gene", "metabolite", "reaction", "gene", "metabolite", "gene", "metabolite", "metabolite", "gene, reaction, metabolite", "reaction, metabolite", "gene", "gene", "gene", "metabolite", "reaction, metabolite", "gene", "reaction", "metabolite", "gene"),
+  links = c("http://asap.ahabs.wisc.edu/asap/home.php", "http://bigg.ucsd.edu/universal/", "http://biocyc.org", "http://www.brenda-enzymes.org/", "http://www.ncbi.nlm.nih.gov/CCDS/", "https://www.ebi.ac.uk/chebi/", "http://www.enzyme-database.org/", "http://ecogene.org/", "http://www.hmdb.ca/", "http://www.hprd.org/", "https://www.ebi.ac.uk/chebi/", "http://cactus.nci.nih.gov/chemical/structure", "http://www.kegg.jp/", "http://www.metanetx.org", "http://ncbigene.bio2rdf.org/fct", "http://www.ncbi.nlm.nih.gov/protein/", "http://www.ncbi.nlm.nih.gov/protein", "https://pubchem.ncbi.nlm.nih.gov/", "http://www.reactome.org/", "http://www.ncbi.nlm.nih.gov/projects/RefSeq/", "http://www.rhea-db.org/", "http://modelseed.org/", "http://www.uniprot.org/"),
+  citations = c ("@Glasner2003", "@King2015", "@Caspi2009", "@Jeske2018", "@Pujar2017", "@Hastings2015", "@McDonald2009", "@Zhou2012", "@Wishart2017", "@KeshavaPrasad2009", "@Stein2003", "N/A", "@Kanehisa2019", "@Moretti2015", "@NCBIResourceCoordinators2017", "@NCBIResourceCoordinators2017", "@NCBIResourceCoordinators2017", "@NCBIResourceCoordinators2017", "@Fabregat2017", "@NCBIResourceCoordinators2017", "@Morgat2016", "@Henry2010", "@UniProtConsortium2018")
+) %>%
+  knitr::kable(
+    digits = 1,
+    booktabs = TRUE,
+    caption = "Biochemical Databases for Model Component Annotation.",
+    col.names = c("Databases", "Component Type", "URL", "Citation"),
+    escape = FALSE
+  ) %>%
+  kableExtra::kable_styling(full_width = FALSE, protect_latex = TRUE)
+```
 
 ```{r numbers}
 kableExtra::usepackage_latex("threeparttable")
