@@ -3,6 +3,7 @@ install.packages(c(
   "caret",
   "cowplot",
   "devtools",
+  "egg",
   "fpc",
   "kableExtra",
   "randomForest",

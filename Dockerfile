@@ -31,7 +31,9 @@ COPY scripts/install_requirements.R ./
 
 RUN Rscript install_requirements.R
 
-RUN set -eux \
+# Since `tlmgr path add` returns with an error code, we do not want to interrupt
+# the pipeline and the docker build process. Thus we avoid `set -e`.
+RUN set -ux \
     && tlmgr install \
         colortbl \
         environ \
@@ -46,7 +48,8 @@ RUN set -eux \
         varwidth \
         wrapfig \
         xcolor \
-    && tlmgr path add
+    # Ensure that the pipeline finishes with a non-error return code.
+    && tlmgr path add || true
 
 WORKDIR /home/rstudio
 
