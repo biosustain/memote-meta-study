@@ -40,10 +40,12 @@ clustering <-
 
 # Stoichiometric consistency plot -----------------------------------------
 
-stoich_consistency <- total_df %>%
+stoich_consistency_df <- total_df %>%
   dplyr::filter(test == "test_stoichiometric_consistency") %>%
-  droplevels() %>%
-  ggplot2::ggplot(.,
+  dplyr::select(model, collection, metric) %>%
+  droplevels()
+
+stoich_consistency <-  ggplot2::ggplot(stoich_consistency_df,
                   ggplot2::aes(
                     x = collection,
                     y = metric,
@@ -61,10 +63,12 @@ stoich_consistency <- total_df %>%
 
 # Reactions without GPR ---------------------------------------------------
 
-gpr <- total_df %>%
+gpr_df <- total_df %>%
   dplyr::filter(test == "test_gene_protein_reaction_rule_presence") %>%
-  droplevels() %>%
-  ggplot2::ggplot(.,
+  dplyr::select(model, collection, metric) %>%
+  droplevels()
+
+gpr <- ggplot2::ggplot(gpr_df,
                   ggplot2::aes(
                     x = collection,
                     y = metric,
@@ -82,10 +86,12 @@ gpr <- total_df %>%
 
 # Blocked reactions plot --------------------------------------------------
 
-blocked <- total_df %>%
+blocked_df <- total_df %>%
   dplyr::filter(test == "test_blocked_reactions") %>%
-  droplevels() %>%
-  ggplot2::ggplot(.,
+  dplyr::select(model, collection, metric) %>%
+  droplevels()
+
+blocked <- ggplot2::ggplot(blocked_df,
                   ggplot2::aes(
                     x = collection,
                     y = metric,
@@ -109,6 +115,15 @@ blocked <- total_df %>%
                    ggplot2::margin(
                      l = size
                    ))
+
+# Save Excel Table --------------------------------------------------------
+
+writexl::write_xlsx(list(
+  a = metric_tsne_tbl,
+  b = stoich_consistency_df,
+  c = gpr_df,
+  d = blocked_df
+), file.path("data", "manuscript_panel_figure.xlsx"))
 
 # Save figure -------------------------------------------------------------
 

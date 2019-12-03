@@ -5,7 +5,8 @@ install.packages(c(
   "devtools",
   "fpc",
   "kableExtra",
-  "randomForest"
+  "randomForest",
+  "writexl"
 ))
 
 # Change in behavior in newer versions lead to an error in `stat_sina`
