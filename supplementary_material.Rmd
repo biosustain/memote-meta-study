@@ -178,24 +178,6 @@ Two collections contained models in non-standard formats that were omitted entir
 
 In order to respect the limited resources on the [DTU high performance computing infrastructure](https://www.hpc.dtu.dk/), we set a maximum time limit for running the memote test suite. This introduced a bias against large models. Additionally, certain models failed the testing procedure. In the following we tabulate the total size of the collections as well as the final number of tested models. The results are shown in Table \@ref(tab:numbers).
 
-```{r databases, results = 'asis'}
-kableExtra::usepackage_latex("threeparttable")
-dplyr::tibble(
-  databases = c("ASAP", "BiGG", "BioCyc", "BRENDA", "CCDS", "ChEBI", "EC-Code", "EcoGene", "HMDB", "HPRD", "InChI", "InChIKey", "Kegg", "MetaNetX", "NCBI Gene", "NCBI GI", "NCBI Protein", "PubChem", "Reactome", "RefSeq", "RHEA", "SEED", "Uniprot"),
-  component = c("gene", "reaction, metabolite", "reaction, metabolite", "reaction", "gene", "metabolite", "reaction", "gene", "metabolite", "gene", "metabolite", "metabolite", "gene, reaction, metabolite", "reaction, metabolite", "gene", "gene", "gene", "metabolite", "reaction, metabolite", "gene", "reaction", "metabolite", "gene"),
-  links = c("http://asap.ahabs.wisc.edu/asap/home.php", "http://bigg.ucsd.edu/universal/", "http://biocyc.org", "http://www.brenda-enzymes.org/", "http://www.ncbi.nlm.nih.gov/CCDS/", "https://www.ebi.ac.uk/chebi/", "http://www.enzyme-database.org/", "http://ecogene.org/", "http://www.hmdb.ca/", "http://www.hprd.org/", "https://www.ebi.ac.uk/chebi/", "http://cactus.nci.nih.gov/chemical/structure", "http://www.kegg.jp/", "http://www.metanetx.org", "http://ncbigene.bio2rdf.org/fct", "http://www.ncbi.nlm.nih.gov/protein/", "http://www.ncbi.nlm.nih.gov/protein", "https://pubchem.ncbi.nlm.nih.gov/", "http://www.reactome.org/", "http://www.ncbi.nlm.nih.gov/projects/RefSeq/", "http://www.rhea-db.org/", "http://modelseed.org/", "http://www.uniprot.org/"),
-  citations = c ("@Glasner2003", "@King2015", "@Caspi2009", "@Jeske2018", "@Pujar2017", "@Hastings2015", "@McDonald2009", "@Zhou2012", "@Wishart2017", "@KeshavaPrasad2009", "@Stein2003", "N/A", "@Kanehisa2019", "@Moretti2015", "@NCBIResourceCoordinators2017", "@NCBIResourceCoordinators2017", "@NCBIResourceCoordinators2017", "@NCBIResourceCoordinators2017", "@Fabregat2017", "@NCBIResourceCoordinators2017", "@Morgat2016", "@Henry2010", "@UniProtConsortium2018")
-) %>%
-  knitr::kable(
-    digits = 1,
-    booktabs = TRUE,
-    caption = "Biochemical Databases for Model Component Annotation.",
-    col.names = c("Databases", "Component Type", "URL", "Citation"),
-    escape = FALSE
-  ) %>%
-  kableExtra::kable_styling(full_width = FALSE, protect_latex = TRUE)
-```
-
 ```{r numbers}
 kableExtra::usepackage_latex("threeparttable")
 dplyr::tibble(
@@ -384,6 +366,49 @@ ggplot2::theme_set(cowplot::theme_cowplot(font_size = 11))
 \FloatBarrier
 
 ## Test Suite
+
+The database identifiers referenced throughout the Annotation sections belong to common biochemical databases that are listed in Table \@ref(tab:databases).
+
+(ref:databases-ref1) [@Glasner2003]
+(ref:databases-ref2) [@King2015]
+(ref:databases-ref3) [@Caspi2009]
+(ref:databases-ref4) [@Jeske2018]
+(ref:databases-ref5) [@Pujar2017]
+(ref:databases-ref6) [@Hastings2015]
+(ref:databases-ref7) [@McDonald2009]
+(ref:databases-ref8) [@Zhou2012]
+(ref:databases-ref9) [@Wishart2017]
+(ref:databases-ref10) [@KeshavaPrasad2009]
+(ref:databases-ref11) [@Stein2003]
+(ref:databases-ref12) [@Kanehisa2019]
+(ref:databases-ref13) [@Moretti2015]
+(ref:databases-ref14) [@NCBIResourceCoordinators2017]
+(ref:databases-ref15) [@Fabregat2017]
+(ref:databases-ref16) [@Morgat2016]
+(ref:databases-ref17) [@Henry2010]
+(ref:databases-ref18) [@UniProtConsortium2018]
+
+```{r databases, results = 'asis'}
+kableExtra::usepackage_latex("threeparttable")
+dplyr::tibble(
+  databases = c("ASAP", "BiGG", "BioCyc", "BRENDA", "CCDS", "ChEBI", "EC-Code", "EcoGene", "HMDB", "HPRD", "InChI", "InChIKey", "Kegg", "MetaNetX", "NCBI Gene", "NCBI GI", "NCBI Protein", "PubChem", "Reactome", "RefSeq", "RHEA", "SEED", "Uniprot"),
+  component = c("gene", "reaction, metabolite", "reaction, metabolite", "reaction", "gene", "metabolite", "reaction", "gene", "metabolite", "gene", "metabolite", "metabolite", "gene, reaction, metabolite", "reaction, metabolite", "gene", "gene", "gene", "metabolite", "reaction, metabolite", "gene", "reaction", "metabolite", "gene"),
+  links = c("http://asap.ahabs.wisc.edu/asap/home.php", "http://bigg.ucsd.edu/universal/", "http://biocyc.org", "http://www.brenda-enzymes.org/", "http://www.ncbi.nlm.nih.gov/CCDS/", "https://www.ebi.ac.uk/chebi/", "http://www.enzyme-database.org/", "http://ecogene.org/", "http://www.hmdb.ca/", "http://www.hprd.org/", "https://www.ebi.ac.uk/chebi/", "http://cactus.nci.nih.gov/chemical/structure", "http://www.kegg.jp/", "http://www.metanetx.org", "http://ncbigene.bio2rdf.org/fct", "http://www.ncbi.nlm.nih.gov/protein/", "http://www.ncbi.nlm.nih.gov/protein", "https://pubchem.ncbi.nlm.nih.gov/", "http://www.reactome.org/", "http://www.ncbi.nlm.nih.gov/projects/RefSeq/", "http://www.rhea-db.org/", "http://modelseed.org/", "http://www.uniprot.org/"),
+  citations = c ("(ref:databases-ref1)", "(ref:databases-ref2)", "(ref:databases-ref3)", "(ref:databases-ref4)", "(ref:databases-ref5)", "(ref:databases-ref6)", "(ref:databases-ref7)", "(ref:databases-ref8)", "(ref:databases-ref9)", "(ref:databases-ref10)", "(ref:databases-ref11)", "N/A", "(ref:databases-ref12)", "(ref:databases-ref13)", "(ref:databases-ref14)", "(ref:databases-ref14)", "(ref:databases-ref14)", "(ref:databases-ref14)", "(ref:databases-ref15)", "(ref:databases-ref14)", "(ref:databases-ref16)", "(ref:databases-ref17)", "(ref:databases-ref18)")
+) %>%
+  knitr::kable(
+    digits = 1,
+    booktabs = TRUE,
+    caption = "Biochemical Databases for Model Component Annotation.",
+    col.names = c("Databases", "Component Type", "URL", "Citation"),
+    escape = FALSE
+  ) %>%
+  kableExtra::kable_styling(full_width = T, protect_latex = TRUE) %>%
+  kableExtra::column_spec(1, width = "2cm") %>%
+  kableExtra::column_spec(3, width = "10cm") %>%
+  kableExtra::landscape()
+```
+
 
 ```{r sina-layers, include=FALSE}
 sina_layers <- list(
