@@ -1167,4 +1167,17 @@ metric_plots$plot_sina[metric_plots$test == "test_degrees_of_freedom"][[1]]
 
 \FloatBarrier
 
+
+# Author Contributions
+
+Christian Lieven, Moritz E. Beber and Nikolaus Sonnenschein conceived the study. Moritz E. Beber, Christian Lieven, Siddharth Chauhan, Ali Kaafarani and Nikolaus Sonnenschein wrote the software memote. Moritz E. Beber carried out the assessment of publicly available models. Wout van Helvoirt and Jon O. Vik alpha-tested memote and provided early ideas for the memote report interface. 
+
+Christian Lieven drafted all parts of the manuscript except for the paragraph about SBML which was drafted by Brett G. Olivier and Frank T. Bergmann. Jon O. Vik helped shape the introduction. Christian Lieven wrote the Supplementary Guide, Moritz E. Beber composed the Supplementary Material, and Beatriz García-Jiménez conducted the Supplementary Clustering Analysis. 
+
+Paulo Maia and Paulo Vilaça created a memote plug-in for OptFlux. Jasper J. Koehorst provided a configuration for continuous integration with Gitlab. Filipe Liu, José P. Faria, Janaka N. Edirisinghe and Christopher S. Henry created a memote app for KBase. 
+
+Christian Lieven, Moritz E. Beber, Brett G. Olivier, Frank T. Bergmann, Meric Ataman, Parizad Babaei, Jennifer A. Bartell, Lars M. Blank, Siddharth Chauhan, Kevin Correia, Christian Diener, Andreas Dräger, Birgitta E. Ebert, Janaka N. Edirisinghe, José P. Faria, Adam Feist, Georgios Fengos, Ronan M. T. Fleming, Beatriz García-Jiménez, Vassily Hatzimanikatis, Wout van Helvoirt, Christopher S. Henry, Henning Hermjakob, Markus J. Herrgård, Ali Kaafarani, Hyun Uk Kim, Zachary King, Jasper J. Koehorst, Matthias König, Steffen Klamt, Edda Klipp, Meiyappan Lakshmanan, Dong-Yup Lee, Sang Yup Lee, Sunjae Lee, Nathan E. Lewis, Filipe Liu, Hongwu Ma, Daniel Machado, Radhakrishnan Mahadevan, Paulo Maia, Adil Mardinoglu, Gregory L. Medlock, Jonathan M. Monk, Jens Nielsen, Lars Keld Nielsen, Juan Nogales, Intawat Nookaew, Osbaldo Resendis-Antonio, Bernhard O. Palsson, Jason A. Papin, Kiran R. Patil, Mark Poolman, Nathan D. Price, Anne Richelle, Isabel Rocha, Benjamín J. Sánchez, Peter J. Schaap, Rahuman S. Malik Sheriff, Saeed Shoaie, Nikolaus Sonnenschein, Bas Teusink, Paulo Vilaça, Jon Olav Vik, Judith A.H. Wodke, Joana C. Xavier, Qianqian Yuan, Maksim Zakhartsev, and Cheng Zhang beta-tested memote and provided feedback and suggestions which shaped the software. 
+
+All authors read, corrected and approved the manuscript.
+
 # Supplementary References
