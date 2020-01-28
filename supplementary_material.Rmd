@@ -12,9 +12,9 @@ link-citations: true
 header-includes:
   \usepackage[section]{placeins}
   \setcounter{table}{0}
-  \renewcommand{\thetable}{S\arabic{table}}
+  \renewcommand{\thetable}{\arabic{table}}
   \setcounter{figure}{0}
-  \renewcommand{\thefigure}{S\arabic{figure}}
+  \renewcommand{\thefigure}{\arabic{figure}}
   \usepackage{hyperref}
   \hypersetup{
     colorlinks=true,
@@ -45,7 +45,7 @@ library(cowplot)
 source("scripts/helpers.R")
 ```
 
-# Supplementary Figures: Arranged as they are mentioned in the manuscript
+# Supplementary Figures: Arranged as they appear in the manuscript
 
 To see the figures in context, please refer to the corresponding sections below.
 
@@ -54,24 +54,31 @@ To see the figures in context, please refer to the corresponding sections below.
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/guide/image2.png}
   \caption{Snapshot Report}
-  \label{fig:snapshot_sorted}
+  \label{fig:snapshot-sorted}
 \end{figure}
 
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/guide/image5.png}
   \caption{Diff Report}
-  \label{fig:diff_sorted}
+  \label{fig:diff-sorted}
 \end{figure}
 
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/guide/image7.png}
   \caption{History Report}
-  \label{fig:history_sorted}
+  \label{fig:history-sorted}
 \end{figure}
 
 \FloatBarrier
 
 ## From Supplementary Material
+
+```{r theme, include=FALSE}
+# Ignore all textual result output in the following code chunks.
+# Set the figure chunk options.
+knitr::opts_chunk$set(results = 'hide', out.width = '100%', fig.asp = 0.618047, fig.align = 'center')
+ggplot2::theme_set(cowplot::theme_cowplot(font_size = 11))
+```
 
 ```{r sina-layers, include=FALSE}
 sina_layers <- list(
@@ -113,7 +120,6 @@ do_plot <- function(sub_tbl, var, label_width = 40) {
 }
 ```
 
-
 ```{r scored-plots, cache=TRUE, dependson='scores', include=FALSE}
 score_plots <- total_df %>%
   dplyr::filter(is.finite(score)) %>%
@@ -140,68 +146,67 @@ numeric_plots <- total_df %>%
   )
 ```
 
-
-```{r reactionmassbalance_sorted, fig.cap='Mass Balance. Please note that any reaction where at least one metabolite lacks a formula annotation is considered as unbalanced for the purpose of this test.'}
+```{r reactionmassbalance-sorted, fig.cap='Mass Balance. Please note that any reaction where at least one metabolite lacks a formula annotation is considered as unbalanced for the purpose of this test.'}
 score_plots$plot_sina[score_plots$test == "test_reaction_mass_balance"][[1]]
 ```
 
-```{r orphans_sorted, fig.cap='Orphan Metabolites'}
+```{r orphans-sorted, fig.cap='Orphan Metabolites'}
 metric_plots$plot_sina[metric_plots$test == "test_find_orphans"][[1]]
 ```
 
-```{r dead-ends_sorted, fig.cap='Dead-end Metabolites'}
+```{r dead-ends-sorted, fig.cap='Dead-end Metabolites'}
 metric_plots$plot_sina[metric_plots$test == "test_find_deadends"][[1]]
 ```
 
-```{r metaboliteannotationpresence_sorted, fig.cap='Presence of Metabolite Annotation'}
+```{r metaboliteannotationpresence-sorted, fig.cap='Presence of Metabolite Annotation'}
 score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_presence"][[1]]
 ```
 
-```{r reactionannotationpresence_sorted, fig.cap='Presence of Reaction Annotation'}
+```{r reactionannotationpresence-sorted, fig.cap='Presence of Reaction Annotation'}
 score_plots$plot_sina[score_plots$test == "test_reaction_annotation_presence"][[1]]
 ```
 
-```{r gene-annotation-presence_sorted, fig.cap='Presence of Gene Annotation'}
+```{r gene-annotation-presence-sorted, fig.cap='Presence of Gene Annotation'}
 score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_presence"][[1]]
 ```
 
-```{r metaboliteannotationkegg_sorted, fig.cap='Metabolite KEGG.compound Annotation'}
+```{r metaboliteannotationkegg-sorted, fig.cap='Metabolite KEGG.compound Annotation'}
 score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-kegg.compound"][[1]]
 ```
 
-```{r reactionannotationkegg_sorted, fig.cap='Reaction KEGG.reaction Annotation'}
+```{r reactionannotationkegg-sorted, fig.cap='Reaction KEGG.reaction Annotation'}
 score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-kegg.reaction"][[1]]
 ```
 
-```{r wrongmetaboliteannotationseed_sorted, fig.cap='Correct Metabolite SEED.compound Annotation'}
+```{r wrongmetaboliteannotationseed-sorted, fig.cap='Correct Metabolite SEED.compound Annotation'}
 score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-seed.compound"][[1]]
 ```
 
-```{r wrongmetaboliteannotationbigg_sorted, fig.cap='Correct Metabolite BiGG.metabolite Annotation'}
+```{r wrongmetaboliteannotationbigg-sorted, fig.cap='Correct Metabolite BiGG.metabolite Annotation'}
 score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-bigg.metabolite"][[1]]
 ```
 
-```{r wrongmetaboliteannotationbiocyc_sorted, fig.cap='Correct Metabolite BioCyc Annotation'}
+```{r wrongmetaboliteannotationbiocyc-sorted, fig.cap='Correct Metabolite BioCyc Annotation'}
 score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-biocyc"][[1]]
 ```
 
-```{r wrongreactionannotationbigg_sorted, fig.cap='Correct Reaction BiGG.reaction Annotation'}
+```{r wrongreactionannotationbigg-sorted, fig.cap='Correct Reaction BiGG.reaction Annotation'}
 score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-bigg.reaction"][[1]]
 ```
 
-```{r wrongreactionannotationbiocyc_sorted, fig.cap='Correct Reaction BioCyc Annotation'}
+```{r wrongreactionannotationbiocyc-sorted, fig.cap='Correct Reaction BioCyc Annotation'}
 score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-biocyc"][[1]]
 ```
 
-```{r wrongmetaboliteannotationhmdb_sorted, fig.cap='Correct Metabolite HMDB Annotation'}
+```{r wrongmetaboliteannotationhmdb-sorted, fig.cap='Correct Metabolite HMDB Annotation'}
 score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-hmdb"][[1]]
 ```
 
-```{r wrongreactionannotationec_sorted, fig.cap='Correct Reaction Enzyme Classification Annotation'}
+```{r wrongreactionannotationec-sorted, fig.cap='Correct Reaction Enzyme Classification Annotation'}
 score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-ec-code"][[1]]
 ```
 
-```{r reactionannotationmetanetx_sorted, fig.cap='Reaction MetaNetX.reaction Annotation'}
+```{r reactionannotationmetanetx-sorted, fig.cap='Reaction MetaNetX.reaction Annotation'}
 score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-metanetx.reaction"][[1]]
 ```
 
@@ -382,13 +387,6 @@ dplyr::tibble(
     escape = FALSE,
     threeparttable = TRUE
   )
-```
-
-```{r theme, include=FALSE}
-# Ignore all textual result output in the following code chunks.
-# Set the figure chunk options.
-knitr::opts_chunk$set(results = 'hide', out.width = '100%', fig.asp = 0.618047, fig.align = 'center')
-ggplot2::theme_set(cowplot::theme_cowplot(font_size = 11))
 ```
 
 ```{r cluster-layers, include=FALSE}
