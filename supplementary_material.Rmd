@@ -12,9 +12,9 @@ link-citations: true
 header-includes:
   \usepackage[section]{placeins}
   \setcounter{table}{0}
-  \renewcommand{\thetable}{S\arabic{table}}
+  \renewcommand{\thetable}{\arabic{table}}
   \setcounter{figure}{0}
-  \renewcommand{\thefigure}{S\arabic{figure}}
+  \renewcommand{\thefigure}{\arabic{figure}}
   \usepackage{hyperref}
   \hypersetup{
     colorlinks=true,
@@ -44,6 +44,173 @@ library(cowplot)
 ```{r load, cache=TRUE, include=FALSE}
 source("scripts/helpers.R")
 ```
+
+# Supplementary Figures: Arranged as they appear in the manuscript
+
+To see the figures in context, please refer to the corresponding sections below.
+
+## From Supplementary Note 1
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image2.png}
+  \caption{Snapshot Report}
+  \label{fig:snapshot-sorted}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image5.png}
+  \caption{Diff Report}
+  \label{fig:diff-sorted}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image7.png}
+  \caption{History Report}
+  \label{fig:history-sorted}
+\end{figure}
+
+\FloatBarrier
+
+## From Supplementary Material
+
+```{r theme, include=FALSE}
+# Ignore all textual result output in the following code chunks.
+# Set the figure chunk options.
+knitr::opts_chunk$set(results = 'hide', out.width = '100%', fig.asp = 0.618047, fig.align = 'center')
+ggplot2::theme_set(cowplot::theme_cowplot(font_size = 11))
+```
+
+```{r sina-layers, include=FALSE}
+sina_layers <- list(
+  ggforce::geom_sina(size = 1, scale = FALSE),
+  ggplot2::geom_boxplot(color = "black", outlier.shape = NA, fill = NA),
+  ggplot2::scale_x_discrete(labels = collection_labels),
+  ggplot2::scale_color_manual(values = colors, guide = FALSE),
+  ggplot2::scale_shape_manual(values = shapes, guide = FALSE),
+  ggplot2::theme(
+    axis.title.x = ggplot2::element_blank(),
+    axis.text.x = ggplot2::element_text(
+      angle = 45,
+      hjust = 1,
+      vjust = 1
+    )
+  )
+)
+```
+
+```{r plot-function, include=FALSE}
+do_plot <- function(sub_tbl, var, label_width = 40) {
+  test_id <- dplyr::first(as.character(sub_tbl$test))
+  base_plot <- ggplot2::ggplot(
+    sub_tbl,
+    ggplot2::aes_string(
+      x = "collection",
+      y = var,
+      color = "collection",
+      shape = "collection",
+      label = "model"
+    )
+  ) + sina_layers + ggplot2::ylab(stringr::str_wrap(y_axis_labels[test_id],
+                                                    width = label_width))
+  if ((min(sub_tbl[[var]], na.rm = TRUE) < 0) | (max(sub_tbl[[var]], na.rm = TRUE) > 1)) {
+    return(base_plot)
+  } else {
+    return(base_plot + ggplot2::ylim(0, 1))
+  }
+}
+```
+
+```{r scored-plots, cache=TRUE, dependson='scores', include=FALSE}
+score_plots <- total_df %>%
+  dplyr::filter(is.finite(score)) %>%
+  dplyr::group_by(test) %>%
+  dplyr::do(
+    plot_sina = do_plot(., "score") + ggplot2::ylim(0, 1)
+  )
+```
+
+```{r metric-plots, cache=TRUE, dependson='load', include=FALSE}
+metric_plots <- total_df %>%
+  dplyr::mutate(metric = ifelse(is.na(numeric), NA, metric)) %>%
+  dplyr::group_by(test) %>%
+  dplyr::do(
+    plot_sina = do_plot(., "metric")
+  )
+```
+
+```{r numeric-plots, cache=TRUE, dependson='load', include=FALSE}
+numeric_plots <- total_df %>%
+  dplyr::group_by(test) %>%
+  dplyr::do(
+    plot_sina = do_plot(., "numeric")
+  )
+```
+
+```{r reactionmassbalance-sorted, fig.cap='Mass Balance. Please note that any reaction where at least one metabolite lacks a formula annotation is considered as unbalanced for the purpose of this test.'}
+score_plots$plot_sina[score_plots$test == "test_reaction_mass_balance"][[1]]
+```
+
+```{r orphans-sorted, fig.cap='Orphan Metabolites'}
+metric_plots$plot_sina[metric_plots$test == "test_find_orphans"][[1]]
+```
+
+```{r dead-ends-sorted, fig.cap='Dead-end Metabolites'}
+metric_plots$plot_sina[metric_plots$test == "test_find_deadends"][[1]]
+```
+
+```{r metaboliteannotationpresence-sorted, fig.cap='Presence of Metabolite Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_presence"][[1]]
+```
+
+```{r reactionannotationpresence-sorted, fig.cap='Presence of Reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_presence"][[1]]
+```
+
+```{r gene-annotation-presence-sorted, fig.cap='Presence of Gene Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_presence"][[1]]
+```
+
+```{r metaboliteannotationkegg-sorted, fig.cap='Metabolite KEGG.compound Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-kegg.compound"][[1]]
+```
+
+```{r reactionannotationkegg-sorted, fig.cap='Reaction KEGG.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-kegg.reaction"][[1]]
+```
+
+```{r wrongmetaboliteannotationseed-sorted, fig.cap='Correct Metabolite SEED.compound Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-seed.compound"][[1]]
+```
+
+```{r wrongmetaboliteannotationbigg-sorted, fig.cap='Correct Metabolite BiGG.metabolite Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-bigg.metabolite"][[1]]
+```
+
+```{r wrongmetaboliteannotationbiocyc-sorted, fig.cap='Correct Metabolite BioCyc Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-biocyc"][[1]]
+```
+
+```{r wrongreactionannotationbigg-sorted, fig.cap='Correct Reaction BiGG.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-bigg.reaction"][[1]]
+```
+
+```{r wrongreactionannotationbiocyc-sorted, fig.cap='Correct Reaction BioCyc Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-biocyc"][[1]]
+```
+
+```{r wrongmetaboliteannotationhmdb-sorted, fig.cap='Correct Metabolite HMDB Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-hmdb"][[1]]
+```
+
+```{r wrongreactionannotationec-sorted, fig.cap='Correct Reaction Enzyme Classification Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-ec-code"][[1]]
+```
+
+```{r reactionannotationmetanetx-sorted, fig.cap='Reaction MetaNetX.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-metanetx.reaction"][[1]]
+```
+
+\FloatBarrier
 
 # Supplementary Note 1: Guide on how to understand the reports
 
@@ -178,7 +345,7 @@ Two collections contained models in non-standard formats that were omitted entir
 
 In order to respect the limited resources on the [DTU high performance computing infrastructure](https://www.hpc.dtu.dk/), we set a maximum time limit for running the memote test suite. This introduced a bias against large models. Additionally, certain models failed the testing procedure. In the following we tabulate the total size of the collections as well as the final number of tested models. The results are shown in Table \@ref(tab:numbers).
 
-```{r numbers}
+```{r numbers, results = 'asis'}
 kableExtra::usepackage_latex("threeparttable")
 dplyr::tibble(
   collection = factor(
@@ -220,13 +387,6 @@ dplyr::tibble(
     escape = FALSE,
     threeparttable = TRUE
   )
-```
-
-```{r theme, include=FALSE}
-# Ignore all textual result output in the following code chunks.
-# Set the figure chunk options.
-knitr::opts_chunk$set(results = 'hide', out.width = '100%', fig.asp = 0.618047, fig.align = 'center')
-ggplot2::theme_set(cowplot::theme_cowplot(font_size = 11))
 ```
 
 ```{r cluster-layers, include=FALSE}
@@ -409,25 +569,6 @@ dplyr::tibble(
   kableExtra::landscape()
 ```
 
-
-```{r sina-layers, include=FALSE}
-sina_layers <- list(
-  ggforce::geom_sina(size = 1, scale = FALSE),
-  ggplot2::geom_boxplot(color = "black", outlier.shape = NA, fill = NA),
-  ggplot2::scale_x_discrete(labels = collection_labels),
-  ggplot2::scale_color_manual(values = colors, guide = FALSE),
-  ggplot2::scale_shape_manual(values = shapes, guide = FALSE),
-  ggplot2::theme(
-    axis.title.x = ggplot2::element_blank(),
-    axis.text.x = ggplot2::element_text(
-      angle = 45,
-      hjust = 1,
-      vjust = 1
-    )
-  )
-)
-```
-
 ### Summary of Observations
 
 * SBO terms are only used by models from KBase and BiGG (Figure \@ref(fig:annotation-sbo-score)).
@@ -503,55 +644,6 @@ sum_plots <- total_df %>%
 \FloatBarrier
 
 ### Independent Section
-
-```{r plot-function, include=FALSE}
-do_plot <- function(sub_tbl, var, label_width = 40) {
-  test_id <- dplyr::first(as.character(sub_tbl$test))
-  base_plot <- ggplot2::ggplot(
-    sub_tbl,
-    ggplot2::aes_string(
-      x = "collection",
-      y = var,
-      color = "collection",
-      shape = "collection",
-      label = "model"
-    )
-  ) + sina_layers + ggplot2::ylab(stringr::str_wrap(y_axis_labels[test_id],
-                                                    width = label_width))
-  if ((min(sub_tbl[[var]], na.rm = TRUE) < 0) | (max(sub_tbl[[var]], na.rm = TRUE) > 1)) {
-    return(base_plot)
-  } else {
-    return(base_plot + ggplot2::ylim(0, 1))
-  }
-}
-```
-
-
-```{r scored-plots, cache=TRUE, dependson='scores', include=FALSE}
-score_plots <- total_df %>%
-  dplyr::filter(is.finite(score)) %>%
-  dplyr::group_by(test) %>%
-  dplyr::do(
-    plot_sina = do_plot(., "score") + ggplot2::ylim(0, 1)
-  )
-```
-
-```{r metric-plots, cache=TRUE, dependson='load', include=FALSE}
-metric_plots <- total_df %>%
-  dplyr::mutate(metric = ifelse(is.na(numeric), NA, metric)) %>%
-  dplyr::group_by(test) %>%
-  dplyr::do(
-    plot_sina = do_plot(., "metric")
-  )
-```
-
-```{r numeric-plots, cache=TRUE, dependson='load', include=FALSE}
-numeric_plots <- total_df %>%
-  dplyr::group_by(test) %>%
-  dplyr::do(
-    plot_sina = do_plot(., "numeric")
-  )
-```
 
 \FloatBarrier
 
@@ -1166,5 +1258,18 @@ metric_plots$plot_sina[metric_plots$test == "test_degrees_of_freedom"][[1]]
 ```
 
 \FloatBarrier
+
+
+# Author Contributions
+
+Christian Lieven, Moritz E. Beber and Nikolaus Sonnenschein conceived the study. Moritz E. Beber, Christian Lieven, Siddharth Chauhan, Ali Kaafarani and Nikolaus Sonnenschein wrote the software memote. Moritz E. Beber carried out the assessment of publicly available models. Wout van Helvoirt and Jon O. Vik alpha-tested memote and provided early ideas for the memote report interface. 
+
+Christian Lieven drafted all parts of the manuscript except for the paragraph about SBML which was drafted by Brett G. Olivier and Frank T. Bergmann. Jon O. Vik helped shape the introduction. Christian Lieven wrote the Supplementary Guide, Moritz E. Beber composed the Supplementary Material, and Beatriz García-Jiménez conducted the Supplementary Clustering Analysis. 
+
+Paulo Maia and Paulo Vilaça created a memote plug-in for OptFlux. Jasper J. Koehorst provided a configuration for continuous integration with Gitlab. Filipe Liu, José P. Faria, Janaka N. Edirisinghe and Christopher S. Henry created a memote app for KBase. 
+
+Christian Lieven, Moritz E. Beber, Brett G. Olivier, Frank T. Bergmann, Meric Ataman, Parizad Babaei, Jennifer A. Bartell, Lars M. Blank, Siddharth Chauhan, Kevin Correia, Christian Diener, Andreas Dräger, Birgitta E. Ebert, Janaka N. Edirisinghe, José P. Faria, Adam Feist, Georgios Fengos, Ronan M. T. Fleming, Beatriz García-Jiménez, Vassily Hatzimanikatis, Wout van Helvoirt, Christopher S. Henry, Henning Hermjakob, Markus J. Herrgård, Ali Kaafarani, Hyun Uk Kim, Zachary King, Jasper J. Koehorst, Matthias König, Steffen Klamt, Edda Klipp, Meiyappan Lakshmanan, Dong-Yup Lee, Sang Yup Lee, Sunjae Lee, Nathan E. Lewis, Filipe Liu, Hongwu Ma, Daniel Machado, Radhakrishnan Mahadevan, Paulo Maia, Adil Mardinoglu, Gregory L. Medlock, Jonathan M. Monk, Jens Nielsen, Lars Keld Nielsen, Juan Nogales, Intawat Nookaew, Osbaldo Resendis-Antonio, Bernhard O. Palsson, Jason A. Papin, Kiran R. Patil, Mark Poolman, Nathan D. Price, Anne Richelle, Isabel Rocha, Benjamín J. Sánchez, Peter J. Schaap, Rahuman S. Malik Sheriff, Saeed Shoaie, Nikolaus Sonnenschein, Bas Teusink, Paulo Vilaça, Jon Olav Vik, Judith A.H. Wodke, Joana C. Xavier, Qianqian Yuan, Maksim Zakhartsev, and Cheng Zhang beta-tested memote and provided feedback and suggestions which shaped the software. 
+
+All authors read, corrected and approved the manuscript.
 
 # Supplementary References
