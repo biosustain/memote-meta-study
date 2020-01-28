@@ -45,6 +45,168 @@ library(cowplot)
 source("scripts/helpers.R")
 ```
 
+# Supplementary Figures: Arranged as they are mentioned in the manuscript
+
+To see the figures in context, please refer to the corresponding sections below.
+
+## From Supplementary Note 1
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image2.png}
+  \caption{Snapshot Report}
+  \label{fig:snapshot_sorted}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image5.png}
+  \caption{Diff Report}
+  \label{fig:diff_sorted}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/guide/image7.png}
+  \caption{History Report}
+  \label{fig:history_sorted}
+\end{figure}
+
+\FloatBarrier
+
+## From Supplementary Material
+
+```{r sina-layers, include=FALSE}
+sina_layers <- list(
+  ggforce::geom_sina(size = 1, scale = FALSE),
+  ggplot2::geom_boxplot(color = "black", outlier.shape = NA, fill = NA),
+  ggplot2::scale_x_discrete(labels = collection_labels),
+  ggplot2::scale_color_manual(values = colors, guide = FALSE),
+  ggplot2::scale_shape_manual(values = shapes, guide = FALSE),
+  ggplot2::theme(
+    axis.title.x = ggplot2::element_blank(),
+    axis.text.x = ggplot2::element_text(
+      angle = 45,
+      hjust = 1,
+      vjust = 1
+    )
+  )
+)
+```
+
+```{r plot-function, include=FALSE}
+do_plot <- function(sub_tbl, var, label_width = 40) {
+  test_id <- dplyr::first(as.character(sub_tbl$test))
+  base_plot <- ggplot2::ggplot(
+    sub_tbl,
+    ggplot2::aes_string(
+      x = "collection",
+      y = var,
+      color = "collection",
+      shape = "collection",
+      label = "model"
+    )
+  ) + sina_layers + ggplot2::ylab(stringr::str_wrap(y_axis_labels[test_id],
+                                                    width = label_width))
+  if ((min(sub_tbl[[var]], na.rm = TRUE) < 0) | (max(sub_tbl[[var]], na.rm = TRUE) > 1)) {
+    return(base_plot)
+  } else {
+    return(base_plot + ggplot2::ylim(0, 1))
+  }
+}
+```
+
+
+```{r scored-plots, cache=TRUE, dependson='scores', include=FALSE}
+score_plots <- total_df %>%
+  dplyr::filter(is.finite(score)) %>%
+  dplyr::group_by(test) %>%
+  dplyr::do(
+    plot_sina = do_plot(., "score") + ggplot2::ylim(0, 1)
+  )
+```
+
+```{r metric-plots, cache=TRUE, dependson='load', include=FALSE}
+metric_plots <- total_df %>%
+  dplyr::mutate(metric = ifelse(is.na(numeric), NA, metric)) %>%
+  dplyr::group_by(test) %>%
+  dplyr::do(
+    plot_sina = do_plot(., "metric")
+  )
+```
+
+```{r numeric-plots, cache=TRUE, dependson='load', include=FALSE}
+numeric_plots <- total_df %>%
+  dplyr::group_by(test) %>%
+  dplyr::do(
+    plot_sina = do_plot(., "numeric")
+  )
+```
+
+
+```{r reactionmassbalance_sorted, fig.cap='Mass Balance. Please note that any reaction where at least one metabolite lacks a formula annotation is considered as unbalanced for the purpose of this test.'}
+score_plots$plot_sina[score_plots$test == "test_reaction_mass_balance"][[1]]
+```
+
+```{r orphans_sorted, fig.cap='Orphan Metabolites'}
+metric_plots$plot_sina[metric_plots$test == "test_find_orphans"][[1]]
+```
+
+```{r dead-ends_sorted, fig.cap='Dead-end Metabolites'}
+metric_plots$plot_sina[metric_plots$test == "test_find_deadends"][[1]]
+```
+
+```{r metaboliteannotationpresence_sorted, fig.cap='Presence of Metabolite Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_presence"][[1]]
+```
+
+```{r reactionannotationpresence_sorted, fig.cap='Presence of Reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_presence"][[1]]
+```
+
+```{r gene-annotation-presence_sorted, fig.cap='Presence of Gene Annotation'}
+score_plots$plot_sina[score_plots$test == "test_gene_product_annotation_presence"][[1]]
+```
+
+```{r metaboliteannotationkegg_sorted, fig.cap='Metabolite KEGG.compound Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_overview-kegg.compound"][[1]]
+```
+
+```{r reactionannotationkegg_sorted, fig.cap='Reaction KEGG.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-kegg.reaction"][[1]]
+```
+
+```{r wrongmetaboliteannotationseed_sorted, fig.cap='Correct Metabolite SEED.compound Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-seed.compound"][[1]]
+```
+
+```{r wrongmetaboliteannotationbigg_sorted, fig.cap='Correct Metabolite BiGG.metabolite Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-bigg.metabolite"][[1]]
+```
+
+```{r wrongmetaboliteannotationbiocyc_sorted, fig.cap='Correct Metabolite BioCyc Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-biocyc"][[1]]
+```
+
+```{r wrongreactionannotationbigg_sorted, fig.cap='Correct Reaction BiGG.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-bigg.reaction"][[1]]
+```
+
+```{r wrongreactionannotationbiocyc_sorted, fig.cap='Correct Reaction BioCyc Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-biocyc"][[1]]
+```
+
+```{r wrongmetaboliteannotationhmdb_sorted, fig.cap='Correct Metabolite HMDB Annotation'}
+score_plots$plot_sina[score_plots$test == "test_metabolite_annotation_wrong_ids-hmdb"][[1]]
+```
+
+```{r wrongreactionannotationec_sorted, fig.cap='Correct Reaction Enzyme Classification Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_wrong_ids-ec-code"][[1]]
+```
+
+```{r reactionannotationmetanetx_sorted, fig.cap='Reaction MetaNetX.reaction Annotation'}
+score_plots$plot_sina[score_plots$test == "test_reaction_annotation_overview-metanetx.reaction"][[1]]
+```
+
+\FloatBarrier
+
 # Supplementary Note 1: Guide on how to understand the reports
 
 The following text is a verbatim copy modified to work in print taken from memote’s documentation at the time of publication. For an updated version please check the latest [memote documentation](https://memote.readthedocs.io/en/latest/understanding_reports.html).
@@ -409,25 +571,6 @@ dplyr::tibble(
   kableExtra::landscape()
 ```
 
-
-```{r sina-layers, include=FALSE}
-sina_layers <- list(
-  ggforce::geom_sina(size = 1, scale = FALSE),
-  ggplot2::geom_boxplot(color = "black", outlier.shape = NA, fill = NA),
-  ggplot2::scale_x_discrete(labels = collection_labels),
-  ggplot2::scale_color_manual(values = colors, guide = FALSE),
-  ggplot2::scale_shape_manual(values = shapes, guide = FALSE),
-  ggplot2::theme(
-    axis.title.x = ggplot2::element_blank(),
-    axis.text.x = ggplot2::element_text(
-      angle = 45,
-      hjust = 1,
-      vjust = 1
-    )
-  )
-)
-```
-
 ### Summary of Observations
 
 * SBO terms are only used by models from KBase and BiGG (Figure \@ref(fig:annotation-sbo-score)).
@@ -503,55 +646,6 @@ sum_plots <- total_df %>%
 \FloatBarrier
 
 ### Independent Section
-
-```{r plot-function, include=FALSE}
-do_plot <- function(sub_tbl, var, label_width = 40) {
-  test_id <- dplyr::first(as.character(sub_tbl$test))
-  base_plot <- ggplot2::ggplot(
-    sub_tbl,
-    ggplot2::aes_string(
-      x = "collection",
-      y = var,
-      color = "collection",
-      shape = "collection",
-      label = "model"
-    )
-  ) + sina_layers + ggplot2::ylab(stringr::str_wrap(y_axis_labels[test_id],
-                                                    width = label_width))
-  if ((min(sub_tbl[[var]], na.rm = TRUE) < 0) | (max(sub_tbl[[var]], na.rm = TRUE) > 1)) {
-    return(base_plot)
-  } else {
-    return(base_plot + ggplot2::ylim(0, 1))
-  }
-}
-```
-
-
-```{r scored-plots, cache=TRUE, dependson='scores', include=FALSE}
-score_plots <- total_df %>%
-  dplyr::filter(is.finite(score)) %>%
-  dplyr::group_by(test) %>%
-  dplyr::do(
-    plot_sina = do_plot(., "score") + ggplot2::ylim(0, 1)
-  )
-```
-
-```{r metric-plots, cache=TRUE, dependson='load', include=FALSE}
-metric_plots <- total_df %>%
-  dplyr::mutate(metric = ifelse(is.na(numeric), NA, metric)) %>%
-  dplyr::group_by(test) %>%
-  dplyr::do(
-    plot_sina = do_plot(., "metric")
-  )
-```
-
-```{r numeric-plots, cache=TRUE, dependson='load', include=FALSE}
-numeric_plots <- total_df %>%
-  dplyr::group_by(test) %>%
-  dplyr::do(
-    plot_sina = do_plot(., "numeric")
-  )
-```
 
 \FloatBarrier
 
