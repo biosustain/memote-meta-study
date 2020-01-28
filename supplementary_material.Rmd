@@ -345,7 +345,7 @@ Two collections contained models in non-standard formats that were omitted entir
 
 In order to respect the limited resources on the [DTU high performance computing infrastructure](https://www.hpc.dtu.dk/), we set a maximum time limit for running the memote test suite. This introduced a bias against large models. Additionally, certain models failed the testing procedure. In the following we tabulate the total size of the collections as well as the final number of tested models. The results are shown in Table \@ref(tab:numbers).
 
-```{r numbers}
+```{r numbers, results = 'asis'}
 kableExtra::usepackage_latex("threeparttable")
 dplyr::tibble(
   collection = factor(
